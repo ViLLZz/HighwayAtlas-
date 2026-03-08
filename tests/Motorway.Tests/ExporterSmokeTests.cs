@@ -22,6 +22,16 @@ public sealed class ExporterSmokeTests
         Assert.Contains("officialRecord", html, StringComparison.Ordinal);
         Assert.Contains("supportingReference", html, StringComparison.Ordinal);
         Assert.Contains("ownershipNotice", html, StringComparison.Ordinal);
+        Assert.Contains("family=Manrope", html, StringComparison.Ordinal);
+        Assert.Contains("family=Sora", html, StringComparison.Ordinal);
+        Assert.Contains("--shell-padding", html, StringComparison.Ordinal);
+        Assert.Contains("--accent-warm", html, StringComparison.Ordinal);
+        Assert.Contains("requestAnimationFrame", html, StringComparison.Ordinal);
+        Assert.Contains("getViewportPadding", html, StringComparison.Ordinal);
+        Assert.Contains("stage-quick-presets", html, StringComparison.Ordinal);
+        Assert.Contains("map-stage-quickbar", html, StringComparison.Ordinal);
+        Assert.Contains("text-wrap: balance", html, StringComparison.Ordinal);
+        Assert.Contains(".timeline-item::before", html, StringComparison.Ordinal);
         Assert.Contains("Belokopitovo interchange", html, StringComparison.Ordinal);
         Assert.Contains("Strazhitsa north corridor", html, StringComparison.Ordinal);
         Assert.Contains("const ALL_STATUSES", html, StringComparison.Ordinal);

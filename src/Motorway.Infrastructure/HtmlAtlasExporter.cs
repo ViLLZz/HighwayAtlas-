@@ -21,7 +21,7 @@ public static class HtmlAtlasExporter
     <title>Motorway Atlas — Premium Bulgaria Preview</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
     <style>
         :root {
@@ -37,12 +37,14 @@ public static class HtmlAtlasExporter
             --accent: #2ee6c0;
             --accent-2: #3ea2ff;
             --accent-3: #89b6ff;
+            --accent-warm: #ffd38a;
             --open: #2ee6c0;
             --construction: #ffb357;
             --planned: #8f74ff;
             --closed: #ff648a;
             --shadow: 0 24px 80px rgba(0, 0, 0, 0.34);
             --shadow-soft: 0 16px 40px rgba(0, 0, 0, 0.22);
+            --glow: 0 0 0 1px rgba(255,255,255,0.04), 0 24px 50px rgba(7, 14, 24, 0.28);
             --chrome: rgba(255,255,255,0.06);
             --radius-xl: 24px;
             --radius-lg: 18px;
@@ -51,6 +53,14 @@ public static class HtmlAtlasExporter
             --space-2: 12px;
             --space-3: 16px;
             --space-4: 20px;
+            --body-font: "Manrope", "Segoe UI", sans-serif;
+            --display-font: "Sora", "Segoe UI", sans-serif;
+            --shell-padding: max(18px, env(safe-area-inset-left));
+            --shell-padding-right: max(18px, env(safe-area-inset-right));
+            --shell-padding-top: max(18px, env(safe-area-inset-top));
+            --shell-padding-bottom: max(18px, env(safe-area-inset-bottom));
+            --map-height: clamp(420px, 60vh, 820px);
+            --map-min-height: 420px;
         }
 
         * { box-sizing: border-box; }
@@ -63,7 +73,7 @@ public static class HtmlAtlasExporter
                 radial-gradient(circle at 100% 0, rgba(62, 162, 255, 0.10), transparent 20%),
                 linear-gradient(180deg, #03070f 0%, #07111d 100%);
             color: var(--text);
-            font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            font-family: var(--body-font);
         }
 
         body::before,
@@ -89,14 +99,16 @@ public static class HtmlAtlasExporter
             opacity: .9;
         }
 
-        body { padding: 20px; }
+        body {
+            padding: var(--shell-padding-top) var(--shell-padding-right) var(--shell-padding-bottom) var(--shell-padding);
+        }
 
         .shell {
             display: grid;
-            gap: 18px;
+            gap: 20px;
             max-width: 1860px;
             margin: 0 auto;
-            min-height: calc(100vh - 40px);
+            min-height: calc(100vh - var(--shell-padding-top) - var(--shell-padding-bottom));
         }
 
         .topbar,
@@ -140,42 +152,64 @@ public static class HtmlAtlasExporter
             border-color: rgba(132, 169, 227, 0.18);
             backdrop-filter: blur(26px) saturate(1.15);
             box-shadow: 0 24px 60px rgba(0, 0, 0, 0.22), inset 0 1px 0 rgba(255,255,255,0.08);
+            overflow: hidden;
+        }
+
+        .topbar::after {
+            content: "";
+            position: absolute;
+            inset: auto 18px 0 18px;
+            height: 1px;
+            background: linear-gradient(90deg, rgba(46,230,192,0), rgba(46,230,192,0.55), rgba(62,162,255,0.55), rgba(46,230,192,0));
+            opacity: .75;
         }
 
         .headline-strip {
             grid-area: headlines;
-            padding: 12px;
+            padding: 14px;
             display: grid;
             grid-template-columns: repeat(3, minmax(0, 1fr));
-            gap: 12px;
+            gap: 14px;
             align-self: start;
             align-items: stretch;
         }
 
         .headline-card {
-            min-height: 118px;
-            padding: 16px;
+            min-height: 126px;
+            padding: 18px;
             border-radius: var(--radius-lg);
             border: 1px solid rgba(120, 154, 211, 0.14);
             background: linear-gradient(180deg, rgba(14, 28, 47, 0.78), rgba(7, 14, 26, 0.68));
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), var(--glow);
             display: grid;
             align-content: start;
-            gap: 4px;
+            gap: 6px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .headline-card::before {
+            content: "";
+            position: absolute;
+            inset: 0 auto 0 0;
+            width: 3px;
+            background: linear-gradient(180deg, rgba(46,230,192,0.95), rgba(62,162,255,0.8), rgba(143,116,255,0.65));
+            opacity: .9;
         }
 
         .headline-card strong {
             display: block;
-            font-size: 14px;
+            font-size: 15px;
             margin-top: 6px;
+            line-height: 1.25;
         }
 
         .legal-strip {
-            padding: 14px 18px;
+            padding: 16px 18px;
             border-radius: var(--radius-xl);
             background: linear-gradient(180deg, rgba(15, 28, 46, 0.64), rgba(8, 16, 29, 0.84));
             border: 1px solid rgba(132, 169, 227, 0.16);
-            box-shadow: var(--shadow-soft);
+            box-shadow: var(--shadow-soft), inset 0 1px 0 rgba(255,255,255,0.04);
         }
 
         .route-pills {
@@ -184,12 +218,14 @@ public static class HtmlAtlasExporter
             grid-auto-flow: column;
             grid-auto-columns: max-content;
             align-items: stretch;
-            justify-self: start;
-            width: fit-content;
+            justify-self: stretch;
+            width: 100%;
             max-width: 100%;
             padding: 8px;
             gap: 10px;
             overflow-x: auto;
+            overscroll-behavior-x: contain;
+            scroll-snap-type: x proximity;
             border-radius: calc(var(--radius-xl) - 4px);
             background: linear-gradient(180deg, rgba(255,255,255,0.07), rgba(255,255,255,0.025));
             border: 1px solid rgba(142, 178, 232, 0.16);
@@ -213,7 +249,12 @@ public static class HtmlAtlasExporter
         }
 
         h1,h2,h3,p { margin: 0; }
-        .brand h1 { font-size: 24px; letter-spacing: -.03em; }
+        .brand h1 {
+            font-family: var(--display-font);
+            font-size: clamp(26px, 2.2vw, 34px);
+            letter-spacing: -.045em;
+            line-height: 1.02;
+        }
         .helper, .tiny, .muted { color: var(--muted); }
 
         .toolbar,
@@ -231,16 +272,16 @@ public static class HtmlAtlasExporter
         .top-actions {
             grid-area: actions;
             display: grid;
-            grid-template-columns: auto minmax(220px, 1fr);
+            grid-template-columns: minmax(0, auto) minmax(240px, 1fr);
             justify-content: end;
             align-items: end;
             gap: 10px;
-            padding: 10px 12px;
-            min-height: 64px;
+            padding: 12px 14px;
+            min-height: 68px;
             border-radius: 22px;
             background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
             border: 1px solid rgba(142, 178, 232, 0.12);
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), var(--glow);
         }
 
         .toolbar-block {
@@ -417,11 +458,11 @@ public static class HtmlAtlasExporter
 
         .workspace {
             display: grid;
-            grid-template-columns: 410px minmax(0, 1fr);
+            grid-template-columns: minmax(320px, 396px) minmax(0, 1fr);
             grid-template-areas:
                 "sidebar map"
                 "sidebar headlines";
-            gap: 18px;
+            gap: 20px;
             align-items: start;
         }
 
@@ -439,6 +480,7 @@ public static class HtmlAtlasExporter
             background: linear-gradient(180deg, rgba(13, 26, 42, 0.82), rgba(7, 14, 26, 0.94));
             backdrop-filter: blur(26px) saturate(1.08);
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), var(--shadow);
+            position: sticky;
         }
 
         .sidebar-scroll {
@@ -587,12 +629,14 @@ public static class HtmlAtlasExporter
 
         .route-pill {
             min-width: 0;
-            min-width: 132px;
-            padding: 11px 13px;
+            min-width: 144px;
+            min-height: 60px;
+            padding: 12px 14px;
             display: grid;
             gap: 4px;
             align-content: center;
             text-align: left;
+            scroll-snap-align: start;
             background: linear-gradient(180deg, rgba(255,255,255,0.14), rgba(255,255,255,0.04));
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 12px 24px rgba(6, 12, 22, 0.16);
         }
@@ -675,14 +719,15 @@ public static class HtmlAtlasExporter
             font-size: 13px;
             font-weight: 700;
             letter-spacing: -.02em;
+            line-height: 1.2;
         }
 
         .map-stage {
             grid-area: map;
             position: relative;
-            padding: 18px;
+            padding: 20px;
             overflow: hidden;
-            min-height: min(84vh, 1000px);
+            min-height: var(--map-min-height);
             background:
                 radial-gradient(circle at 14% 12%, rgba(92, 150, 255, 0.12), transparent 24%),
                 radial-gradient(circle at 86% 14%, rgba(46, 230, 192, 0.10), transparent 22%),
@@ -690,6 +735,42 @@ public static class HtmlAtlasExporter
             border-color: rgba(126, 165, 223, 0.16);
             backdrop-filter: blur(18px) saturate(1.04);
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.07), 0 26px 70px rgba(0,0,0,0.22);
+        }
+
+        .map-stage-quickbar {
+            display: none;
+            position: relative;
+            z-index: 3;
+            margin-bottom: 14px;
+            padding: 12px;
+            border-radius: 18px;
+            border: 1px solid rgba(136, 172, 229, 0.16);
+            background: linear-gradient(180deg, rgba(10, 20, 34, 0.92), rgba(7, 14, 26, 0.9));
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), var(--shadow-soft);
+            backdrop-filter: blur(18px) saturate(1.08);
+            gap: 10px;
+        }
+
+        .map-stage-quick-presets {
+            display: grid;
+            grid-auto-flow: column;
+            grid-auto-columns: minmax(138px, max-content);
+            gap: 10px;
+            overflow-x: auto;
+            overscroll-behavior-x: contain;
+            scrollbar-width: none;
+        }
+
+        .map-stage-quick-presets::-webkit-scrollbar {
+            display: none;
+        }
+
+        .map-stage-quickbar .toggle.stage-toggle {
+            min-width: 138px;
+            min-height: 54px;
+            padding: 10px 12px;
+            scroll-snap-align: start;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 12px 24px rgba(3, 10, 18, 0.18);
         }
 
         .map-stage::before {
@@ -705,8 +786,8 @@ public static class HtmlAtlasExporter
 
         #map {
             width: 100%;
-            height: min(84vh, 1000px);
-            min-height: 760px;
+            height: var(--map-height);
+            min-height: var(--map-min-height);
             border-radius: calc(var(--radius-xl) - 4px);
             border: 1px solid rgba(136, 172, 229, 0.22);
             overflow: hidden;
@@ -719,9 +800,9 @@ public static class HtmlAtlasExporter
             position: absolute;
             z-index: 2;
             background: var(--panel-elevated);
-            padding: 14px;
+            padding: 16px;
             border-color: rgba(132, 169, 227, 0.2);
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), var(--shadow);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), var(--shadow), var(--glow);
             backdrop-filter: blur(26px) saturate(1.1);
             transition: opacity .2s ease, transform .24s ease, width .24s ease, max-height .24s ease;
         }
@@ -735,13 +816,25 @@ public static class HtmlAtlasExporter
             pointer-events: none;
         }
 
+        .floating-card::after {
+            content: "";
+            position: absolute;
+            inset: auto 14px 14px auto;
+            width: 54px;
+            height: 54px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(62,162,255,0.18), rgba(62,162,255,0));
+            pointer-events: none;
+            opacity: .6;
+        }
+
         .floating-top-left {
             top: 18px;
             left: 18px;
-            width: min(38%, 460px);
+            width: min(39%, 472px);
             background: linear-gradient(180deg, rgba(11, 24, 40, 0.96), rgba(8, 17, 30, 0.94));
             display: grid;
-            gap: 10px;
+            gap: 12px;
         }
 
         .floating-top-right,
@@ -814,6 +907,7 @@ public static class HtmlAtlasExporter
             display: grid;
             gap: 12px;
             background: linear-gradient(180deg, rgba(8, 16, 29, 0.92), rgba(5, 10, 20, 0.96));
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), var(--glow);
         }
 
         .map-preset-grid {
@@ -824,14 +918,14 @@ public static class HtmlAtlasExporter
 
         .map-preset {
             display: grid;
-            gap: 4px;
+            gap: 5px;
             align-content: start;
-            min-height: 68px;
+            min-height: 74px;
             border-radius: 16px;
             border: 1px solid rgba(120, 154, 211, 0.18);
             background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03));
             color: var(--text);
-            padding: 10px 12px;
+            padding: 12px 13px;
             text-align: left;
             cursor: pointer;
             transition: transform .16s ease, border-color .16s ease, background .16s ease;
@@ -878,13 +972,13 @@ public static class HtmlAtlasExporter
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            padding: 8px 12px;
+            padding: 10px 14px;
             border-radius: 999px;
             border: 1px solid rgba(136, 172, 229, 0.18);
             background: rgba(255,255,255,0.04);
             color: #dbe9ff;
             font-size: 12px;
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), var(--glow);
             cursor: pointer;
             transition: .18s ease;
         }
@@ -919,7 +1013,7 @@ public static class HtmlAtlasExporter
         .hero-kpis {
             display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 8px;
+            gap: 10px;
         }
 
         .hero-kpis .kpi {
@@ -934,9 +1028,9 @@ public static class HtmlAtlasExporter
         .route-card,
         .lot-card,
         .panel {
-            padding: 16px;
+            padding: 17px;
             background: linear-gradient(180deg, rgba(11, 22, 37, 0.88), rgba(7, 14, 26, 0.94));
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), var(--shadow-soft);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), var(--shadow-soft), var(--glow);
         }
 
         .route-card.active,
@@ -1015,7 +1109,7 @@ public static class HtmlAtlasExporter
         .selection-header {
             display: flex;
             justify-content: space-between;
-            gap: 12px;
+            gap: 14px;
             align-items: start;
         }
 
@@ -1053,9 +1147,11 @@ public static class HtmlAtlasExporter
         }
 
         .selection-title {
-            font-size: 24px;
+            font-family: var(--display-font);
+            font-size: clamp(24px, 2vw, 30px);
             line-height: 1.04;
-            letter-spacing: -.03em;
+            letter-spacing: -.04em;
+            text-wrap: balance;
         }
         .badge-line { display: inline-flex; align-items: center; gap: 8px; }
         .dot { width: 10px; height: 10px; border-radius: 999px; display: inline-block; }
@@ -1063,10 +1159,11 @@ public static class HtmlAtlasExporter
         .selection-note {
             position: relative;
             overflow: hidden;
-            padding: 12px 12px 12px 16px;
+            padding: 13px 14px 13px 18px;
             border-radius: 14px;
             background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
             border: 1px solid rgba(136, 172, 229, 0.12);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
         }
 
         .selection-note::before {
@@ -1085,10 +1182,11 @@ public static class HtmlAtlasExporter
         }
 
         .fact {
-            padding: 12px;
+            padding: 13px;
             border-radius: var(--radius-md);
-            background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(255,255,255,0.05);
+            background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+            border: 1px solid rgba(255,255,255,0.06);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
         }
 
         .fact strong {
@@ -1112,15 +1210,26 @@ public static class HtmlAtlasExporter
         .timeline-item {
             display: grid;
             grid-template-columns: 56px 1fr;
-            gap: 10px;
+            gap: 12px;
             align-items: start;
-            padding: 10px 0;
+            padding: 12px 0;
             border-bottom: 1px solid rgba(255,255,255,0.05);
             position: relative;
         }
 
+        .timeline-item::before {
+            content: "";
+            position: absolute;
+            left: 27px;
+            top: 0;
+            bottom: 0;
+            width: 1px;
+            background: linear-gradient(180deg, rgba(62,162,255,0), rgba(62,162,255,0.28), rgba(46,230,192,0));
+            pointer-events: none;
+        }
+
         .timeline-item:last-child { border-bottom: 0; }
-        .timeline-year { color: var(--accent); font-weight: 700; font-size: 13px; }
+        .timeline-year { color: var(--accent); font-weight: 700; font-size: 13px; position: relative; z-index: 1; }
         .timeline-year.success { color: var(--open); }
         .timeline-year.warning { color: var(--construction); }
         .timeline-year.danger  { color: var(--closed); }
@@ -1151,7 +1260,7 @@ public static class HtmlAtlasExporter
 
         .leaflet-container {
             background: linear-gradient(180deg, #0b1524 0%, #0d1b2d 100%);
-            font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            font-family: var(--body-font);
             transform: translateZ(0);
         }
 
@@ -1179,7 +1288,7 @@ public static class HtmlAtlasExporter
             background: rgba(10, 19, 33, 0.82);
             border-color: rgba(131, 168, 225, 0.2);
             color: var(--text);
-            box-shadow: var(--shadow-soft);
+            box-shadow: var(--shadow-soft), inset 0 1px 0 rgba(255,255,255,0.05);
             backdrop-filter: blur(14px);
         }
 
@@ -1193,7 +1302,7 @@ public static class HtmlAtlasExporter
             background: linear-gradient(180deg, rgba(10, 19, 33, 0.96), rgba(5, 12, 22, 0.98));
             color: var(--text);
             border: 1px solid rgba(136, 172, 229, 0.24);
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255,255,255,0.05);
         }
 
         .leaflet-control-attribution { background: rgba(8, 14, 25, 0.74); color: var(--muted); }
@@ -1289,7 +1398,7 @@ public static class HtmlAtlasExporter
         }
 
         @media (max-width: 1480px) {
-            .workspace { grid-template-columns: 360px minmax(0, 1fr); }
+            .workspace { grid-template-columns: minmax(300px, 360px) minmax(0, 1fr); }
             .floating-top-left { width: min(42%, 420px); }
         }
 
@@ -1314,7 +1423,13 @@ public static class HtmlAtlasExporter
                 gap: 14px;
                 min-height: auto;
             }
-            #map { min-height: 720px; height: 720px; }
+            .map-stage-quickbar {
+                display: grid;
+            }
+            :root {
+                --map-height: min(72vh, 760px);
+                --map-min-height: 640px;
+            }
             .floating-top-left,
             .floating-top-right,
             .floating-bottom-right,
@@ -1326,7 +1441,14 @@ public static class HtmlAtlasExporter
         }
 
         @media (max-width: 1180px) {
-            body { padding: 14px; }
+            :root {
+                --shell-padding: max(14px, env(safe-area-inset-left));
+                --shell-padding-right: max(14px, env(safe-area-inset-right));
+                --shell-padding-top: max(14px, env(safe-area-inset-top));
+                --shell-padding-bottom: max(14px, env(safe-area-inset-bottom));
+                --map-height: min(68vh, 700px);
+                --map-min-height: 560px;
+            }
             .topbar {
                 position: static;
                 gap: 12px;
@@ -1341,15 +1463,25 @@ public static class HtmlAtlasExporter
                 width: 100%;
             }
             .map-stage {
-                padding: 14px;
+                padding: 16px;
                 gap: 12px;
-            }
-            #map {
-                min-height: 620px;
-                height: min(68vh, 700px);
             }
             .map-preset-grid {
                 grid-template-columns: repeat(4, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .route-pill {
+                min-width: 138px;
+            }
+            .selection-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .selection-actions {
+                justify-items: start;
+                min-width: 0;
             }
         }
 
@@ -1364,16 +1496,89 @@ public static class HtmlAtlasExporter
             .headline-strip { grid-template-columns: 1fr; }
             .stats-row, .hero-kpis { grid-template-columns: repeat(2, minmax(0,1fr)); }
             .kpi-grid, .fact-grid { grid-template-columns: 1fr; }
-            #map { min-height: 520px; height: 60vh; }
+            :root {
+                --map-height: 60vh;
+                --map-min-height: 500px;
+            }
             .map-preset-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
         }
 
+        @media (max-width: 860px) {
+            .route-pills {
+                padding: 6px;
+                gap: 8px;
+            }
+            .top-actions {
+                padding: 10px;
+            }
+            .hero-kpis {
+                grid-template-columns: 1fr;
+            }
+        }
+
         @media (max-width: 760px) {
-            body { padding: 10px; }
-            .shell { min-height: calc(100vh - 20px); }
-            .map-stage { padding: 10px; }
-            #map { min-height: 440px; height: 54vh; }
+            :root {
+                --shell-padding: max(10px, env(safe-area-inset-left));
+                --shell-padding-right: max(10px, env(safe-area-inset-right));
+                --shell-padding-top: max(10px, env(safe-area-inset-top));
+                --shell-padding-bottom: max(12px, env(safe-area-inset-bottom));
+                --map-height: 54vh;
+                --map-min-height: 420px;
+            }
             .map-preset-grid { grid-template-columns: 1fr 1fr; }
+            .map-stage { padding: 10px; }
+            .map-stage-quickbar {
+                margin-bottom: 10px;
+                padding: 10px;
+            }
+            .map-stage-quick-presets {
+                grid-auto-columns: minmax(124px, max-content);
+                gap: 8px;
+            }
+            .route-pill {
+                min-width: 128px;
+                min-height: 56px;
+            }
+            .selection-title {
+                font-size: 22px;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .shell { min-height: calc(100vh - var(--shell-padding-top) - var(--shell-padding-bottom)); }
+            .topbar,
+            .sidebar,
+            .map-stage,
+            .headline-strip,
+            .panel,
+            .floating-card,
+            .legal-strip {
+                border-radius: 20px;
+            }
+            .map-preset-grid,
+            .stats-row,
+            .hero-kpis {
+                grid-template-columns: 1fr;
+            }
+            .route-pill {
+                min-width: 120px;
+            }
+        }
+
+        @media (pointer: coarse) {
+            .route-pill,
+            .tab,
+            .chip,
+            .toggle,
+            .selection-clear,
+            .top-actions .select,
+            .map-stage-quickbar .toggle.stage-toggle {
+                min-height: 44px;
+            }
+
+            .route-pill {
+                min-width: 148px;
+            }
         }
     </style>
 </head>
@@ -1400,6 +1605,10 @@ public static class HtmlAtlasExporter
 
         <div class="workspace">
             <section class="map-stage">
+                <section class="map-stage-quickbar" aria-label="Stage filters">
+                    <div class="toggle-group-label" id="stage-quick-label"></div>
+                    <div class="map-stage-quick-presets" id="stage-quick-presets"></div>
+                </section>
                 <div id="map"></div>
                 <div class="year-overlay" id="year-overlay"><span id="year-overlay-year"></span><span class="year-km-sub" id="year-overlay-km"></span></div>
 
@@ -1883,7 +2092,7 @@ public static class HtmlAtlasExporter
             }
         };
 
-        const tileDefaults = { detectRetina: true, updateWhenIdle: true, updateWhenZooming: false, keepBuffer: 4, crossOrigin: true };
+        const tileDefaults = { detectRetina: true, updateWhenIdle: true, updateWhenZooming: false, keepBuffer: 6, crossOrigin: true };
         const ALL_STATUSES = ['Open', 'UnderConstruction', 'Planned', 'Closed'];
         const basemaps = {
             monitor: { name: { bg: 'Monitor Dark', en: 'Monitor Dark' }, tone: { bg: 'Нисък отблясък', en: 'Low-glare dark' }, featured: true, url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', options: { ...tileDefaults, attribution: '&copy; OpenStreetMap contributors &copy; CARTO', subdomains: 'abcd', maxZoom: 20 } },
@@ -1894,7 +2103,7 @@ public static class HtmlAtlasExporter
             osmhot: { name: { bg: 'HOT', en: 'HOT' }, tone: { bg: 'Плътен пътен контекст', en: 'Dense road context' }, featured: false, url: 'https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', options: { ...tileDefaults, attribution: '&copy; OpenStreetMap contributors, Tiles style by Humanitarian OpenStreetMap Team', maxZoom: 20 } },
             terrain: { name: { bg: 'Релеф', en: 'Terrain' }, tone: { bg: 'Топография', en: 'Topography' }, featured: false, url: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', options: { ...tileDefaults, attribution: '&copy; OpenStreetMap contributors, SRTM | OpenTopoMap', maxZoom: 17 } },
             gray: { name: { bg: 'Gray Canvas', en: 'Gray Canvas' }, tone: { bg: 'Неутрален фон', en: 'Neutral canvas' }, featured: false, url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', options: { ...tileDefaults, attribution: 'Tiles &copy; Esri', maxZoom: 16 } },
-            satellite: { name: { bg: 'Сателит', en: 'Satellite' }, tone: { bg: 'Терен и крайбрежие', en: 'Terrain and coast' }, featured: false, url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', options: { ...tileDefaults, attribution: 'Tiles &copy; Esri', maxZoom: 18 } }
+            satellite: { name: { bg: 'Сателит', en: 'Satellite' }, tone: { bg: 'Терен и крайбрежие', en: 'Terrain and coast' }, featured: true, url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', options: { ...tileDefaults, attribution: 'Tiles &copy; Esri', maxZoom: 20 } }
         };
 
         const bulgariaBounds = [[atlas.geo.bounds.south, atlas.geo.bounds.west], [atlas.geo.bounds.north, atlas.geo.bounds.east]];
@@ -1921,7 +2130,7 @@ public static class HtmlAtlasExporter
             headlineTertiaryEyebrow: $('headline-tertiary-eyebrow'), headlineTertiaryTitle: $('headline-tertiary-title'), headlineTertiaryCopy: $('headline-tertiary-copy'),
             routePills: $('route-pills'), languageLabel: $('language-label'), languageTabs: $('language-tabs'), basemapLabel: $('basemap-label'), basemapSelect: $('basemap-select'), mapPresetsEyebrow: $('map-presets-eyebrow'), mapPresets: $('map-presets'), mapNote: $('map-note'),
             summaryEyebrow: $('summary-eyebrow'), summaryTitle: $('summary-title'), summarySubtitle: $('summary-subtitle'), generatedPill: $('generated-pill'), summaryKm: $('summary-km'), summaryState: $('summary-state'), summaryPercent: $('summary-percent'), summaryProgress: $('summary-progress'),
-            filtersEyebrow: $('filters-eyebrow'), filtersTitle: $('filters-title'), filtersCopy: $('filters-copy'), stagePresetsLabel: $('stage-presets-label'), stagePresets: $('stage-presets'), regionPresetsLabel: $('region-presets-label'), regionPresets: $('region-presets'), sourcePresetsLabel: $('source-presets-label'), sourcePresets: $('source-presets'), statusFiltersLabel: $('status-filters-label'), statusFilters: $('status-filters'), playbackLabel: $('playback-label'), playbackButton: $('playback-button'), playbackYearLabel: $('playback-year-label'), playbackRangeLabel: $('playback-range-label'), playbackRange: $('playback-range'), yearOverlay: $('year-overlay'), yearOverlayYear: $('year-overlay-year'), yearOverlayKm: $('year-overlay-km'), playbackKmFill: $('playback-km-fill'), playbackKmLabel: $('playback-km-label'),
+            filtersEyebrow: $('filters-eyebrow'), filtersTitle: $('filters-title'), filtersCopy: $('filters-copy'), stagePresetsLabel: $('stage-presets-label'), stagePresets: $('stage-presets'), stageQuickLabel: $('stage-quick-label'), stageQuickPresets: $('stage-quick-presets'), regionPresetsLabel: $('region-presets-label'), regionPresets: $('region-presets'), sourcePresetsLabel: $('source-presets-label'), sourcePresets: $('source-presets'), statusFiltersLabel: $('status-filters-label'), statusFilters: $('status-filters'), playbackLabel: $('playback-label'), playbackButton: $('playback-button'), playbackYearLabel: $('playback-year-label'), playbackRangeLabel: $('playback-range-label'), playbackRange: $('playback-range'), yearOverlay: $('year-overlay'), yearOverlayYear: $('year-overlay-year'), yearOverlayKm: $('year-overlay-km'), playbackKmFill: $('playback-km-fill'), playbackKmLabel: $('playback-km-label'),
             networkEyebrow: $('network-eyebrow'), networkTitle: $('network-title'), sidebarKpis: $('sidebar-kpis'),
             notesEyebrow: $('notes-eyebrow'), notesTitle: $('notes-title'), notesBody: $('notes-body'),
             routesEyebrow: $('routes-eyebrow'), routesTitle: $('routes-title'), routesCount: $('routes-count'), routeList: $('route-list'),
@@ -1932,7 +2141,7 @@ public static class HtmlAtlasExporter
             timelineEyebrow: $('timeline-eyebrow'), timelineTitle: $('timeline-title'), timeline: $('timeline'), legend: $('legend')
         };
 
-        const pathRenderer = L.canvas({ padding: 0.4, tolerance: 4 });
+        const pathRenderer = L.canvas({ padding: 0.55, tolerance: 5 });
         const map = L.map('map', {
             zoomControl: true,
             preferCanvas: true,
@@ -1961,6 +2170,8 @@ public static class HtmlAtlasExporter
         let suppressPopupReset = false;
         let playbackTimer = null;
         let resizeTimer = null;
+        let renderFrame = null;
+        let renderPendingReason = 'initial';
 
         const t = key => text[state.lang][key];
         const pick = value => !value ? '' : (state.lang === 'bg' ? value.bg : value.en);
@@ -2053,6 +2264,52 @@ public static class HtmlAtlasExporter
         ];
 
         const areSetsEqual = (left, right) => left.size === right.size && Array.from(left).every(item => right.has(item));
+
+        function getViewportPadding(mode) {
+            const width = window.innerWidth || 1280;
+            if (mode === 'lot') {
+                if (width <= 640) return [44, 20];
+                if (width <= 960) return [62, 30];
+                return [88, 88];
+            }
+
+            if (mode === 'segment') {
+                if (width <= 640) return [26, 16];
+                if (width <= 960) return [34, 22];
+                return [40, 40];
+            }
+
+            if (mode === 'route') {
+                if (width <= 640) return [22, 14];
+                if (width <= 960) return [28, 18];
+                return [34, 34];
+            }
+
+            if (width <= 640) return [12, 10];
+            if (width <= 960) return [18, 14];
+            return [10, 10];
+        }
+
+        function renderNow() {
+            renderFrame = null;
+            renderToolbar();
+            renderHeadlineStrip();
+            renderSidebar();
+            renderHero();
+            renderSelection();
+            renderLegend();
+            renderMap();
+        }
+
+        function render(reason = 'state-change') {
+            renderPendingReason = reason;
+            if (renderFrame !== null) return;
+            renderFrame = window.requestAnimationFrame(() => {
+                const nextReason = renderPendingReason;
+                renderPendingReason = 'state-change';
+                renderNow(nextReason);
+            });
+        }
 
         function getActivePresetKey() {
             const active = new Set(state.activeStatuses);
@@ -2533,6 +2790,21 @@ public static class HtmlAtlasExporter
             renderMapPresets();
         }
 
+        function renderStagePresetControls(container, segments) {
+            if (!container) return;
+            const activePresetKey = getActivePresetKey();
+            container.innerHTML = STAGE_PRESETS.map(preset => {
+                const count = segments.filter(segment => preset.statuses.includes(segment.status)).length;
+                return `<button class="toggle stage-toggle ${activePresetKey === preset.key ? 'active' : ''}" data-preset="${preset.key}"><span class="label-stack"><strong>${t(preset.label)}</strong><span>${t(preset.hint)}</span></span><span class="micro" style="padding:2px 8px; border-color:${preset.accent}; color:${preset.accent}">${count}</span></button>`;
+            }).join('');
+
+            container.querySelectorAll('[data-preset]').forEach(node => node.addEventListener('click', () => {
+                const preset = STAGE_PRESETS.find(item => item.key === node.dataset.preset);
+                if (!preset) return;
+                setActiveStatuses(activePresetKey === preset.key ? ALL_STATUSES : preset.statuses);
+            }));
+        }
+
         el.basemapSelect.addEventListener('change', event => {
             state.basemap = event.target.value;
             setBasemap();
@@ -2557,7 +2829,18 @@ public static class HtmlAtlasExporter
 
         window.addEventListener('resize', () => {
             if (resizeTimer) clearTimeout(resizeTimer);
-            resizeTimer = window.setTimeout(() => map.invalidateSize({ pan: false, debounceMoveend: true }), 120);
+            resizeTimer = window.setTimeout(() => {
+                map.invalidateSize({ pan: false, debounceMoveend: true });
+                render('resize');
+            }, 120);
+        });
+
+        window.addEventListener('orientationchange', () => {
+            if (resizeTimer) clearTimeout(resizeTimer);
+            resizeTimer = window.setTimeout(() => {
+                map.invalidateSize({ pan: false, debounceMoveend: true });
+                render('orientation');
+            }, 180);
         });
 
         function renderSidebar() {
@@ -2581,6 +2864,7 @@ public static class HtmlAtlasExporter
             el.filtersTitle.textContent = t('filtersTitle');
             el.filtersCopy.textContent = t('filtersCopy');
             el.stagePresetsLabel.textContent = t('stagePresets');
+            if (el.stageQuickLabel) el.stageQuickLabel.textContent = t('stagePresets');
             el.regionPresetsLabel.textContent = t('regionPresets');
             el.sourcePresetsLabel.textContent = t('sourcePresets');
             el.statusFiltersLabel.textContent = t('granularStatus');
@@ -2643,16 +2927,8 @@ public static class HtmlAtlasExporter
             el.lotsEyebrow.textContent = t('lotsEyebrow');
             el.lotsTitle.textContent = t('lotsTitle');
 
-            const activePresetKey = getActivePresetKey();
-            el.stagePresets.innerHTML = STAGE_PRESETS.map(preset => {
-                const count = scopedSegments.filter(segment => preset.statuses.includes(segment.status)).length;
-                return `<button class="toggle stage-toggle ${activePresetKey === preset.key ? 'active' : ''}" data-preset="${preset.key}"><span class="label-stack"><strong>${t(preset.label)}</strong><span>${t(preset.hint)}</span></span><span class="micro" style="padding:2px 8px; border-color:${preset.accent}; color:${preset.accent}">${count}</span></button>`;
-            }).join('');
-            el.stagePresets.querySelectorAll('[data-preset]').forEach(node => node.addEventListener('click', () => {
-                const preset = STAGE_PRESETS.find(item => item.key === node.dataset.preset);
-                if (!preset) return;
-                setActiveStatuses(activePresetKey === preset.key ? ALL_STATUSES : preset.statuses);
-            }));
+            renderStagePresetControls(el.stagePresets, scopedSegments);
+            renderStagePresetControls(el.stageQuickPresets, scopedSegments);
 
             el.regionPresets.innerHTML = REGION_PRESETS.map(preset => {
                 const count = baseSegments.filter(segment => preset.key === 'ALL' || getSegmentRegion(segment) === preset.key).length;
@@ -2958,7 +3234,7 @@ public static class HtmlAtlasExporter
         }
 
         function focusDefault() {
-            updateViewport('default', () => map.fitBounds(bulgariaBounds, { padding: [10, 10], animate: true, duration: 0.7, maxZoom: 7.2 }));
+            updateViewport('default', () => map.fitBounds(bulgariaBounds, { padding: getViewportPadding('default'), animate: true, duration: 0.7, maxZoom: 7.2 }));
         }
 
         function focusRoute() {
@@ -2966,7 +3242,7 @@ public static class HtmlAtlasExporter
             if (!segments.length) return focusDefault();
             const bounds = segments.flatMap(segment => segment.shape.map(point => [point.lat, point.lon]));
             const key = `route:${state.activeRoute}:${state.regionFilter}:${state.playbackYear}:${Array.from(state.activeStatuses).sort().join(',')}`;
-            updateViewport(key, () => map.fitBounds(bounds, { padding: [34, 34], animate: true, duration: 0.75 }));
+            updateViewport(key, () => map.fitBounds(bounds, { padding: getViewportPadding('route'), animate: true, duration: 0.75 }));
         }
 
         function focusLot() {
@@ -2975,7 +3251,7 @@ public static class HtmlAtlasExporter
             const segment = atlas.segments.find(item => item.id === lot.segmentId);
             if (!segment) return;
             const bounds = getLotBounds(segment, lot);
-            updateViewport(`lot:${lot.key}`, () => map.fitBounds(bounds, { padding: [88, 88], animate: true, duration: 0.55, maxZoom: 10.2 }));
+            updateViewport(`lot:${lot.key}`, () => map.fitBounds(bounds, { padding: getViewportPadding('lot'), animate: true, duration: 0.55, maxZoom: 10.2 }));
         }
 
         function openLotPopup(lot, segment) {
@@ -3191,7 +3467,7 @@ public static class HtmlAtlasExporter
             else if (state.selectedSegmentId) {
                 const segment = getSelectedSegment();
                 if (segment) {
-                    updateViewport(`segment:${segment.id}`, () => map.fitBounds(segment.shape.map(point => [point.lat, point.lon]), { padding: [40, 40], animate: true, duration: 0.8 }));
+                    updateViewport(`segment:${segment.id}`, () => map.fitBounds(segment.shape.map(point => [point.lat, point.lon]), { padding: getViewportPadding('segment'), animate: true, duration: 0.8 }));
                     openSegmentPopup(segment);
                 }
             }
@@ -3201,16 +3477,6 @@ public static class HtmlAtlasExporter
             else {
                 focusDefault();
             }
-        }
-
-        function render() {
-            renderToolbar();
-            renderHeadlineStrip();
-            renderSidebar();
-            renderHero();
-            renderSelection();
-            renderLegend();
-            renderMap();
         }
 
         setBasemap();
@@ -3224,10 +3490,10 @@ public static class HtmlAtlasExporter
             if (state.selectedLotKey || state.selectedSegmentId) {
                 state.selectedLotKey = null;
                 state.selectedSegmentId = null;
-                render();
+                render('popup-close');
             }
         });
-        render();
+        renderNow();
     </script>
 </body>
 </html>
