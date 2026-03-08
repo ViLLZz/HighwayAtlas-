@@ -602,27 +602,28 @@ public static class HtmlAtlasExporter
             align-items: start;
         }
 
+        /* v4.3: MAJOR SIDEBAR OVERHAUL - Maximum space optimization */
         .sidebar {
             grid-area: sidebar;
-            padding: 20px;
+            padding: 6px;
             display: grid;
             grid-template-columns: 1fr;
-            gap: 16px;
+            gap: 6px;
             min-height: 0;
             position: sticky;
             top: 118px;
             max-height: calc(100vh - 142px);
             overflow: auto;
-            background: linear-gradient(180deg, rgba(17, 34, 52, 0.86), rgba(8, 19, 30, 0.95));
-            backdrop-filter: blur(26px) saturate(1.08);
+            background: linear-gradient(180deg, rgba(17, 34, 52, 0.88), rgba(8, 19, 30, 0.96));
+            backdrop-filter: blur(26px) saturate(1.1);
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), var(--shadow);
             overscroll-behavior: contain;
             scrollbar-width: thin;
-            scrollbar-color: rgba(138, 176, 216, 0.3) transparent;
+            scrollbar-color: rgba(138, 176, 216, 0.35) transparent;
         }
         
         .sidebar::-webkit-scrollbar {
-            width: 8px;
+            width: 7px;
         }
         
         .sidebar::-webkit-scrollbar-track {
@@ -630,19 +631,20 @@ public static class HtmlAtlasExporter
         }
         
         .sidebar::-webkit-scrollbar-thumb {
-            background: rgba(138, 176, 216, 0.3);
+            background: rgba(138, 176, 216, 0.35);
             border-radius: 999px;
         }
         
         .sidebar::-webkit-scrollbar-thumb:hover {
-            background: rgba(138, 176, 216, 0.45);
+            background: rgba(138, 176, 216, 0.5);
         }
 
+        /* v4.3: Compact sidebar scroll layout */
         .sidebar-scroll {
             min-height: 0;
             display: grid;
             grid-template-columns: 1fr;
-            gap: 12px;
+            gap: 6px;
             padding-right: 0;
         }
 
@@ -651,21 +653,24 @@ public static class HtmlAtlasExporter
             display: none;
         }
 
+        /* v4.3: Optimized tablet cards with compact spacing */
         .tablet-surface-summary,
         .tablet-control-card,
         .tablet-playback-card {
-            padding: 20px;
-            border-radius: 22px;
-            border: 1px solid rgba(120, 154, 211, 0.14);
-            background: linear-gradient(180deg, rgba(20, 38, 57, 0.9), rgba(9, 20, 32, 0.95));
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), var(--shadow-soft), var(--glow);
+            padding: 10px 12px;
+            border-radius: 14px;
+            border: 1px solid rgba(120, 154, 211, 0.12);
+            background: linear-gradient(180deg, rgba(20, 38, 57, 0.92), rgba(9, 20, 32, 0.96));
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), var(--shadow-soft);
+            transition: all .2s ease;
         }
 
+        /* v4.3: Ultra-compact tablet headers */
         .tablet-surface-heading {
             display: grid;
             grid-template-columns: minmax(0, 1fr) auto;
-            gap: 14px;
-            align-items: start;
+            gap: 8px;
+            align-items: center;
         }
 
         .tablet-surface-heading h3,
@@ -673,71 +678,88 @@ public static class HtmlAtlasExporter
         .panel h3,
         .card-head strong {
             font-family: var(--display-font);
-            letter-spacing: -.035em;
-            line-height: 1.02;
+            letter-spacing: -.03em;
+            line-height: 1.1;
+            font-size: clamp(13px, 1.8vw, 16px);
+            margin: 0;
         }
 
         .tablet-summary-band,
         .summary-main {
             display: grid;
-            gap: 12px;
+            gap: 6px;
         }
 
+        /* v4.3: Compact summary strong text */
         .tablet-surface-summary strong,
         .summary-main strong {
             font-family: var(--display-font);
-            font-size: clamp(36px, 3vw, 44px);
-            line-height: .96;
+            font-size: clamp(18px, 2.2vw, 28px);
+            line-height: 1;
+            font-weight: 700;
         }
 
+        /* v4.3: Compact KPI layout - 2 columns for better space use */
         .tablet-kpi-ribbon {
             display: grid;
-            grid-template-columns: repeat(4, minmax(0, 1fr));
-            gap: 10px;
-            margin-top: 4px;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 6px;
+            margin-top: 0;
         }
 
+        /* v4.3: Highly optimized KPI chips */
         .tablet-kpi-chip {
-            padding: 11px 12px;
-            border-radius: 16px;
-            border: 1px solid rgba(120, 154, 211, 0.14);
-            background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03));
+            padding: 6px 8px;
+            border-radius: 10px;
+            border: 1px solid rgba(120, 154, 211, 0.12);
+            background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
             display: grid;
-            gap: 4px;
-            min-height: 74px;
-            align-content: start;
+            gap: 2px;
+            min-height: 44px;
+            align-content: center;
+            justify-items: start;
         }
 
         .tablet-kpi-chip .value {
-            font-size: 18px;
-            font-weight: 800;
-            color: #f4fbff;
+            font-size: 13px;
+            font-weight: 700;
+            color: #d4e8ff;
+            line-height: 1;
         }
 
+        .tablet-kpi-chip .label {
+            font-size: 8px;
+            opacity: 0.65;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+        }
+
+        /* v4.3: Compact cluster layouts */
         .tablet-control-cluster,
         .tablet-surface-lower,
         .tablet-surface-tools {
             display: grid;
-            gap: 12px;
+            gap: 6px;
         }
 
+        /* v4.3: Optimized control surface */
         .tablet-control-surface {
             position: relative;
-            overflow: auto;
+            overflow: hidden;  
             overscroll-behavior-y: contain;
             -webkit-overflow-scrolling: touch;
             scrollbar-width: thin;
-            scrollbar-color: rgba(128, 164, 220, 0.42) transparent;
-            padding-bottom: 50px;
+            scrollbar-color: rgba(128, 164, 220, 0.35) transparent;
+            padding-bottom: 0;
         }
 
         .tablet-control-surface::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
+            width: 5px;
+            height: 5px;
         }
 
         .tablet-control-surface::-webkit-scrollbar-thumb {
-            background: rgba(128, 164, 220, 0.38);
+            background: rgba(128, 164, 220, 0.35);
             border-radius: 999px;
         }
 
@@ -1717,16 +1739,18 @@ public static class HtmlAtlasExporter
             border-radius: 18px;
         }
 
+        /* v4.3: Optimized desktop sidebar padding */
         body.device-desktop:not(.viewport-short) .sidebar {
-            padding: 14px;
-            gap: 12px;
+            padding: 8px;
+            gap: 8px;
         }
 
         body.device-desktop:not(.viewport-short) .summary-card,
         body.device-desktop:not(.viewport-short) .panel {
-            padding: 14px;
+            padding: 10px 12px;
         }
 
+        /* v4.3: Optimized tablet layout with tight spacing */
         body.device-tablet .workspace,
         body.device-desktop.viewport-short .workspace {
             grid-template-columns: 1fr;
@@ -1737,11 +1761,11 @@ public static class HtmlAtlasExporter
         }
 
         body.device-tablet .shell {
-            gap: 14px;
+            gap: 8px;
         }
 
         body.device-tablet .workspace {
-            gap: 14px;
+            gap: 8px;
         }
 
         body.device-tablet .sidebar,
@@ -1749,6 +1773,11 @@ public static class HtmlAtlasExporter
             position: static;
             max-height: none;
             overflow: visible;
+            background: transparent;
+            box-shadow: none;
+            backdrop-filter: none;
+            border-radius: 0;
+            padding: 6px;
         }
 
         body.device-tablet .floating-card,
@@ -1759,7 +1788,7 @@ public static class HtmlAtlasExporter
         body.device-tablet .map-stage,
         body.device-desktop.viewport-short .map-stage {
             display: grid;
-            gap: 14px;
+            gap: 8px;
             min-height: auto;
         }
 
@@ -1826,10 +1855,12 @@ public static class HtmlAtlasExporter
             font-size: 14px;
         }
 
+        /* v4.3: Ultra-compact tablet summary */
         body.device-tablet .tablet-surface-summary strong {
-            font-size: clamp(20px, 2.1vw, 24px);
+            font-size: clamp(16px, 2.2vw, 20px);
         }
 
+        /* v4.3: Hide non-essential elements */
         body.device-tablet .tablet-surface-heading .helper,
         body.device-tablet .tablet-summary-band .row,
         body.device-tablet .progress-track,
@@ -1837,46 +1868,49 @@ public static class HtmlAtlasExporter
             display: none;
         }
 
+        /* v4.3: Show KPI ribbon but very compact */
         body.device-tablet .tablet-kpi-ribbon {
-            display: none;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 4px;
+            margin-top: 4px;
         }
 
         body.device-tablet .tablet-kpi-chip {
-            min-height: 48px;
-            padding: 6px 7px;
+            min-height: 40px;
+            padding: 5px 6px;
         }
 
         body.device-tablet .tablet-kpi-chip .value {
-            font-size: 13px;
+            font-size: 11px;
         }
 
+        body.device-tablet .tablet-kpi-chip .label {
+            font-size: 7px;
+        }
+
+        /* v4.3: Single column control cluster */
         body.device-tablet .tablet-control-cluster {
             grid-template-columns: 1fr;
-            gap: 5px;
+            gap: 4px;
         }
 
+        /* v4.3: Horizontal scrolling filter row with minimal spacing */
         body.device-tablet .tablet-control-card .filter-row {
-            display: grid;
-            grid-auto-flow: column;
-            grid-auto-columns: max-content;
-            overflow-x: auto;
-            overscroll-behavior-x: contain;
-            scrollbar-width: none;
-            gap: 6px;
-        }
+            display: grid;\n            grid-auto-flow: column;\n            grid-auto-columns: max-content;\n            overflow-x: auto;\n            overscroll-behavior-x: contain;\n            scrollbar-width: none;\n            gap: 4px;\n            padding: 0 2px;\n        }
 
         body.device-tablet .tablet-control-card .filter-row::-webkit-scrollbar {
             display: none;
         }
 
+        /* v4.3: Ultra-compact stage toggle */
         body.device-tablet .tablet-control-card .toggle.stage-toggle {
-            min-height: 32px;
-            min-width: 82px;
-            padding: 4px 6px;
+            min-height: 28px;\n            min-width: 72px;\n            padding: 3px 4px;\n            border-radius: 8px;\n            font-size: 10px;
         }
 
         body.device-tablet .tablet-control-card .toggle.stage-toggle .label-stack strong {
-            font-size: 9px;
+            font-size: 8px;
+            font-weight: 600;
         }
 
         body.device-tablet .tablet-control-card .toggle.stage-toggle .label-stack span {
