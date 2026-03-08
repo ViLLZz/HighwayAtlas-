@@ -791,6 +791,89 @@ public static class HtmlAtlasExporter
                 opacity: 1;
             }
         }
+        
+        /* v4.1: Pulsing animation for construction segments */
+        @keyframes pulse-construction {
+            0%, 100% {
+                opacity: 0.88;
+                filter: drop-shadow(0 0 4px rgba(255,194,62,0.5));
+            }
+            50% {
+                opacity: 1;
+                filter: drop-shadow(0 0 12px rgba(255,194,62,0.8)) drop-shadow(0 0 6px rgba(255,194,62,0.6));
+            }
+        }
+        
+        /* v4.1: Shimmer effect for skeleton screens */
+        @keyframes skeleton-shimmer {
+            0% {
+                background-position: -468px 0;
+            }
+            100% {
+                background-position: 468px 0;
+            }
+        }
+        
+        /* v4.1: Particle burst for milestones */
+        @keyframes particle-burst {
+            0% {
+                transform: translate(0, 0) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(var(--tx), var(--ty)) scale(0.3);
+                opacity: 0;
+            }
+        }
+        
+        /* v4.1: Trail animation for route highlights */
+        @keyframes route-trail {
+            0% {
+                stroke-dashoffset: 1000;
+            }
+            100% {
+                stroke-dashoffset: 0;
+            }
+        }
+        
+        /* v4.1: Skeleton loading screens */
+        .skeleton {
+            background: linear-gradient(90deg, 
+                rgba(20,38,57,0.3) 0px, 
+                rgba(62,162,255,0.12) 40px, 
+                rgba(20,38,57,0.3) 80px);
+            background-size: 600px;
+            animation: skeleton-shimmer 1.6s ease-in-out infinite;
+            border-radius: 8px;
+            min-height: 18px;
+        }
+        
+        .skeleton-card {
+            padding: 16px;
+            border-radius: 18px;
+            border: 1px solid rgba(120,154,211,0.1);
+            background: linear-gradient(180deg, rgba(20,38,57,0.6), rgba(9,20,32,0.7));
+        }
+        
+        .skeleton-text {
+            height: 14px;
+            margin-bottom: 8px;
+            border-radius: 6px;
+        }
+        
+        .skeleton-text.large {
+            height: 24px;
+            width: 70%;
+        }
+        
+        .skeleton-text.medium {
+            height: 18px;
+            width: 50%;
+        }
+        
+        .skeleton-text.small {
+            width: 30%;
+        }
 
         .tablet-control-cluster {
             grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -1311,6 +1394,65 @@ public static class HtmlAtlasExporter
             will-change: transform, opacity;
             transform: translateZ(0);
         }
+        
+        /* v4.1: Enhanced glassmorphism for map controls */
+        .map-stage-quickbar.glass-enhanced {
+            background: linear-gradient(135deg, rgba(10, 20, 34, 0.75), rgba(7, 14, 26, 0.85));
+            backdrop-filter: blur(36px) saturate(1.3) brightness(1.08);
+            border: 1px solid rgba(255,255,255,0.14);
+            box-shadow: 
+                inset 0 1px 0 rgba(255,255,255,0.1),
+                inset 0 -1px 2px rgba(0,0,0,0.12),
+                0 16px 38px rgba(0,0,0,0.24),
+                0 6px 14px rgba(62,162,255,0.06);
+        }
+        
+        /* v4.1: Dark mode intensity slider */
+        .dark-mode-slider {
+            position: relative;
+            width: 100%;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .dark-mode-slider input[type="range"] {
+            flex: 1;
+            appearance: none;
+            background: linear-gradient(90deg, rgba(20,38,57,0.5), rgba(5,10,18,0.9));
+            border-radius: 16px;
+            height: 6px;
+            outline: none;
+        }
+        
+        .dark-mode-slider input[type="range"]::-webkit-slider-thumb {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #3ea2ff, #2a7bc4);
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(62,162,255,0.4);
+            transition: transform .15s ease, box-shadow .15s ease;
+        }
+        
+        .dark-mode-slider input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.15);
+            box-shadow: 0 4px 12px rgba(62,162,255,0.5);
+        }
+        
+        /* v4.1: Enhanced glassmorphism for map controls */
+        .floating-card.glass-enhanced {
+            background: linear-gradient(135deg, rgba(11, 24, 40, 0.84), rgba(8, 17, 30, 0.88));
+            backdrop-filter: blur(32px) saturate(1.25) brightness(1.1);
+            border: 1px solid rgba(255,255,255,0.12);
+            box-shadow: 
+                inset 0 1px 0 rgba(255,255,255,0.08),
+                inset 0 -1px 2px rgba(0,0,0,0.15),
+                0 18px 42px rgba(0,0,0,0.28),
+                0 8px 16px rgba(62,162,255,0.08);
+        }
 
         .floating-card::before {
             content: "";
@@ -1815,6 +1957,22 @@ public static class HtmlAtlasExporter
             max-height: none;
             overflow: visible;
         }
+        
+        /* v4.1: FIX iPad selection panel sizing - constraint when expanded */
+        body.device-tablet .floating-top-right:not(.passive) {
+            max-height: min(48vh, 420px);
+            overflow-y: auto;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        /* v4.1: FIX iPad selection panel sizing - constraint when expanded */
+        body.device-tablet .floating-top-right:not(.passive) {
+            max-height: min(48vh, 420px);
+            overflow-y: auto;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+        }
 
         body.device-tablet .topbar,
         body.device-phone .topbar,
@@ -2181,6 +2339,54 @@ public static class HtmlAtlasExporter
 
         body.device-phone .legal-strip {
             display: none;
+        }
+
+        /* v4.1: Dynamic Island-style notification for Mac */
+        .dynamic-island {
+            position: fixed;
+            top: 12px;
+            left: 50%;
+            transform: translateX(-50%) scale(0.92);
+            z-index: 9999;
+            padding: 12px 20px;
+            border-radius: 999px;
+            background: linear-gradient(135deg, rgba(15, 30, 50, 0.95), rgba(8, 18, 32, 0.98));
+            backdrop-filter: blur(40px) saturate(1.4);
+            border: 1px solid rgba(255,255,255,0.15);
+            box-shadow: 
+                0 8px 24px rgba(0,0,0,0.4),
+                0 2px 8px rgba(62,162,255,0.15),
+                inset 0 1px 0 rgba(255,255,255,0.1);
+            color: #f4fbff;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 0.01em;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity .35s cubic-bezier(.4,0,.2,1), transform .35s cubic-bezier(.4,0,.2,1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .dynamic-island.visible {
+            opacity: 1;
+            transform: translateX(-50%) scale(1);
+        }
+        
+        .dynamic-island-icon {
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+        
+        @media (hover: none) {
+            .dynamic-island {
+                display: none;
+            }
         }
 
         @media (prefers-reduced-motion: reduce) {
@@ -2970,6 +3176,12 @@ public static class HtmlAtlasExporter
     </style>
 </head>
 <body>
+    <!-- v4.1: Dynamic Island notification for Mac -->
+    <div class="dynamic-island" id="dynamic-island">
+        <span class="dynamic-island-icon" id="dynamic-island-icon">✓</span>
+        <span id="dynamic-island-text"></span>
+    </div>
+    
     <div class="shell">
         <header class="topbar">
             <div class="brand">
@@ -3740,6 +3952,24 @@ public static class HtmlAtlasExporter
         mapContainer.addEventListener('touchcancel', () => setMapGestureLock(false), { passive: true });
         map.on('movestart', () => setMapGestureLock(true));
         map.on('moveend', () => setMapGestureLock(false));
+        
+        // v4.1: Context menu for desktop right-click
+        mapContainer.addEventListener('contextmenu', event => {
+            if (getDeviceProfile() !== 'desktop') return;
+            event.preventDefault();
+            
+            const menuOptions = [
+                { label: 'Reset View', action: () => { clearInteractiveContext(); showDynamicIsland('View reset', '↺'); } },
+                { label: 'Zoom to Selection', action: () => zoomToSelection() },
+                { label: 'Toggle Language', action: () => { state.lang = state.lang === 'bg' ? 'en' : 'bg'; render(); showDynamicIsland(`Language: ${state.lang.toUpperCase()}`, '🌐'); } }
+            ];
+            
+            if (state.selectedLotKey || state.selectedSegmentId) {
+                menuOptions.push({ label: 'Clear Selection', action: () => { clearInteractiveContext(); showDynamicIsland('Selection cleared', '×'); } });
+            }
+            
+            showContextMenu(event.clientX, event.clientY, menuOptions);
+        });
 
         map.setMaxBounds([[40.55, 21.45], [44.85, 29.65]]);
 
@@ -4478,6 +4708,135 @@ public static class HtmlAtlasExporter
             };
         }
 
+        /* v4.1: Dynamic Island notification system for Mac */
+        function showDynamicIsland(text, icon = '✓', duration = 2800) {
+            if (getDeviceProfile() !== 'desktop') return;
+            const island = document.getElementById('dynamic-island');
+            const islandText = document.getElementById('dynamic-island-text');
+            const islandIcon = document.getElementById('dynamic-island-icon');
+            if (!island || !islandText || !islandIcon) return;
+            
+            islandIcon.textContent = icon;
+            islandText.textContent = text;
+            island.classList.add('visible');
+            
+            setTimeout(() => {
+                island.classList.remove('visible');
+            }, duration);
+        }
+        
+        /* v4.1: Haptic feedback vibration simulation for iPhone */
+        function triggerHaptic(type = 'light') {
+            if (getDeviceProfile() !== 'phone') return;
+            if (!navigator.vibrate) return;
+            
+            const patterns = {
+                light: [10],
+                medium: [15],
+                heavy: [25],
+                success: [10, 50, 10],
+                warning: [20, 100, 20],
+                error: [30, 100, 30, 100, 30]
+            };
+            
+            navigator.vibrate(patterns[type] || patterns.light);
+        }
+        
+        /* v4.1: Smart zoom to selected segment with smooth animation */
+        function zoomToSelection() {
+            const lot = getSelectedLot();
+            const segment = lot ? atlas.segments.find(s => s.id === lot.segmentId) : getSelectedSegment();
+            const route = segment ? atlas.routes.find(r => r.routeCode === segment.routeCode) : null;
+            
+            if (lot && segment) {
+                const lotBounds = getLotBounds(segment, lot);
+                if (lotBounds.length >= 2) {
+                    map.flyToBounds(lotBounds, { 
+                        padding: getViewportPadding('lot'), 
+                        duration: 0.8,
+                        easeLinearity: 0.25 
+                    });
+                    showDynamicIsland(`Zooming to ${lot.lotCode}`, '🎯');
+                    triggerHaptic('medium');
+                }
+            } else if (segment) {
+                const latLngs = segment.shape.map(point => [point.lat, point.lon]);
+                if (latLngs.length >= 2) {
+                    map.flyToBounds(latLngs, { 
+                        padding: getViewportPadding('segment'), 
+                        duration: 0.8,
+                        easeLinearity: 0.25 
+                    });
+                    showDynamicIsland(`Viewing ${segment.routeCode} ${pick(segment.sectionName)}`, '🛣');
+                    triggerHaptic('light');
+                }
+            } else if (route) {
+                map.flyToBounds(bulgariaBounds, { 
+                    padding: getViewportPadding('route'), 
+                    duration: 0.7,
+                    easeLinearity: 0.3 
+                });
+                showDynamicIsland(`Viewing ${route.routeCode}`, '↗️');
+            }
+        }
+        
+        /* v4.1: Context menu for desktop right-click */
+        let contextMenuElement = null;
+        function showContextMenu(x, y, options) {
+            if (getDeviceProfile() !== 'desktop') return;
+            hideContextMenu();
+            
+            contextMenuElement = document.createElement('div');
+            contextMenuElement.style.cssText = `
+                position: fixed;
+                left: ${x}px;
+                top: ${y}px;
+                z-index: 9998;
+                min-width: 180px;
+                padding: 6px;
+                background: linear-gradient(135deg, rgba(15,30,50,0.96), rgba(8,18,32,0.98));
+                backdrop-filter: blur(32px) saturate(1.3);
+                border: 1px solid rgba(255,255,255,0.16);
+                border-radius: 12px;
+                box-shadow: 0 12px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.08);
+                color: #f4fbff;
+                font-size: 13px;
+            `;
+            
+            options.forEach(opt => {
+                const item = document.createElement('button');
+                item.textContent = opt.label;
+                item.style.cssText = `
+                    width: 100%;
+                    padding: 8px 12px;
+                    text-align: left;
+                    background: transparent;
+                    border: none;
+                    border-radius: 8px;
+                    color: inherit;
+                    cursor: pointer;
+                    transition: background .12s ease;
+                `;
+                item.onmouseenter = () => item.style.background = 'rgba(255,255,255,0.08)';
+                item.onmouseleave = () => item.style.background = 'transparent';
+                item.onclick = () => {
+                    opt.action();
+                    hideContextMenu();
+                };
+                contextMenuElement.appendChild(item);
+            });
+            
+            document.body.appendChild(contextMenuElement);
+            document.addEventListener('click', hideContextMenu, { once: true });
+        }
+        
+        function hideContextMenu() {
+            if (contextMenuElement) {
+                contextMenuElement.remove();
+                contextMenuElement = null;
+            }
+        }
+
         function setBasemap() {
             if (basemapLayer) map.removeLayer(basemapLayer);
             const config = basemaps[state.basemap];
@@ -4583,9 +4942,21 @@ public static class HtmlAtlasExporter
         });
 
         window.addEventListener('keydown', event => {
-            if (event.key !== 'Escape') return;
-            if (state.selectedLotKey || state.selectedSegmentId || !hasDefaultScope()) {
-                clearInteractiveContext();
+            // v4.1: Enhanced keyboard shortcuts
+            if (event.key === 'Escape') {
+                if (state.selectedLotKey || state.selectedSegmentId || !hasDefaultScope()) {
+                    clearInteractiveContext();
+                    showDynamicIsland('Selection cleared', '↺');
+                }
+            } else if (event.key === 'z' && state.selectedLotKey || state.selectedSegmentId) {
+                zoomToSelection(); // v4.1: Z key to zoom to selection
+            } else if (event.key === 'l') {
+                state.lang = state.lang === 'bg' ? 'en' : 'bg'; // v4.1: L key to toggle language
+                render();
+                showDynamicIsland(`Language: ${state.lang.toUpperCase()}`, '🌐');
+            } else if (event.key === 'p' && event.metaKey && getDeviceProfile() === 'desktop') {
+                event.preventDefault(); // v4.1: Prepare for future export functionality
+                showDynamicIsland('Export feature coming soon', '📸');
             }
         });
 
@@ -5240,7 +5611,8 @@ public static class HtmlAtlasExporter
                     lineCap: 'round',
                     lineJoin: 'round',
                     smoothFactor: 1.2,
-                    interactive: false
+                    interactive: false,
+                    className: segment.status === 'UnderConstruction' ? 'route-construction-pulse' : '' // v4.1: Pulsing animation
                 }).addTo(segmentLayer);
 
                 L.polyline(latLngs, {
