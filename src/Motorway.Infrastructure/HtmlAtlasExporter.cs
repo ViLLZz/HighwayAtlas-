@@ -954,6 +954,124 @@ public static class HtmlAtlasExporter
             color: var(--muted);
         }
 
+        body.device-desktop:not(.viewport-short) .workspace {
+            grid-template-columns: minmax(300px, 356px) minmax(0, 1fr);
+        }
+
+        body.device-desktop:not(.viewport-short) .floating-top-left {
+            width: min(34%, 408px);
+        }
+
+        body.device-desktop:not(.viewport-short) .floating-top-right {
+            width: min(320px, calc(100% - 36px));
+        }
+
+        body.device-desktop:not(.viewport-short) .floating-bottom-left {
+            width: min(320px, calc(100% - 36px));
+        }
+
+        body.device-desktop:not(.viewport-short) .floating-bottom-right {
+            width: min(336px, calc(100% - 36px));
+            max-height: 224px;
+        }
+
+        body.device-desktop:not(.viewport-short) {
+            --map-height: clamp(560px, 69vh, 940px);
+            --map-min-height: 560px;
+        }
+
+        body.device-tablet .workspace,
+        body.device-desktop.viewport-short .workspace {
+            grid-template-columns: 1fr;
+            grid-template-areas:
+                "map"
+                "headlines"
+                "sidebar";
+        }
+
+        body.device-tablet .sidebar,
+        body.device-desktop.viewport-short .sidebar {
+            position: static;
+            max-height: none;
+            overflow: visible;
+        }
+
+        body.device-tablet .floating-card,
+        body.device-desktop.viewport-short .floating-card {
+            position: static;
+        }
+
+        body.device-tablet .map-stage,
+        body.device-desktop.viewport-short .map-stage {
+            display: grid;
+            gap: 14px;
+            min-height: auto;
+        }
+
+        body.device-tablet .map-stage-quickbar,
+        body.device-phone .map-stage-quickbar,
+        body.device-desktop.viewport-short .map-stage-quickbar {
+            display: grid;
+        }
+
+        body.device-tablet .floating-top-left,
+        body.device-tablet .floating-top-right,
+        body.device-tablet .floating-bottom-right,
+        body.device-tablet .floating-bottom-left,
+        body.device-desktop.viewport-short .floating-top-left,
+        body.device-desktop.viewport-short .floating-top-right,
+        body.device-desktop.viewport-short .floating-bottom-right,
+        body.device-desktop.viewport-short .floating-bottom-left {
+            width: auto;
+            max-height: none;
+            overflow: visible;
+        }
+
+        body.device-tablet .topbar,
+        body.device-phone .topbar,
+        body.device-desktop.viewport-short .topbar {
+            position: static;
+        }
+
+        body.device-tablet .top-actions,
+        body.device-phone .top-actions,
+        body.device-desktop.viewport-short .top-actions {
+            grid-template-columns: 1fr;
+            border-radius: 18px;
+        }
+
+        body.device-tablet .top-actions .tabs,
+        body.device-tablet .top-actions .select,
+        body.device-tablet .toolbar-block,
+        body.device-phone .top-actions .tabs,
+        body.device-phone .top-actions .select,
+        body.device-phone .toolbar-block,
+        body.device-desktop.viewport-short .top-actions .tabs,
+        body.device-desktop.viewport-short .top-actions .select,
+        body.device-desktop.viewport-short .toolbar-block {
+            width: 100%;
+        }
+
+        body.device-tablet .headline-strip {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        body.device-phone .headline-strip,
+        body.device-desktop.viewport-short .headline-strip {
+            grid-template-columns: 1fr;
+        }
+
+        body.device-tablet,
+        body.device-desktop.viewport-short {
+            --map-height: min(72vh, 760px);
+            --map-min-height: 620px;
+        }
+
+        body.device-phone {
+            --map-height: 54vh;
+            --map-min-height: 420px;
+        }
+
         .stats-row {
             display: grid;
             grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -2290,7 +2408,31 @@ public static class HtmlAtlasExporter
             return [10, 10];
         }
 
+        function getDeviceProfile() {
+            const width = window.innerWidth || 1280;
+            const height = window.innerHeight || 900;
+            const coarsePointer = window.matchMedia('(pointer: coarse)').matches;
+
+            if (width <= 760) return 'phone';
+            if (coarsePointer || width <= 1366) return 'tablet';
+            return 'desktop';
+        }
+
+        function syncDeviceProfile() {
+            const profile = getDeviceProfile();
+            const height = window.innerHeight || 900;
+            const isShortViewport = height < 980;
+
+            document.body.classList.toggle('device-desktop', profile === 'desktop');
+            document.body.classList.toggle('device-tablet', profile === 'tablet');
+            document.body.classList.toggle('device-phone', profile === 'phone');
+            document.body.classList.toggle('viewport-short', isShortViewport);
+            document.body.classList.toggle('viewport-tall', !isShortViewport);
+            document.body.dataset.deviceProfile = profile;
+        }
+
         function renderNow() {
+            syncDeviceProfile();
             renderFrame = null;
             renderToolbar();
             renderHeadlineStrip();
@@ -2830,6 +2972,7 @@ public static class HtmlAtlasExporter
         window.addEventListener('resize', () => {
             if (resizeTimer) clearTimeout(resizeTimer);
             resizeTimer = window.setTimeout(() => {
+                syncDeviceProfile();
                 map.invalidateSize({ pan: false, debounceMoveend: true });
                 render('resize');
             }, 120);
@@ -2838,6 +2981,7 @@ public static class HtmlAtlasExporter
         window.addEventListener('orientationchange', () => {
             if (resizeTimer) clearTimeout(resizeTimer);
             resizeTimer = window.setTimeout(() => {
+                syncDeviceProfile();
                 map.invalidateSize({ pan: false, debounceMoveend: true });
                 render('orientation');
             }, 180);
@@ -3480,6 +3624,7 @@ public static class HtmlAtlasExporter
         }
 
         setBasemap();
+        syncDeviceProfile();
         focusDefault();
         map.on('popupclose', () => {
             activePopup = null;

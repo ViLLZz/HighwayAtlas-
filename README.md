@@ -11,6 +11,7 @@
 The current production output focuses on a polished atlas release that is easier to understand at a glance:
 
 - 🗺️ Bulgaria-first map bounds and route-level filtering
+- 🖥️ Device-aware layout profiles so desktop, tablet, and phone no longer share the same cramped proportions
 - 📱 Stage-mode quick filters integrated directly above the map for tablet and phone use
 - 🎯 Clickable lots and segments with detailed on-map panel
 - 📌 Route + lot statuses (open, construction, planned, closed)
@@ -52,9 +53,9 @@ The atlas now treats geometry quality and source fidelity as first-class product
 - CI uploads the generated atlas outputs as build artifacts for review
 - the hosted atlas shows an explicit ownership and usage notice in the UI
 
-## 3.3 Audit Focus
+## 3.4 Cross-Device Focus
 
-The current release line now combines the 3.1 provenance foundation and the 3.2.3 UI polish with a 3.3 clarity audit:
+The current release line now combines the 3.1 provenance foundation, the 3.2.3 UI polish, the 3.3 clarity audit, and a 3.4 cross-device optimization pass:
 
 - every section now carries an explicit official source slot and an optional secondary reference slot
 - provenance diagnostics measure official coverage, route-specific references, network-wide references, and secondary narrative usage
@@ -63,6 +64,7 @@ The current release line now combines the 3.1 provenance foundation and the 3.2.
 - the map renderer batches redraws per animation frame for smoother interaction under filter changes
 - the visual system now uses a display/body font pairing and tighter layout symmetry across cards and floating panels
 - user-facing wording is being simplified so labels, notes, and numbers are easier for non-technical visitors to read
+- the runtime now applies different layout profiles for desktop, tablet, phone, and short-height desktops instead of relying on width breakpoints alone
 - GitHub Pages remains auto-deployed on every push to `main`
 
 ## Alpha quality gate
@@ -165,6 +167,7 @@ For the v3.0 upgrade process, see `docs/v3-upgrade-plan.md`.
 For the 3.1 provenance upgrade, see `docs/v3.1-upgrade.md`.
 For the 3.2.3 responsive/UI release, see `docs/v3.2.3-upgrade.md`.
 For the 3.3 reasoning, data, and grammar audit, see `docs/v3.3-audit.md`.
+For the 3.4 cross-device optimization pass, see `docs/v3.4-cross-device.md`.
 For the larger product roadmap, see `docs/upgrade-roadmap.md`.
 For ownership and usage terms, see `NOTICE.md`.
 

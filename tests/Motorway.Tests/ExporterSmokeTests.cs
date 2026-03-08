@@ -28,6 +28,9 @@ public sealed class ExporterSmokeTests
         Assert.Contains("--accent-warm", html, StringComparison.Ordinal);
         Assert.Contains("requestAnimationFrame", html, StringComparison.Ordinal);
         Assert.Contains("getViewportPadding", html, StringComparison.Ordinal);
+        Assert.Contains("getDeviceProfile", html, StringComparison.Ordinal);
+        Assert.Contains("syncDeviceProfile", html, StringComparison.Ordinal);
+        Assert.Contains("device-tablet", html, StringComparison.Ordinal);
         Assert.Contains("stage-quick-presets", html, StringComparison.Ordinal);
         Assert.Contains("map-stage-quickbar", html, StringComparison.Ordinal);
         Assert.Contains("text-wrap: balance", html, StringComparison.Ordinal);
