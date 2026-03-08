@@ -38,11 +38,23 @@ public static class NationalNetworkSeed
                 sourceUrl: "https://en.wikipedia.org/wiki/Trakia_motorway",
                 shapePoints:
                 [
-                    (42.6977, 23.3219, "Sofia ring road"),
-                    (42.6650, 23.4130, "Novi Han junction"),
-                    (42.5480, 23.7200, "Vakarel"),
-                    (42.4380, 23.8180, "Ihtiman"),
-                    (42.2050, 24.3310, "Pazardzhik"),
+                    (42.6977, 23.3219, "Sofia ring road (A1 start)"),
+                    (42.6872, 23.3608, "Mladost interchange"),
+                    (42.6735, 23.4061, "Gorni Lozen"),
+                    (42.6524, 23.4612, "Novi Han junction"),
+                    (42.6180, 23.5340, "Vakarel north approach"),
+                    (42.5730, 23.6120, "Vakarel pass summit"),
+                    (42.5410, 23.6980, "Vakarel south descent"),
+                    (42.5080, 23.7510, "Vetren"),
+                    (42.4620, 23.8050, "Ihtiman north"),
+                    (42.4350, 23.8210, "Ihtiman interchange"),
+                    (42.3870, 23.9080, "Kostenets"),
+                    (42.3420, 23.9780, "Belovo"),
+                    (42.3010, 24.0720, "Septemvri approach"),
+                    (42.2540, 24.1850, "Septemvri"),
+                    (42.2190, 24.3060, "Pazardzhik west"),
+                    (42.1950, 24.3510, "Pazardzhik interchange"),
+                    (42.1680, 24.5410, "Stamboliyski"),
                     (42.1432, 24.7531, "Plovdiv-east junction")
                 ],
                 milestones:
@@ -74,10 +86,17 @@ public static class NationalNetworkSeed
                 shapePoints:
                 [
                     (42.1432, 24.7531, "Plovdiv-east junction"),
-                    (42.1510, 24.9800, "Plodovitovo"),
-                    (42.1630, 25.2900, "Orizovo interchange (A4 branch)"),
-                    (42.2000, 25.3500, "Chirpan"),
-                    (42.4258, 25.6345, "Stara Zagora")
+                    (42.1460, 24.8260, "Plovdiv-Trakia"),
+                    (42.1500, 24.8950, "Chirpan approach west"),
+                    (42.1520, 24.9520, "Plodovitovo"),
+                    (42.1540, 25.0280, "Banya"),
+                    (42.1580, 25.1100, "Malko Tranovo"),
+                    (42.1620, 25.1880, "Orizovo west approach"),
+                    (42.1640, 25.2570, "Orizovo interchange (A4 branch)"),
+                    (42.1820, 25.3150, "Chirpan north"),
+                    (42.2210, 25.3650, "Chirpan interchange"),
+                    (42.3120, 25.4880, "Bratya Daskalovi"),
+                    (42.4258, 25.6345, "Stara Zagora interchange")
                 ],
                 milestones:
                 [
@@ -108,9 +127,14 @@ public static class NationalNetworkSeed
                 sourceUrl: "https://en.wikipedia.org/wiki/Trakia_motorway",
                 shapePoints:
                 [
-                    (42.6510, 26.9790, "Karnobat"),
-                    (42.5800, 27.1830, "Aytos"),
-                    (42.5048, 27.4626, "Burgas")
+                    (42.6510, 26.9790, "Karnobat interchange"),
+                    (42.6320, 27.0350, "Karnobat east"),
+                    (42.6050, 27.0920, "Sundzhulare"),
+                    (42.5860, 27.1420, "Aytos west approach"),
+                    (42.5710, 27.1830, "Aytos interchange"),
+                    (42.5520, 27.2510, "Aytos east"),
+                    (42.5280, 27.3440, "Vetren"),
+                    (42.5048, 27.4626, "Burgas west interchange")
                 ],
                 milestones:
                 [
@@ -137,10 +161,16 @@ public static class NationalNetworkSeed
                 sourceUrl: "https://en.wikipedia.org/wiki/Trakia_motorway",
                 shapePoints:
                 [
-                    (42.4258, 25.6345, "Stara Zagora"),
-                    (42.4830, 26.0160, "Nova Zagora"),
+                    (42.4258, 25.6345, "Stara Zagora interchange"),
+                    (42.4410, 25.7200, "Stara Zagora east"),
+                    (42.4520, 25.8100, "Radnevo approach"),
+                    (42.4650, 25.8910, "Gurkovo area"),
+                    (42.4780, 25.9560, "Nova Zagora west"),
+                    (42.4830, 26.0160, "Nova Zagora interchange"),
+                    (42.4810, 26.0980, "Nova Zagora east"),
+                    (42.4770, 26.2100, "Sliven junction approach"),
                     (42.4750, 26.3220, "Yambol-west / Sliven junction"),
-                    (42.4900, 26.5600, "Yambol-east junction")
+                    (42.4820, 26.4400, "Yambol west approach")
                 ],
                 milestones:
                 [
@@ -171,8 +201,13 @@ public static class NationalNetworkSeed
                 shapePoints:
                 [
                     (42.4900, 26.5600, "Yambol-east junction"),
-                    (42.5710, 26.7700, "Sakar foothills"),
-                    (42.6510, 26.9790, "Karnobat")
+                    (42.5060, 26.6100, "Yambol-Karnobat km 5"),
+                    (42.5250, 26.6620, "Sakar foothills west"),
+                    (42.5480, 26.7100, "Sakar ridge"),
+                    (42.5710, 26.7700, "Sakar foothills east"),
+                    (42.5940, 26.8250, "Karnobat west approach"),
+                    (42.6220, 26.8900, "Karnobat south interchange"),
+                    (42.6510, 26.9790, "Karnobat interchange")
                 ],
                 milestones:
                 [
@@ -200,12 +235,27 @@ public static class NationalNetworkSeed
                 sourceUrl: "https://en.wikipedia.org/wiki/Hemus_motorway",
                 shapePoints:
                 [
-                    (42.6977, 23.3219, "Sofia ring road"),
-                    (42.9160, 23.7880, "Botevgrad"),
-                    (43.0210, 23.9040, "Pravets"),
-                    (43.0150, 24.0890, "Yablanitsa"),
+                    (42.6977, 23.3219, "Sofia ring road (A2 start)"),
+                    (42.7340, 23.3580, "Vrazhdebna interchange"),
+                    (42.7680, 23.4110, "Kazichene"),
+                    (42.8120, 23.4870, "Elin Pelin"),
+                    (42.8560, 23.5610, "Ravno Pole"),
+                    (42.8870, 23.6380, "Pobit Kamak"),
+                    (42.9160, 23.7260, "Botevgrad south approach"),
+                    (42.9350, 23.7880, "Botevgrad interchange"),
+                    (42.9680, 23.8270, "Litakovo"),
+                    (43.0050, 23.8680, "Pravets south"),
+                    (43.0210, 23.9040, "Pravets interchange"),
+                    (43.0280, 23.9520, "Stambolovo"),
+                    (43.0150, 24.0070, "Yablanitsa south approach"),
+                    (43.0150, 24.0890, "Yablanitsa interchange"),
+                    (43.0480, 24.1950, "Zlatna Panega approach"),
+                    (43.0820, 24.2980, "Lukovit area"),
+                    (43.1080, 24.3820, "Karlukovo corridor"),
                     (43.1220, 24.4850, "Boaza pass (I-4 junction)"),
-                    (43.2010, 24.5370, "Dermantsi"),
+                    (43.1640, 24.5060, "Dermantsi west"),
+                    (43.2010, 24.5370, "Dermantsi interchange"),
+                    (43.2080, 24.4750, "Ugarchin approach"),
                     (43.1960, 24.4110, "Ugarchin (temporary exit)")
                 ],
                 milestones:
@@ -348,9 +398,22 @@ public static class NationalNetworkSeed
                 shapePoints:
                 [
                     (43.2460, 26.6120, "Buhovtsi / Targovishte"),
+                    (43.2580, 26.6800, "Kaspichan west approach"),
+                    (43.2780, 26.7350, "Kaspichan"),
                     (43.2870, 26.7820, "Kaspichan corridor"),
+                    (43.2980, 26.8320, "Preslav area"),
+                    (43.3060, 26.8850, "Belokopitovo west"),
                     (43.3130, 26.9380, "Belokopitovo interchange"),
+                    (43.3050, 26.9920, "Shumen south bypass"),
+                    (43.2970, 27.0580, "Shumen east exit"),
+                    (43.3010, 27.1350, "Madara area"),
+                    (43.2950, 27.2200, "Provadiya west approach"),
                     (43.2860, 27.3300, "Provadiya corridor"),
+                    (43.2680, 27.4280, "Provadiya east"),
+                    (43.2530, 27.5440, "Devnya approach"),
+                    (43.2380, 27.6520, "Devnya / Lake Beloslav"),
+                    (43.2280, 27.7580, "Varna west approach"),
+                    (43.2200, 27.8380, "Varna Asparuhovo"),
                     (43.2141, 27.9147, "Varna")
                 ],
                 milestones:
@@ -382,11 +445,20 @@ public static class NationalNetworkSeed
                 sourceUrl: "https://en.wikipedia.org/wiki/Struma_motorway",
                 shapePoints:
                 [
-                    (42.6977, 23.3219, "Sofia"),
-                    (42.6050, 23.0380, "Pernik"),
-                    (42.3700, 23.0100, "Bobov Dol"),
-                    (42.2660, 23.1160, "Dupnitsa"),
-                    (42.0200, 23.1000, "Blagoevgrad"),
+                    (42.6977, 23.3219, "Sofia (A3 junction)"),
+                    (42.6640, 23.2680, "Lyulin quarter exit"),
+                    (42.6420, 23.1820, "Radomir approach"),
+                    (42.6050, 23.0380, "Pernik interchange"),
+                    (42.5580, 23.0150, "Pernik south"),
+                    (42.4880, 23.0050, "Dupnitsa north approach"),
+                    (42.4210, 23.0020, "Boboshevo"),
+                    (42.3700, 23.0100, "Bobov Dol corridor"),
+                    (42.3080, 23.0510, "Dupnitsa north"),
+                    (42.2660, 23.1160, "Dupnitsa interchange"),
+                    (42.1880, 23.1020, "Rila approach"),
+                    (42.0940, 23.0960, "Blagoevgrad north"),
+                    (42.0200, 23.1000, "Blagoevgrad interchange"),
+                    (41.9620, 23.0920, "Blagoevgrad south"),
                     (41.8950, 23.0900, "Simitli")
                 ],
                 milestones:
@@ -460,8 +532,14 @@ public static class NationalNetworkSeed
                 shapePoints:
                 [
                     (41.6980, 23.1520, "Dolna Gradeshnitsa (Lot 3.3 start)"),
-                    (41.5639, 23.2761, "Sandanski"),
+                    (41.6520, 23.1650, "Ilindentsi"),
+                    (41.6050, 23.2120, "Lebnitsa"),
+                    (41.5639, 23.2761, "Sandanski interchange"),
+                    (41.5120, 23.2560, "Marikostinovo"),
+                    (41.4680, 23.2280, "Petrich north"),
                     (41.4342, 23.2050, "Petrich"),
+                    (41.3920, 23.2450, "Petrich south"),
+                    (41.3640, 23.3080, "Kulata north approach"),
                     (41.3380, 23.3670, "Kulata border crossing")
                 ],
                 milestones:
@@ -491,10 +569,19 @@ public static class NationalNetworkSeed
                 sourceUrl: "https://en.wikipedia.org/wiki/Maritsa_motorway",
                 shapePoints:
                 [
-                    (42.1630, 25.2900, "Orizovo interchange (A1 junction)"),
-                    (42.1430, 25.5700, "Dimitrovgrad area"),
-                    (41.9330, 25.7990, "Haskovo"),
-                    (41.8710, 25.9700, "Svilengrad"),
+                    (42.1640, 25.2570, "Orizovo interchange (A1 junction)"),
+                    (42.1430, 25.3800, "Dimitrovgrad west approach"),
+                    (42.1280, 25.4650, "Dimitrovgrad north"),
+                    (42.1050, 25.5700, "Dimitrovgrad interchange"),
+                    (42.0680, 25.6380, "Lyubimets west approach"),
+                    (42.0210, 25.6950, "Lyubimets"),
+                    (41.9780, 25.7420, "Haskovo north approach"),
+                    (41.9330, 25.7990, "Haskovo interchange"),
+                    (41.9060, 25.8580, "Haskovo east"),
+                    (41.8710, 25.9700, "Svilengrad west approach"),
+                    (41.8350, 26.0520, "Svilengrad"),
+                    (41.8010, 26.1380, "Svilengrad east"),
+                    (41.7720, 26.2240, "Kapitan Andreevo approach"),
                     (41.7420, 26.3410, "Kapitan Andreevo border")
                 ],
                 milestones:
@@ -525,10 +612,16 @@ public static class NationalNetworkSeed
                 sourceUrl: "https://en.wikipedia.org/wiki/Cherno_More_motorway",
                 shapePoints:
                 [
-                    (43.2141, 27.9147, "Varna"),
+                    (43.2141, 27.9147, "Varna south"),
+                    (43.1650, 27.8740, "Ravda area"),
+                    (43.1020, 27.8300, "Obzor north approach"),
                     (43.0500, 27.7800, "Byala coast"),
+                    (42.9750, 27.7600, "Shkorpilovtsi"),
+                    (42.9050, 27.7480, "Emona"),
                     (42.8200, 27.7600, "Obzor area"),
+                    (42.7380, 27.7350, "Sunny Beach north"),
                     (42.6600, 27.7100, "Sunny Beach / Nessebar corridor"),
+                    (42.6050, 27.6350, "Aheloy"),
                     (42.5700, 27.5600, "Pomorie"),
                     (42.5048, 27.4626, "Burgas")
                 ],
@@ -559,8 +652,14 @@ public static class NationalNetworkSeed
                 shapePoints:
                 [
                     (42.6977, 23.3219, "Sofia West"),
-                    (42.8290, 23.0740, "Slivnitsa"),
+                    (42.7120, 23.2640, "Lyulin junction"),
+                    (42.7480, 23.1780, "Bozhurishte"),
+                    (42.7850, 23.1220, "Kostinbrod area"),
+                    (42.8290, 23.0740, "Slivnitsa interchange"),
+                    (42.8680, 23.0120, "Aldomirovtsi"),
+                    (42.9120, 22.9520, "Dragoman approach"),
                     (42.9800, 22.8820, "Dragoman"),
+                    (43.0020, 22.8350, "Kalotina approach"),
                     (43.0130, 22.7850, "Kalotina border crossing")
                 ],
                 milestones:
@@ -590,11 +689,15 @@ public static class NationalNetworkSeed
                 sourceUrl: "https://en.wikipedia.org/wiki/E79_road_(Bulgaria)",
                 shapePoints:
                 [
-                    (43.9939, 22.8750, "Vidin"),
+                    (43.9939, 22.8750, "Vidin (Danube Bridge 2)"),
+                    (43.9420, 22.8810, "Vidin south ring"),
                     (43.8600, 22.9500, "Vidin south / Gramada area"),
-                    (43.7100, 23.0600, "Berkovitsa north approach"),
+                    (43.7880, 23.0050, "Dimovo"),
+                    (43.7100, 23.0600, "Montana north approach"),
+                    (43.6400, 23.1000, "Boychinovtsi area"),
                     (43.5600, 23.1300, "Berkovitsa / Vratsa junction area"),
-                    (43.4082, 23.2254, "Montana")
+                    (43.4820, 23.1680, "Montana north"),
+                    (43.4082, 23.2254, "Montana interchange")
                 ],
                 milestones:
                 [
@@ -624,10 +727,16 @@ public static class NationalNetworkSeed
                 sourceUrl: "https://en.wikipedia.org/wiki/E79_road_(Bulgaria)",
                 shapePoints:
                 [
-                    (43.4082, 23.2254, "Montana"),
-                    (43.2100, 23.5530, "Vratsa"),
-                    (43.1490, 23.7100, "Mezdra"),
-                    (42.9050, 23.7900, "Botevgrad")
+                    (43.4082, 23.2254, "Montana interchange"),
+                    (43.3520, 23.3080, "Montana south"),
+                    (43.2820, 23.4220, "Vratsa north approach"),
+                    (43.2100, 23.5530, "Vratsa interchange"),
+                    (43.1820, 23.6180, "Mezdra north approach"),
+                    (43.1490, 23.7100, "Mezdra interchange"),
+                    (43.0920, 23.7350, "Iskar gorge north"),
+                    (43.0450, 23.7580, "Iskar gorge – Lakatnik area"),
+                    (42.9780, 23.7720, "Svoge passage"),
+                    (42.9050, 23.7900, "Botevgrad interchange")
                 ],
                 milestones:
                 [
@@ -658,10 +767,17 @@ public static class NationalNetworkSeed
                 sourceUrl: "https://en.wikipedia.org/wiki/Ruse%E2%80%93Veliko_Tarnovo_motorway",
                 shapePoints:
                 [
-                    (43.8356, 25.9657, "Ruse"),
-                    (43.6883, 25.7396, "Byala"),
+                    (43.8356, 25.9657, "Ruse (Danube Bridge)"),
+                    (43.7920, 25.9280, "Ruse south ring"),
+                    (43.7480, 25.8720, "Nikolovo"),
+                    (43.6883, 25.7396, "Byala interchange"),
+                    (43.6220, 25.7100, "Byala south"),
+                    (43.5480, 25.6920, "Pavlikeni north approach"),
                     (43.4700, 25.6900, "Pavlikeni area"),
+                    (43.3850, 25.6720, "Gorna Oryahovitsa north"),
+                    (43.3120, 25.6580, "Gorna Oryahovitsa"),
                     (43.2200, 25.6500, "Gorna Oryahovitsa approach"),
+                    (43.1520, 25.6310, "Arbanasi area"),
                     (43.0770, 25.6173, "Veliko Tarnovo")
                 ],
                 milestones:
@@ -692,10 +808,14 @@ public static class NationalNetworkSeed
                 sourceUrl: "https://bg.wikipedia.org/wiki/%D0%A1%D0%BA%D0%BE%D1%80%D0%BE%D1%81%D1%82%D0%B5%D0%BD_%D0%BF%D1%8A%D1%82_%D0%9C%D0%B5%D0%B7%D0%B4%D1%80%D0%B0_%E2%80%93_%D0%91%D0%BE%D1%82%D0%B5%D0%B2%D0%B3%D1%80%D0%B0%D0%B4",
                 shapePoints:
                 [
-                    (43.1490, 23.7100, "Mezdra"),
+                    (43.1490, 23.7100, "Mezdra interchange"),
+                    (43.1180, 23.7220, "Zverino area"),
                     (43.0900, 23.7300, "Lakatnik / Iskar gorge north"),
+                    (43.0650, 23.7450, "Bov area"),
                     (43.0450, 23.7600, "Iskar gorge south – Ledenika area"),
-                    (42.9050, 23.7900, "Botevgrad")
+                    (43.0120, 23.7720, "Tserovo"),
+                    (42.9620, 23.7810, "Botevgrad north approach"),
+                    (42.9050, 23.7900, "Botevgrad interchange")
                 ],
                 milestones:
                 [

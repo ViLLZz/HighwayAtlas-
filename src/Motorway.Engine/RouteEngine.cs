@@ -33,6 +33,44 @@ public static class GeoMath
         return (RadiansToDegrees(Math.Atan2(y, x)) + 360) % 360;
     }
 
+    public static IReadOnlyList<RoutePoint> SmoothPolyline(IReadOnlyList<RoutePoint> points, int iterations = 2)
+    {
+        if (points.Count < 3) return points;
+        var current = points;
+        for (var pass = 0; pass < iterations; pass++)
+        {
+            var next = new List<RoutePoint>(current.Count * 2) { current[0] };
+            for (var i = 0; i < current.Count - 1; i++)
+            {
+                var p0 = current[i];
+                var p1 = current[i + 1];
+                next.Add(new RoutePoint(
+                    0.75 * p0.Latitude + 0.25 * p1.Latitude,
+                    0.75 * p0.Longitude + 0.25 * p1.Longitude));
+                next.Add(new RoutePoint(
+                    0.25 * p0.Latitude + 0.75 * p1.Latitude,
+                    0.25 * p0.Longitude + 0.75 * p1.Longitude));
+            }
+            next.Add(current[^1]);
+            current = next;
+        }
+        return current;
+    }
+
+    public static (double MinLat, double MaxLat, double MinLon, double MaxLon) BoundingBox(IEnumerable<RoutePoint> points)
+    {
+        double minLat = double.MaxValue, maxLat = double.MinValue;
+        double minLon = double.MaxValue, maxLon = double.MinValue;
+        foreach (var p in points)
+        {
+            if (p.Latitude < minLat) minLat = p.Latitude;
+            if (p.Latitude > maxLat) maxLat = p.Latitude;
+            if (p.Longitude < minLon) minLon = p.Longitude;
+            if (p.Longitude > maxLon) maxLon = p.Longitude;
+        }
+        return (minLat, maxLat, minLon, maxLon);
+    }
+
     private static double DegreesToRadians(double degrees) => degrees * Math.PI / 180.0;
 
     private static double RadiansToDegrees(double radians) => radians * 180.0 / Math.PI;
@@ -188,6 +226,13 @@ public sealed class RouteEngine
         return TimeSpan.FromHours(hours);
     }
 
+    public (double MinLat, double MaxLat, double MinLon, double MaxLon) CalculateRouteBounds(HighwayRoute route)
+    {
+        var allPoints = route.Segments
+            .SelectMany(s => s.Shape.Concat(new[] { s.Start, s.End }));
+        return GeoMath.BoundingBox(allPoints);
+    }
+
     private static SegmentGeometryDiagnostics AnalyzeSegmentGeometry(RouteSegment segment)
     {
         if (segment.Shape.Count < 2)
@@ -229,7 +274,7 @@ public sealed class RouteEngine
 
         var averageSpanKm = spans.Average();
         var longestSpanKm = spans.Max();
-        var isSparseForLength = segment.LengthKm >= 40 && (segment.Shape.Count < 5 || longestSpanKm > 22);
+        var isSparseForLength = segment.LengthKm >= 30 && (segment.Shape.Count < 6 || longestSpanKm > 15);
 
         return new SegmentGeometryDiagnostics(
             segment.RouteCode,

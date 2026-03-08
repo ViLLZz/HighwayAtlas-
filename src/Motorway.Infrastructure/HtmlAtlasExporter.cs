@@ -77,6 +77,10 @@ public static class HtmlAtlasExporter
                 linear-gradient(180deg, #040c14 0%, #071725 50%, #081a2b 100%);
             color: var(--text);
             font-family: var(--body-font);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
+            scroll-behavior: smooth;
         }
 
         body::before,
@@ -792,30 +796,30 @@ public static class HtmlAtlasExporter
 
         .tablet-tab-row {
             display: grid;
-            grid-template-columns: repeat(4, minmax(0, 1fr));
-            gap: 8px;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: 7px;
         }
 
         .tablet-info-tab {
-            min-height: 52px;
-            padding: 10px 8px;
+            min-height: 46px;
+            padding: 8px 6px;
             justify-content: center;
             font-size: 11px;
             display: grid;
-            gap: 3px;
+            gap: 2px;
             justify-items: start;
             text-align: left;
         }
 
         .tablet-tab-label {
-            font-size: 10px;
+            font-size: 9px;
             font-weight: 800;
-            letter-spacing: .12em;
+            letter-spacing: .1em;
             text-transform: uppercase;
         }
 
         .tablet-tab-metric {
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 700;
             letter-spacing: -.02em;
             color: #eef6ff;
@@ -1131,6 +1135,19 @@ public static class HtmlAtlasExporter
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 28px 74px rgba(0,0,0,0.24);
         }
 
+        .map-stage::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(138, 176, 216, 0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(138, 176, 216, 0.04) 1px, transparent 1px);
+            background-size: 48px 48px;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.6;
+        }
+
         .map-stage-quickbar {
             display: none;
             position: relative;
@@ -1233,7 +1250,9 @@ public static class HtmlAtlasExporter
             border-color: rgba(132, 169, 227, 0.2);
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), var(--shadow), var(--glow);
             backdrop-filter: blur(26px) saturate(1.1);
-            transition: opacity .2s ease, transform .24s ease, width .24s ease, max-height .24s ease;
+            transition: opacity .2s ease, transform .24s cubic-bezier(.4, 0, .2, 1), width .24s ease, max-height .24s ease;
+            will-change: transform, opacity;
+            transform: translateZ(0);
         }
 
         .floating-card::before {
@@ -1393,8 +1412,8 @@ public static class HtmlAtlasExporter
             grid-template-columns: minmax(0, 1fr) minmax(248px, 276px);
             grid-template-areas:
                 "quick quick"
-                "map selection"
-                "map timeline";
+                "map timeline"
+                "map selection";
             align-items: start;
             gap: 12px;
             padding: 12px;
@@ -1437,6 +1456,8 @@ public static class HtmlAtlasExporter
             width: auto;
             padding: 12px;
             border-radius: 18px;
+            max-height: clamp(320px, 45vh, 520px);
+            overflow: auto;
         }
 
         body.device-desktop:not(.viewport-short) .floating-bottom-left {
@@ -1446,7 +1467,8 @@ public static class HtmlAtlasExporter
         body.device-desktop:not(.viewport-short) .floating-bottom-right {
             grid-area: timeline;
             width: auto;
-            max-height: none;
+            max-height: clamp(200px, 25vh, 320px);
+            overflow: auto;
             padding: 12px;
             border-radius: 18px;
         }
@@ -1971,7 +1993,7 @@ public static class HtmlAtlasExporter
             position: fixed;
             left: max(10px, env(safe-area-inset-left));
             right: max(10px, env(safe-area-inset-right));
-            bottom: calc(max(10px, env(safe-area-inset-bottom)) + 82px);
+            bottom: calc(max(10px, env(safe-area-inset-bottom)) + 78px);
             z-index: 78;
             max-height: min(26vh, 220px);
             overflow: hidden;
@@ -1983,13 +2005,14 @@ public static class HtmlAtlasExporter
             backdrop-filter: blur(18px) saturate(1.04);
             border-radius: 24px;
             transform: translateY(calc(100% - 28px));
-            transition: transform .28s ease, max-height .28s ease;
+            transition: transform .28s cubic-bezier(.4, 0, .2, 1), max-height .28s cubic-bezier(.4, 0, .2, 1);
+            will-change: transform;
         }
 
         body.device-phone .sidebar.phone-drawer-open {
             transform: translateY(0);
             overflow: auto;
-            max-height: min(34vh, 288px);
+            max-height: min(42vh, 360px);
         }
 
         body.device-phone .sidebar::before {
@@ -2058,10 +2081,10 @@ public static class HtmlAtlasExporter
             left: max(10px, env(safe-area-inset-left));
             right: max(10px, env(safe-area-inset-right));
             bottom: max(10px, env(safe-area-inset-bottom));
-            grid-template-columns: repeat(5, minmax(0, 1fr));
-            gap: 6px;
+            grid-template-columns: repeat(6, minmax(0, 1fr));
+            gap: 5px;
             z-index: 80;
-            padding: 8px;
+            padding: 7px;
             border-radius: 20px;
             border: 1px solid rgba(138, 176, 216, 0.22);
             background: linear-gradient(180deg, rgba(15, 31, 47, 0.92), rgba(8, 19, 30, 0.96));
@@ -2073,15 +2096,16 @@ public static class HtmlAtlasExporter
             appearance: none;
             display: grid;
             justify-items: center;
-            gap: 4px;
-            min-height: 48px;
-            padding: 7px 5px;
-            border-radius: 14px;
+            gap: 3px;
+            min-height: 44px;
+            padding: 6px 3px;
+            border-radius: 12px;
             border: 1px solid rgba(138, 176, 216, 0.16);
             background: rgba(255,255,255,0.05);
             color: #f4f9ff;
             cursor: pointer;
             transition: transform .18s ease, border-color .18s ease, background .18s ease;
+            will-change: transform;
         }
 
         .phone-action:hover,
@@ -2154,8 +2178,8 @@ public static class HtmlAtlasExporter
         }
 
         body.device-tablet {
-            --map-height: min(40vh, 470px);
-            --map-min-height: 360px;
+            --map-height: min(44vh, 500px);
+            --map-min-height: 380px;
         }
 
         body.device-phone {
@@ -2328,6 +2352,31 @@ public static class HtmlAtlasExporter
         .segment-chip .dot {
             width: 8px;
             height: 8px;
+        }
+
+        .route-shield {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 32px;
+            height: 24px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            background: linear-gradient(180deg, #1a8a3e, #116b2e);
+            border: 2px solid #fff;
+            color: #fff;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: .04em;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.35);
+            white-space: nowrap;
+            cursor: pointer;
+            transition: transform .15s ease;
+        }
+
+        .route-shield:hover {
+            transform: scale(1.12);
         }
 
         .selection-header {
@@ -3047,6 +3096,7 @@ public static class HtmlAtlasExporter
                         <button type="button" class="tab tablet-info-tab" id="tablet-tab-notes" data-tablet-tab="notes"></button>
                         <button type="button" class="tab tablet-info-tab" id="tablet-tab-routes" data-tablet-tab="routes"></button>
                         <button type="button" class="tab tablet-info-tab" id="tablet-tab-lots" data-tablet-tab="lots"></button>
+                        <button type="button" class="tab tablet-info-tab" id="tablet-tab-timeline" data-tablet-tab="timeline"></button>
                     </div>
                 </section>
 
@@ -3167,6 +3217,10 @@ public static class HtmlAtlasExporter
                 <span class="phone-action-key" id="phone-action-reset-label"></span>
                 <span class="phone-action-value" id="phone-action-reset-value"></span>
             </button>
+            <button type="button" class="phone-action" id="phone-action-timeline">
+                <span class="phone-action-key" id="phone-action-timeline-label"></span>
+                <span class="phone-action-value" id="phone-action-timeline-value"></span>
+            </button>
         </nav>
     </div>
 
@@ -3190,6 +3244,7 @@ public static class HtmlAtlasExporter
                 notesTab: 'Бележки',
                 routesTab: 'Маршрути',
                 lotsTab: 'Лотове',
+                timelineTab: 'Линия',
                 statusLegend: 'Статуси',
                 headlineNow: 'Текущ избор',
                 headlineAudit: 'Колко сигурни са данните',
@@ -3333,6 +3388,8 @@ public static class HtmlAtlasExporter
                 phoneLots: 'Лотове',
                 phoneReset: 'Нулирай',
                 phoneResetHint: 'Изглед',
+                phoneTimeline: 'Линия',
+                phoneTimelineHint: 'Хронология',
                 clearSelection: 'Изчисти избора',
                 resetView: 'Нулирай изгледа',
                 focusHintTitle: 'Изберете от картата',
@@ -3366,6 +3423,7 @@ public static class HtmlAtlasExporter
                 notesTab: 'Notes',
                 routesTab: 'Routes',
                 lotsTab: 'Lots',
+                timelineTab: 'Timeline',
                 statusLegend: 'Statuses',
                 headlineNow: 'Current focus',
                 headlineAudit: 'How solid the data is',
@@ -3509,6 +3567,8 @@ public static class HtmlAtlasExporter
                 phoneLots: 'Lots',
                 phoneReset: 'Reset',
                 phoneResetHint: 'View',
+                phoneTimeline: 'Time',
+                phoneTimelineHint: 'History',
                 clearSelection: 'Clear selection',
                 resetView: 'Reset view',
                 focusHintTitle: 'Select from map',
@@ -3582,14 +3642,14 @@ public static class HtmlAtlasExporter
             notesEyebrow: $('notes-eyebrow'), notesTitle: $('notes-title'), notesBody: $('notes-body'),
             routesEyebrow: $('routes-eyebrow'), routesTitle: $('routes-title'), routesCount: $('routes-count'), routeList: $('route-list'),
             lotsEyebrow: $('lots-eyebrow'), lotsTitle: $('lots-title'), lotsCount: $('lots-count'), lotList: $('lot-list'),
-            tabletTabsEyebrow: $('tablet-tabs-eyebrow'), tabletTabFacts: $('tablet-tab-facts'), tabletTabNotes: $('tablet-tab-notes'), tabletTabRoutes: $('tablet-tab-routes'), tabletTabLots: $('tablet-tab-lots'),
+            tabletTabsEyebrow: $('tablet-tabs-eyebrow'), tabletTabFacts: $('tablet-tab-facts'), tabletTabNotes: $('tablet-tab-notes'), tabletTabRoutes: $('tablet-tab-routes'), tabletTabLots: $('tablet-tab-lots'), tabletTabTimeline: $('tablet-tab-timeline'),
             tabletControlSurface: document.querySelector('.tablet-control-surface'), tabletScrollCue: $('tablet-scroll-cue'), tabletScrollHint: $('tablet-scroll-hint'),
             sidebar: document.querySelector('.sidebar'),
             summaryPanel: $('summary-panel'), filtersPanel: $('filters-panel'), networkPanel: $('network-panel'), notesPanel: $('notes-panel'), routesPanel: $('routes-panel'), lotsPanel: $('lots-panel'),
             heroEyebrow: $('hero-eyebrow'), heroTitle: $('hero-title'), heroSubtitle: $('hero-subtitle'), heroFocus: $('hero-focus'), heroStats: $('hero-stats'), mapStage: document.querySelector('.map-stage'), selectionPanel: $('selection-panel'),
             selectionEyebrow: $('selection-eyebrow'), selectionTitle: $('selection-title'), selectionSubtitle: $('selection-subtitle'), selectionClear: $('selection-clear'), selectionStatus: $('selection-status'), selectionPills: $('selection-pills'), selectionFacts: $('selection-facts'), selectionNote: $('selection-note'),
             legalEyebrow: $('legal-eyebrow'), legalTitle: $('legal-title'), legalCopy: $('legal-copy'),
-            phoneActionFacts: $('phone-action-facts'), phoneActionFactsLabel: $('phone-action-facts-label'), phoneActionFactsValue: $('phone-action-facts-value'), phoneActionNotes: $('phone-action-notes'), phoneActionNotesLabel: $('phone-action-notes-label'), phoneActionNotesValue: $('phone-action-notes-value'), phoneActionRoutes: $('phone-action-routes'), phoneActionRoutesLabel: $('phone-action-routes-label'), phoneActionRoutesValue: $('phone-action-routes-value'), phoneActionLots: $('phone-action-lots'), phoneActionLotsLabel: $('phone-action-lots-label'), phoneActionLotsValue: $('phone-action-lots-value'), phoneActionReset: $('phone-action-reset'), phoneActionResetLabel: $('phone-action-reset-label'), phoneActionResetValue: $('phone-action-reset-value'),
+            phoneActionFacts: $('phone-action-facts'), phoneActionFactsLabel: $('phone-action-facts-label'), phoneActionFactsValue: $('phone-action-facts-value'), phoneActionNotes: $('phone-action-notes'), phoneActionNotesLabel: $('phone-action-notes-label'), phoneActionNotesValue: $('phone-action-notes-value'), phoneActionRoutes: $('phone-action-routes'), phoneActionRoutesLabel: $('phone-action-routes-label'), phoneActionRoutesValue: $('phone-action-routes-value'), phoneActionLots: $('phone-action-lots'), phoneActionLotsLabel: $('phone-action-lots-label'), phoneActionLotsValue: $('phone-action-lots-value'), phoneActionReset: $('phone-action-reset'), phoneActionResetLabel: $('phone-action-reset-label'), phoneActionResetValue: $('phone-action-reset-value'), phoneActionTimeline: $('phone-action-timeline'), phoneActionTimelineLabel: $('phone-action-timeline-label'), phoneActionTimelineValue: $('phone-action-timeline-value'),
             timelineEyebrow: $('timeline-eyebrow'), timelineTitle: $('timeline-title'), timeline: $('timeline'), legend: $('legend'), desktopLegend: $('desktop-legend'), tabletLegend: $('tablet-legend'), tabletLegendLabel: $('tablet-legend-label'), tabletMapPresets: $('tablet-map-presets'), tabletMapPresetsLabel: $('tablet-map-presets-label')
         };
 
@@ -3884,6 +3944,24 @@ public static class HtmlAtlasExporter
                 el.phoneActionReset.onclick = () => {
                     state.phoneDrawerOpen = false;
                     clearInteractiveContext();
+                };
+            }
+
+            if (el.phoneActionTimeline && el.phoneActionTimelineLabel && el.phoneActionTimelineValue) {
+                const milestoneCount = (atlas.network.milestones || []).length;
+                el.phoneActionTimelineLabel.textContent = t('phoneTimeline');
+                el.phoneActionTimelineValue.textContent = t('phoneTimelineHint');
+                el.phoneActionTimeline.classList.toggle('active', isPhone && state.tabletInfoTab === 'timeline' && state.phoneDrawerOpen);
+                el.phoneActionTimeline.onclick = () => {
+                    if (isPhone && state.tabletInfoTab === 'timeline' && state.phoneDrawerOpen) {
+                        state.phoneDrawerOpen = false;
+                        render();
+                        return;
+                    }
+                    state.tabletInfoTab = 'timeline';
+                    state.phoneDrawerOpen = isPhone;
+                    if (isPhone && sidebar) sidebar.scrollTo({ top: 0, behavior: 'smooth' });
+                    render();
                 };
             }
         }
@@ -4806,6 +4884,20 @@ public static class HtmlAtlasExporter
                 { key: 'routes', button: el.tabletTabRoutes, panel: el.routesPanel },
                 { key: 'lots', button: el.tabletTabLots, panel: el.lotsPanel }
             ];
+            const isCompactProfile = document.body.classList.contains('device-tablet') || document.body.classList.contains('device-phone');
+            const isTablet = document.body.classList.contains('device-tablet');
+            const timelineCard = document.querySelector('.floating-bottom-right');
+
+            if (el.tabletTabTimeline) {
+                el.tabletTabTimeline.innerHTML = `<span class="tablet-tab-label">${t('timelineTab')}</span><span class="tablet-tab-metric">${(atlas.network.milestones || []).length}</span>`;
+                el.tabletTabTimeline.classList.toggle('active', state.tabletInfoTab === 'timeline');
+                el.tabletTabTimeline.onclick = () => {
+                    state.tabletInfoTab = 'timeline';
+                    if (isPhone) state.phoneDrawerOpen = true;
+                    render();
+                };
+            }
+
             tabletPanels.forEach(item => {
                 if (item.button) {
                     item.button.classList.toggle('active', state.tabletInfoTab === item.key);
@@ -4816,9 +4908,32 @@ public static class HtmlAtlasExporter
                     };
                 }
                 if (item.panel) {
-                    item.panel.hidden = (document.body.classList.contains('device-tablet') || document.body.classList.contains('device-phone')) && state.tabletInfoTab !== item.key;
+                    item.panel.hidden = isCompactProfile && state.tabletInfoTab !== item.key;
                 }
             });
+            if ((isPhone || isTablet) && timelineCard) {
+                if (state.tabletInfoTab === 'timeline' && (!isPhone || state.phoneDrawerOpen)) {
+                    timelineCard.style.display = 'block';
+                    timelineCard.style.position = 'static';
+                    timelineCard.style.width = 'auto';
+                    timelineCard.style.maxHeight = 'none';
+                    timelineCard.style.overflow = 'visible';
+                    timelineCard.style.padding = '10px';
+                    timelineCard.style.borderRadius = '16px';
+                    if (el.sidebar) el.sidebar.appendChild(timelineCard);
+                    tabletPanels.forEach(item => { if (item.panel) item.panel.hidden = true; });
+                } else {
+                    timelineCard.style.display = '';
+                    timelineCard.style.position = '';
+                    timelineCard.style.width = '';
+                    timelineCard.style.maxHeight = '';
+                    timelineCard.style.overflow = '';
+                    timelineCard.style.padding = '';
+                    timelineCard.style.borderRadius = '';
+                    const mapStage = document.querySelector('.map-stage');
+                    if (mapStage && !mapStage.contains(timelineCard)) mapStage.appendChild(timelineCard);
+                }
+            }
         }
 
         function renderHero() {
@@ -5195,6 +5310,22 @@ public static class HtmlAtlasExporter
                     }).addTo(highlightLayer);
                 }
             });
+
+            if (map.getZoom() >= 9) {
+                const shieldRoutes = new Set();
+                segments.forEach(segment => {
+                    if (shieldRoutes.has(segment.routeCode)) return;
+                    shieldRoutes.add(segment.routeCode);
+                    const mid = segment.shape[Math.floor(segment.shape.length / 2)];
+                    const code = segment.routeCode.replace(/^AM-/, '').replace(/-\d+$/, '');
+                    L.marker([mid.lat, mid.lon], {
+                        keyboard: false,
+                        zIndexOffset: 1100,
+                        interactive: false,
+                        icon: L.divIcon({ className: '', html: `<div class="route-shield">${code}</div>`, iconSize: [36, 28], iconAnchor: [18, 14] })
+                    }).addTo(statusLayer);
+                });
+            }
 
             if (selectedLot) {
                 focusLot();

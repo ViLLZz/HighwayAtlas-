@@ -46,8 +46,8 @@ public sealed class NetworkSeedTests
         Assert.True(plannedEast.Shape[^1].Latitude > 43.2);
         Assert.True(plannedEast.Shape[^1].Longitude > 26.5);
 
-        Assert.Equal("Kaspichan corridor", openEast.Shape[1].Name);
-        Assert.Equal("Belokopitovo interchange", openEast.Shape[2].Name);
+        Assert.Equal("Kaspichan west approach", openEast.Shape[1].Name);
+        Assert.Equal("Kaspichan", openEast.Shape[2].Name);
         Assert.True(openEast.Shape[2].Longitude > openEast.Shape[1].Longitude);
         Assert.True(openEast.Shape[^1].Longitude > openEast.Shape[2].Longitude);
     }
