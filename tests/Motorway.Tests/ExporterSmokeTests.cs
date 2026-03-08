@@ -31,6 +31,8 @@ public sealed class ExporterSmokeTests
         Assert.Contains("getDeviceProfile", html, StringComparison.Ordinal);
         Assert.Contains("syncDeviceProfile", html, StringComparison.Ordinal);
         Assert.Contains("device-tablet", html, StringComparison.Ordinal);
+        Assert.Contains("grid-template-areas:", html, StringComparison.Ordinal);
+        Assert.Contains("iconSize: [18, 18]", html, StringComparison.Ordinal);
         Assert.Contains("stage-quick-presets", html, StringComparison.Ordinal);
         Assert.Contains("map-stage-quickbar", html, StringComparison.Ordinal);
         Assert.Contains("text-wrap: balance", html, StringComparison.Ordinal);

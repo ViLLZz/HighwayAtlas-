@@ -958,26 +958,57 @@ public static class HtmlAtlasExporter
             grid-template-columns: minmax(300px, 356px) minmax(0, 1fr);
         }
 
+        body.device-desktop:not(.viewport-short) .map-stage {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(284px, 318px);
+            grid-template-areas:
+                "map map"
+                "hero selection"
+                "tools timeline";
+            align-items: start;
+            gap: 16px;
+        }
+
+        body.device-desktop:not(.viewport-short) #map {
+            grid-area: map;
+        }
+
+        body.device-desktop:not(.viewport-short) .floating-card {
+            position: static;
+            width: auto;
+            max-height: none;
+            overflow: visible;
+        }
+
         body.device-desktop:not(.viewport-short) .floating-top-left {
-            width: min(34%, 408px);
+            grid-area: hero;
+            width: auto;
         }
 
         body.device-desktop:not(.viewport-short) .floating-top-right {
-            width: min(320px, calc(100% - 36px));
+            grid-area: selection;
+            width: auto;
         }
 
         body.device-desktop:not(.viewport-short) .floating-bottom-left {
-            width: min(320px, calc(100% - 36px));
+            grid-area: tools;
+            width: auto;
         }
 
         body.device-desktop:not(.viewport-short) .floating-bottom-right {
-            width: min(336px, calc(100% - 36px));
-            max-height: 224px;
+            grid-area: timeline;
+            width: auto;
+            max-height: none;
         }
 
         body.device-desktop:not(.viewport-short) {
-            --map-height: clamp(560px, 69vh, 940px);
+            --map-height: clamp(540px, 65vh, 860px);
             --map-min-height: 560px;
+        }
+
+        body.device-desktop:not(.viewport-short) .year-overlay {
+            top: calc(var(--map-height) - 120px);
+            bottom: auto;
         }
 
         body.device-tablet .workspace,
@@ -1178,27 +1209,27 @@ public static class HtmlAtlasExporter
         .lot-marker {
             display: grid;
             place-items: center;
-            width: 22px;
-            height: 22px;
+            width: 18px;
+            height: 18px;
             border-radius: 999px;
             background: rgba(6, 14, 24, 0.88);
-            border: 2px solid rgba(255,255,255,0.88);
-            box-shadow: 0 10px 24px rgba(0,0,0,0.28);
+            border: 1.5px solid rgba(255,255,255,0.88);
+            box-shadow: 0 8px 18px rgba(0,0,0,0.24);
             backdrop-filter: blur(10px);
         }
 
         .lot-marker-core {
-            width: 8px;
-            height: 8px;
+            width: 5px;
+            height: 5px;
             border-radius: 999px;
             background: white;
-            box-shadow: 0 0 14px rgba(255,255,255,0.45);
+            box-shadow: 0 0 8px rgba(255,255,255,0.34);
         }
 
         .lot-marker.selected {
-            transform: scale(1.18);
+            transform: scale(1.1);
             border-color: rgba(255,255,255,0.98);
-            box-shadow: 0 0 0 6px rgba(137, 182, 255, 0.18), 0 18px 42px rgba(0,0,0,0.38);
+            box-shadow: 0 0 0 4px rgba(137, 182, 255, 0.14), 0 14px 28px rgba(0,0,0,0.3);
         }
 
         .segment-chip {
@@ -3545,7 +3576,7 @@ public static class HtmlAtlasExporter
                     const lotPath = buildLotPath(segment, lot);
                     const lotLine = L.polyline(lotPath, {
                         color: statusMeta[lot.status].color,
-                        weight: isSelectedLot ? 7.5 : (lot.isDerived ? 4.6 : 6.0),
+                        weight: isSelectedLot ? 6.1 : (lot.isDerived ? 3.8 : 4.8),
                         opacity: isSelectedLot ? 0.98 : (lot.isDerived ? 0.58 : 0.88),
                         dashArray: lot.status === 'Planned' ? '10 8' : lot.status === 'UnderConstruction' ? '14 10' : null,
                         lineCap: 'round',
@@ -3570,7 +3601,7 @@ public static class HtmlAtlasExporter
                         riseOnHover: true,
                         bubblingMouseEvents: false,
                         zIndexOffset: isSelectedLot ? 2000 : 0,
-                        icon: L.divIcon({ className: '', html: `<div class="lot-marker ${isSelectedLot ? 'selected' : ''}" style="background:${statusMeta[lot.status].color}; box-shadow: 0 0 0 ${isSelectedLot ? '6px' : '4px'} rgba(3,8,18,.48), 0 14px 32px ${statusMeta[lot.status].color}66"><span class="lot-marker-core" style="background:${lot.status === 'Planned' ? '#f3ecff' : lot.status === 'UnderConstruction' ? '#fff3de' : '#ffffff'}"></span></div>`, iconSize: [22, 22], iconAnchor: [11, 11] })
+                        icon: L.divIcon({ className: '', html: `<div class="lot-marker ${isSelectedLot ? 'selected' : ''}" style="background:${statusMeta[lot.status].color}; box-shadow: 0 0 0 ${isSelectedLot ? '4px' : '2.5px'} rgba(3,8,18,.44), 0 10px 20px ${statusMeta[lot.status].color}4d"><span class="lot-marker-core" style="background:${lot.status === 'Planned' ? '#f3ecff' : lot.status === 'UnderConstruction' ? '#fff3de' : '#ffffff'}"></span></div>`, iconSize: [18, 18], iconAnchor: [9, 9] })
                     }).addTo(lotLayer);
 
                     marker.bindPopup(renderLotPopup(lot, segment), { maxWidth: 360, autoPan: true, closeButton: true, closeOnClick: false, autoClose: false, keepInView: true, className: 'atlas-popup-card' });
