@@ -584,6 +584,12 @@ public static class HtmlAtlasExporter
             border: 2px solid rgba(62,162,255,0.8);
             box-shadow: 0 6px 18px rgba(0,0,0,0.28);
             cursor: pointer;
+            transition: transform .15s ease, box-shadow .15s ease;
+        }
+        
+        .playback-range::-moz-range-thumb:hover {
+            transform: scale(1.15);
+            box-shadow: 0 8px 24px rgba(62,162,255,0.4), 0 0 0 4px rgba(62,162,255,0.15);
         }
 
         .workspace {
@@ -610,6 +616,26 @@ public static class HtmlAtlasExporter
             background: linear-gradient(180deg, rgba(17, 34, 52, 0.86), rgba(8, 19, 30, 0.95));
             backdrop-filter: blur(26px) saturate(1.08);
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), var(--shadow);
+            overscroll-behavior: contain;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(138, 176, 216, 0.3) transparent;
+        }
+        
+        .sidebar::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .sidebar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        .sidebar::-webkit-scrollbar-thumb {
+            background: rgba(138, 176, 216, 0.3);
+            border-radius: 999px;
+        }
+        
+        .sidebar::-webkit-scrollbar-thumb:hover {
+            background: rgba(138, 176, 216, 0.45);
         }
 
         .sidebar-scroll {
@@ -809,6 +835,23 @@ public static class HtmlAtlasExporter
             gap: 2px;
             justify-items: start;
             text-align: left;
+            cursor: pointer;
+            transition: transform .15s ease, background .15s ease, border-color .15s ease;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .tablet-info-tab:hover {
+            background: rgba(255,255,255,0.06);
+        }
+        
+        .tablet-info-tab:active {
+            transform: scale(0.96);
+            transition-duration: .08s;
+        }
+        
+        .tablet-info-tab:focus-visible {
+            outline: 2px solid var(--accent);
+            outline-offset: 1px;
         }
 
         .tablet-tab-label {
@@ -964,6 +1007,20 @@ public static class HtmlAtlasExporter
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.16), 0 14px 28px rgba(24, 113, 155, 0.18);
         }
         .select { appearance: none; cursor: pointer; }
+        
+        button, .tab, .chip, .toggle, .route-pill, .phone-action {
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        button:focus-visible, .tab:focus-visible, .chip:focus-visible, .toggle:focus-visible, .route-pill:focus-visible {
+            outline: 2px solid var(--accent);
+            outline-offset: 2px;
+        }
+        
+        button:active, .tab:active, .chip:active, .toggle:active {
+            transform: scale(0.97);
+            transition-duration: .05s !important;
+        }
 
         .status-pill {
             display: inline-flex;
@@ -2105,15 +2162,8 @@ public static class HtmlAtlasExporter
             color: #f4f9ff;
             cursor: pointer;
             transition: transform .18s ease, border-color .18s ease, background .18s ease;
-            will-change: transform;
-        }
-
-        .phone-action:hover,
-        .phone-action.active {
-            transform: translateY(-1px);
-            border-color: rgba(92, 169, 255, 0.36);
-            background: linear-gradient(180deg, rgba(92, 169, 255, 0.16), rgba(69, 214, 189, 0.1));
-        }
+            will-change: transform;\n            -webkit-tap-highlight-color: transparent;
+        }\n\n        .phone-action:hover,\n        .phone-action.active {\n            transform: translateY(-1px);\n            border-color: rgba(92, 169, 255, 0.36);\n            background: linear-gradient(180deg, rgba(92, 169, 255, 0.16), rgba(69, 214, 189, 0.1));\n        }\n        \n        .phone-action:active {\n            transform: translateY(0) scale(0.96);\n            transition-duration: .08s;\n        }\n        \n        .phone-action:focus-visible {\n            outline: 2px solid var(--accent);\n            outline-offset: 2px;\n        }
 
         .phone-action-key {
             font-size: 9px;
@@ -2140,7 +2190,7 @@ public static class HtmlAtlasExporter
                 transition-duration: 0.01ms !important;
                 scroll-behavior: auto !important;
             }
-        }
+            \n            .floating-card,\n            .route-pill,\n            .tab,\n            .chip,\n            .toggle,\n            .phone-action,\n            .tablet-info-tab {\n                will-change: auto !important;\n            }\n        }\n        \n        @media (prefers-color-scheme: light) {\n            :root {\n                color-scheme: dark;\n            }\n        }
 
         body.device-tablet .sidebar {
             padding: 0;
@@ -2372,11 +2422,18 @@ public static class HtmlAtlasExporter
             box-shadow: 0 4px 12px rgba(0,0,0,0.35);
             white-space: nowrap;
             cursor: pointer;
-            transition: transform .15s ease;
+            transition: transform .15s ease, box-shadow .15s ease;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .route-shield:hover {
             transform: scale(1.12);
+            box-shadow: 0 6px 16px rgba(26, 138, 62, 0.4), 0 0 0 3px rgba(26, 138, 62, 0.15);
+        }
+        
+        .route-shield:active {
+            transform: scale(1.05);
+            transition-duration: .08s;
         }
 
         .selection-header {
