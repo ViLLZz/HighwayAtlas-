@@ -1390,24 +1390,37 @@ public static class HtmlAtlasExporter
             border-color: rgba(132, 169, 227, 0.2);
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), var(--shadow), var(--glow);
             backdrop-filter: blur(26px) saturate(1.1);
-            transition: opacity .2s ease, transform .24s cubic-bezier(.4, 0, .2, 1), width .24s ease, max-height .24s ease;
+            transition: opacity .2s ease, transform .24s cubic-bezier(.4, 0, .2, 1), width .24s ease, max-height .3s ease;
             will-change: transform, opacity;
             transform: translateZ(0);
+            border-radius: calc(var(--radius-xl));
         }
         
-        /* v4.1: Enhanced glassmorphism for map controls */
+        /* v4.2: Improved glassmorphism for floating cards - all devices */
+        .floating-card.glass-enhanced {
+            background: linear-gradient(135deg, rgba(11, 24, 40, 0.88), rgba(8, 17, 30, 0.92));
+            backdrop-filter: blur(32px) saturate(1.25) brightness(1.12);
+            border: 1px solid rgba(255,255,255,0.12);
+            box-shadow: 
+                inset 0 1px 2px rgba(255,255,255,0.1),
+                inset 0 -1px 2px rgba(0,0,0,0.1),
+                0 20px 48px rgba(0,0,0,0.24),
+                0 0 32px rgba(62,162,255,0.08);
+        }
+        
+        /* v4.2: Enhanced glassmorphism for map controls */
         .map-stage-quickbar.glass-enhanced {
-            background: linear-gradient(135deg, rgba(10, 20, 34, 0.75), rgba(7, 14, 26, 0.85));
-            backdrop-filter: blur(36px) saturate(1.3) brightness(1.08);
+            background: linear-gradient(135deg, rgba(10, 20, 34, 0.8), rgba(7, 14, 26, 0.88));
+            backdrop-filter: blur(36px) saturate(1.3) brightness(1.1);
             border: 1px solid rgba(255,255,255,0.14);
             box-shadow: 
                 inset 0 1px 0 rgba(255,255,255,0.1),
                 inset 0 -1px 2px rgba(0,0,0,0.12),
-                0 16px 38px rgba(0,0,0,0.24),
-                0 6px 14px rgba(62,162,255,0.06);
+                0 18px 42px rgba(0,0,0,0.26),
+                0 6px 16px rgba(62,162,255,0.08);
         }
         
-        /* v4.1: Dark mode intensity slider */
+        /* v4.2: Dark mode intensity slider */
         .dark-mode-slider {
             position: relative;
             width: 100%;
@@ -1898,26 +1911,56 @@ public static class HtmlAtlasExporter
             display: none;
         }
 
+        /* v4.2: COMPLETE TABLET REDESIGN - Responsive proportions for iPad */
         body.device-tablet .floating-top-left,
         body.device-tablet .floating-bottom-right,
         body.device-tablet .floating-bottom-left {
             display: none;
         }
 
+        /* v4.2: Selection panel - responsive width, proper proportions */
         body.device-tablet .floating-top-right {
-            position: absolute;
-            top: 74px;
-            right: 8px;
-            width: min(198px, 27%);
-            z-index: 4;
-            max-height: 132px;
-            overflow: auto;
-            padding: 7px 8px 9px;
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 14px 32px rgba(0,0,0,0.18);
+            position: fixed;
+            top: max(16px, env(safe-area-inset-top));
+            right: max(12px, env(safe-area-inset-right));
+            bottom: auto;
+            left: auto;
+            width: clamp(240px, 42vw, 380px);
+            z-index: 104;
+            max-height: calc(90vh - max(100px, env(safe-area-inset-top)) - 24px);
+            min-height: 48px;
+            overflow: hidden;
+            padding: 12px;
+            border-radius: 20px;
+            background: linear-gradient(180deg, rgba(12, 24, 38, 0.88), rgba(8, 16, 28, 0.94));
+            backdrop-filter: blur(28px) saturate(1.15);
+            border: 1px solid rgba(255,255,255,0.08);
+            box-shadow: 
+                inset 0 1px 0 rgba(255,255,255,0.08),
+                0 16px 40px rgba(0,0,0,0.24),
+                0 0 32px rgba(62,162,255,0.08);
+            transition: max-height .3s ease, width .3s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 0;
         }
 
+        /* v4.2: Selection panel expanded state - scrollable with proper proportions */
+        body.device-tablet .floating-top-right:not(.passive) {
+            max-height: calc(85vh - max(80px, env(safe-area-inset-top)));
+            overflow-y: auto;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(238,106,49,0.4) transparent;
+        }
+
+        /* v4.2: Selection panel passive state */
         body.device-tablet .floating-top-right.passive {
-            display: none;
+            max-height: 52px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
         }
 
         body.device-tablet #map {
@@ -1927,51 +1970,35 @@ public static class HtmlAtlasExporter
 
         body.device-tablet .route-pills {
             gap: 8px;
-            padding: 6px;
+            padding: 8px;
         }
 
         body.device-tablet .route-pill {
-            min-width: 114px;
-            min-height: 42px;
-            padding: 7px 9px;
+            min-width: 120px;
+            min-height: 44px;
+            padding: 8px 10px;
+            border-radius: 12px;
         }
 
         body.device-tablet .route-pill .label {
-            font-size: 11px;
+            font-size: 12px;
+            font-weight: 500;
         }
 
         body.device-tablet .route-pill .meta,
         body.device-tablet .route-pill .code {
-            font-size: 8px;
+            font-size: 9px;
+            opacity: 0.75;
         }
 
+        /* v4.2: Ensure proper tablet non-floating cards */
         body.device-tablet .floating-top-left,
-        body.device-tablet .floating-top-right,
         body.device-tablet .floating-bottom-right,
         body.device-tablet .floating-bottom-left,
         body.device-desktop.viewport-short .floating-top-left,
-        body.device-desktop.viewport-short .floating-top-right,
         body.device-desktop.viewport-short .floating-bottom-right,
         body.device-desktop.viewport-short .floating-bottom-left {
-            width: auto;
-            max-height: none;
-            overflow: visible;
-        }
-        
-        /* v4.1: FIX iPad selection panel sizing - constraint when expanded */
-        body.device-tablet .floating-top-right:not(.passive) {
-            max-height: min(48vh, 420px);
-            overflow-y: auto;
-            overflow-x: hidden;
-            -webkit-overflow-scrolling: touch;
-        }
-        
-        /* v4.1: FIX iPad selection panel sizing - constraint when expanded */
-        body.device-tablet .floating-top-right:not(.passive) {
-            max-height: min(48vh, 420px);
-            overflow-y: auto;
-            overflow-x: hidden;
-            -webkit-overflow-scrolling: touch;
+            display: none !important;
         }
 
         body.device-tablet .topbar,
@@ -1981,26 +2008,30 @@ public static class HtmlAtlasExporter
         }
 
         body.device-tablet .topbar {
-            padding: 10px 12px;
-            gap: 8px 10px;
-            border-radius: 22px;
-            backdrop-filter: blur(16px) saturate(1.04);
-            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18), inset 0 1px 0 rgba(255,255,255,0.06);
+            padding: 12px 14px;
+            gap: 10px 12px;
+            border-radius: 24px;
+            backdrop-filter: blur(18px) saturate(1.06);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 20px 46px rgba(0, 0, 0, 0.2);
+            align-items: center;
         }
 
         body.device-tablet .brand {
-            gap: 2px;
+            gap: 4px;
         }
 
         body.device-tablet .brand h1 {
-            font-size: clamp(20px, 2.5vw, 26px);
-            line-height: 1;
+            font-size: clamp(22px, 3vw, 28px);
+            line-height: 1.1;
+            font-weight: 600;
+            letter-spacing: -0.3px;
         }
 
         body.device-tablet .brand .helper {
-            font-size: 12px;
-            line-height: 1.3;
-            max-width: 82%;
+            font-size: 13px;
+            line-height: 1.35;
+            max-width: 85%;
+            opacity: 0.8;
         }
 
         body.device-tablet .top-actions,
@@ -2011,27 +2042,37 @@ public static class HtmlAtlasExporter
         }
 
         body.device-tablet .top-actions {
-            gap: 6px;
-            padding: 7px 8px;
-            min-height: 46px;
-            border-radius: 16px;
+            gap: 8px;
+            padding: 8px 10px;
+            min-height: 48px;
+            border-radius: 18px;
+            background: rgba(255,255,255,0.02);
         }
 
         body.device-tablet .control-label {
-            font-size: 9px;
-            letter-spacing: .1em;
+            font-size: 10px;
+            letter-spacing: .12em;
+            font-weight: 500;
+            text-transform: uppercase;
+            opacity: 0.75;
         }
 
         body.device-tablet .top-actions .tab {
-            min-width: 44px;
-            min-height: 34px;
-            font-size: 11px;
+            min-width: 48px;
+            min-height: 38px;
+            font-size: 12px;
+            font-weight: 500;
+            border-radius: 10px;
+            padding: 6px 8px;
         }
 
         body.device-tablet .top-actions .select {
-            min-height: 36px;
-            font-size: 12px;
-            padding: 7px 30px 7px 11px;
+            min-height: 40px;
+            font-size: 13px;
+            padding: 8px 32px 8px 12px;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
         }
 
         body.device-tablet .top-actions .tabs,
@@ -2047,30 +2088,116 @@ public static class HtmlAtlasExporter
         }
 
         body.device-tablet .headline-strip {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-        }
-
-        body.device-tablet .headline-strip {
             display: none;
         }
 
         body.device-tablet .map-stage-quick-presets {
-            grid-auto-columns: minmax(104px, max-content);
-            gap: 6px;
+            grid-auto-columns: minmax(110px, max-content);
+            gap: 8px;
+        }
+
+        body.device-tablet .map-stage-quickbar {
+            padding: 10px 12px;
+            border-radius: 18px;
         }
 
         body.device-tablet .map-stage-quickbar .toggle.stage-toggle {
-            min-width: 104px;
-            min-height: 36px;
-            padding: 6px 8px;
+            min-width: 110px;
+            min-height: 40px;
+            padding: 8px 10px;
+            border-radius: 12px;
+            font-size: 11px;
         }
 
         body.device-tablet .map-stage-quickbar .toggle.stage-toggle .label-stack strong {
-            font-size: 10px;
+            font-size: 11px;
+            font-weight: 600;
         }
 
         body.device-tablet .map-stage-quickbar .toggle.stage-toggle .label-stack span {
             font-size: 8px;
+            opacity: 0.8;
+        }
+
+        /* v4.2: Enhanced tablet selection panel typography */
+        body.device-tablet .floating-top-right .selection-header {
+            padding: 8px 0 10px 0;
+            margin-bottom: 8px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+
+        body.device-tablet .floating-top-right .selection-title {
+            font-size: 14px;
+            font-weight: 600;
+            line-height: 1.3;
+            color: rgba(238,238,240,0.95);
+            word-break: break-word;
+        }
+
+        body.device-tablet .floating-top-right #selection-subtitle {
+            font-size: 11px;
+            margin-top: 4px;
+            opacity: 0.75;
+        }
+
+        body.device-tablet .floating-top-right #selection-status {
+            font-size: 10px;
+            margin-top: 2px;
+            opacity: 0.6;
+            font-style: italic;
+        }
+
+        body.device-tablet .floating-top-right #selection-note {
+            font-size: 12px;
+            line-height: 1.4;
+            padding: 10px;
+            margin: 8px 0;
+            border-radius: 10px;
+            background: rgba(238,106,49,0.08);
+            border-left: 3px solid rgba(238,106,49,0.4);
+        }
+
+        body.device-tablet .floating-top-right #selection-facts {
+            display: grid;
+            gap: 6px;
+            margin: 10px 0;
+            padding: 0;
+        }
+
+        body.device-tablet .floating-top-right #selection-facts .fact {
+            font-size: 12px;
+            display: flex;
+            justify-content: space-between;
+            padding: 6px;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.03);
+        }
+
+        body.device-tablet .floating-top-right #selection-pills {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin: 10px 0;
+        }
+
+        body.device-tablet .floating-top-right #selection-clear {
+            margin-top: 10px;
+            padding: 8px 10px;
+            min-height: 38px;
+            font-size: 12px;
+            font-weight: 500;
+            border-radius: 10px;
+            width: 100%;
+            background: linear-gradient(135deg, rgba(238,106,49,0.12), rgba(238,106,49,0.08));
+            border: 1px solid rgba(238,106,49,0.2);
+            color: rgba(238,182,133,0.95);
+            cursor: pointer;
+            transition: all .2s ease;
+        }
+
+        body.device-tablet .floating-top-right #selection-clear:active {
+            background: linear-gradient(135deg, rgba(238,106,49,0.2), rgba(238,106,49,0.15));
+            transform: scale(0.96);
         }
 
         body.device-phone .workspace {
@@ -2114,39 +2241,60 @@ public static class HtmlAtlasExporter
         }
 
         body.device-phone .floating-top-right {
-            position: absolute;
-            top: 12px;
-            right: 12px;
+            position: fixed;
+            top: max(12px, env(safe-area-inset-top));
+            right: max(10px, env(safe-area-inset-right));
             left: auto;
-            width: min(220px, 62%);
-            max-height: 136px;
-            overflow: auto;
-            padding: 8px 9px;
+            bottom: auto;
+            width: clamp(200px, 70vw, 300px);
+            z-index: 104;
+            max-height: calc(80vh - max(80px, env(safe-area-inset-top)));
+            min-height: 48px;
+            overflow: hidden;
+            padding: 10px;
             border-radius: 18px;
-            background: linear-gradient(180deg, rgba(12, 24, 38, 0.86), rgba(7, 15, 26, 0.94));
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 12px 30px rgba(0,0,0,0.18);
+            background: linear-gradient(180deg, rgba(12, 24, 38, 0.9), rgba(8, 16, 28, 0.96));
+            backdrop-filter: blur(28px) saturate(1.15);
+            border: 1px solid rgba(255,255,255,0.08);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 16px 40px rgba(0,0,0,0.26);
+            transition: max-height .3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        body.device-phone .floating-top-right:not(.passive) {
+            max-height: calc(75vh - max(80px, env(safe-area-inset-top)));
+            overflow-y: auto;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
         }
 
         body.device-phone .floating-top-right.passive {
-            display: none;
+            max-height: 44px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
 
         body.device-phone .topbar {
             position: sticky;
-            top: max(8px, env(safe-area-inset-top));
+            top: max(6px, env(safe-area-inset-top));
             z-index: 82;
-            padding: 8px 8px 6px;
-            gap: 6px;
-            border-radius: 20px;
-            grid-template-columns: minmax(0, 1fr) 146px;
-            grid-template-areas:
-                "brand actions";
-            backdrop-filter: blur(18px) saturate(1.02);
+            padding: 10px 10px 8px;
+            gap: 8px;
+            border-radius: 22px;
+            grid-template-columns: minmax(0, 1fr) auto;
+            grid-template-areas: "brand actions";
+            backdrop-filter: blur(18px) saturate(1.04);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 16px 38px rgba(0,0,0,0.2);
+            align-items: center;
         }
 
         body.device-phone .brand h1 {
-            font-size: clamp(18px, 5.8vw, 24px);
+            font-size: clamp(20px, 6vw, 26px);
             line-height: 1.05;
+            font-weight: 600;
         }
 
         body.device-phone .brand .helper {
@@ -2154,12 +2302,14 @@ public static class HtmlAtlasExporter
         }
 
         body.device-phone .eyebrow {
-            font-size: 9px;
-            letter-spacing: .14em;
+            font-size: 10px;
+            letter-spacing: .12em;
+            font-weight: 500;
         }
 
         body.device-phone .route-pills {
             display: none;
+        }
         }
 
         body.device-phone .route-pill {
