@@ -19,6 +19,9 @@ public sealed class ExporterSmokeTests
         Assert.Contains("resetView", html, StringComparison.Ordinal);
         Assert.Contains("source-presets-label", html, StringComparison.Ordinal);
         Assert.Contains("sourceQuality", html, StringComparison.Ordinal);
+        Assert.Contains("officialRecord", html, StringComparison.Ordinal);
+        Assert.Contains("supportingReference", html, StringComparison.Ordinal);
+        Assert.Contains("ownershipNotice", html, StringComparison.Ordinal);
         Assert.Contains("Belokopitovo interchange", html, StringComparison.Ordinal);
         Assert.Contains("Strazhitsa north corridor", html, StringComparison.Ordinal);
         Assert.Contains("const ALL_STATUSES", html, StringComparison.Ordinal);
@@ -66,5 +69,17 @@ public sealed class ExporterSmokeTests
         Assert.Contains("TransitionCount", json, StringComparison.Ordinal);
         Assert.Contains("BrokenTransitionCount", json, StringComparison.Ordinal);
         Assert.Contains("A2-04", json, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void ProvenanceDiagnostics_CanBeSerializedForAtlasArtifacts()
+    {
+        var network = NationalNetworkSeed.BuildDefault();
+        var diagnostics = new Motorway.Engine.RouteEngine().AnalyzeProvenance(network);
+        var json = JsonSerializer.Serialize(diagnostics);
+
+        Assert.Contains("OfficialSourceCount", json, StringComparison.Ordinal);
+        Assert.Contains("NetworkWideOfficialCount", json, StringComparison.Ordinal);
+        Assert.Contains("SecondaryNarrativeCount", json, StringComparison.Ordinal);
     }
 }

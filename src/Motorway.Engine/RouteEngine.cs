@@ -80,6 +80,25 @@ public sealed record NetworkContinuityDiagnostics(
     double MaxEndpointGapKm,
     IReadOnlyList<SegmentContinuityDiagnostics> Transitions);
 
+public sealed record SegmentProvenanceDiagnostics(
+    string RouteCode,
+    string SectionCode,
+    string EvidenceGrade,
+    string OfficialSourceKind,
+    bool HasOfficialSource,
+    bool HasSecondarySource,
+    string? OfficialHost,
+    string? SecondaryHost);
+
+public sealed record NetworkProvenanceDiagnostics(
+    int SegmentCount,
+    int OfficialSourceCount,
+    int RouteSpecificOfficialCount,
+    int NetworkWideOfficialCount,
+    int SecondaryNarrativeCount,
+    int UnattributedSegmentCount,
+    IReadOnlyList<SegmentProvenanceDiagnostics> Segments);
+
 public sealed class RouteEngine
 {
     public NetworkStats CalculateStats(HighwayRoute route)
@@ -125,6 +144,37 @@ public sealed class RouteEngine
             transitions.Count(item => string.Equals(item.Severity, "broken", StringComparison.OrdinalIgnoreCase)),
             transitions.Length == 0 ? 0 : transitions.Max(item => item.EndpointGapKm),
             transitions);
+    }
+
+    public NetworkProvenanceDiagnostics AnalyzeProvenance(HighwayRoute route)
+    {
+        var diagnostics = route.Segments
+            .Select(segment =>
+            {
+                var officialHost = TryGetHost(segment.OfficialSourceUrl);
+                var secondaryHost = TryGetHost(segment.SecondarySourceUrl);
+                var officialKind = string.IsNullOrWhiteSpace(segment.OfficialSourceKind) ? "none" : segment.OfficialSourceKind;
+
+                return new SegmentProvenanceDiagnostics(
+                    segment.RouteCode,
+                    segment.SectionCode ?? segment.RouteCode,
+                    ClassifyEvidenceGrade(segment),
+                    officialKind,
+                    segment.HasOfficialSource,
+                    segment.HasSecondarySource,
+                    officialHost,
+                    secondaryHost);
+            })
+            .ToArray();
+
+        return new NetworkProvenanceDiagnostics(
+            diagnostics.Length,
+            diagnostics.Count(item => item.HasOfficialSource),
+            diagnostics.Count(item => item.HasOfficialSource && string.Equals(item.OfficialSourceKind, "route-specific", StringComparison.OrdinalIgnoreCase)),
+            diagnostics.Count(item => item.HasOfficialSource && string.Equals(item.OfficialSourceKind, "network-wide", StringComparison.OrdinalIgnoreCase)),
+            diagnostics.Count(item => item.HasSecondarySource),
+            diagnostics.Count(item => string.Equals(item.EvidenceGrade, "unattributed", StringComparison.OrdinalIgnoreCase)),
+            diagnostics);
     }
 
     public TimeSpan EstimateTravelTime(IEnumerable<RouteSegment> segments, int fallbackSpeedKph = 90)
@@ -252,6 +302,29 @@ public sealed class RouteEngine
 
         return "healthy";
     }
+
+    private static string ClassifyEvidenceGrade(RouteSegment segment)
+    {
+        if (!segment.HasOfficialSource && !segment.HasSecondarySource)
+        {
+            return "unattributed";
+        }
+
+        if (!segment.HasOfficialSource && segment.HasSecondarySource)
+        {
+            return "secondary-only";
+        }
+
+        if (string.Equals(segment.OfficialSourceKind, "route-specific", StringComparison.OrdinalIgnoreCase))
+        {
+            return segment.HasSecondarySource ? "official-route-plus-secondary" : "official-route";
+        }
+
+        return segment.HasSecondarySource ? "official-network-plus-secondary" : "official-network";
+    }
+
+    private static string? TryGetHost(string? url)
+        => Uri.TryCreate(url, UriKind.Absolute, out var uri) ? uri.Host : null;
 }
 
 public static class OsmDataValidator
@@ -311,12 +384,22 @@ public static class NetworkConsistencyValidator
                 warnings.Add($"{segment.SectionCode ?? segment.RouteCode}: open segment has no success milestone.");
             }
 
-            if (!string.IsNullOrWhiteSpace(segment.SourceName)
-                && Uri.TryCreate(segment.SourceUrl, UriKind.Absolute, out var sourceUri)
-                && MentionsOfficialAgency(segment.SourceName)
+            if (!string.IsNullOrWhiteSpace(segment.OfficialSourceName)
+                && Uri.TryCreate(segment.OfficialSourceUrl, UriKind.Absolute, out var sourceUri)
+                && MentionsOfficialAgency(segment.OfficialSourceName)
                 && !IsOfficialSourceHost(sourceUri.Host))
             {
-                warnings.Add($"{segment.SectionCode ?? segment.RouteCode}: source name sounds official but URL host is '{sourceUri.Host}'.");
+                warnings.Add($"{segment.SectionCode ?? segment.RouteCode}: official source name sounds official but URL host is '{sourceUri.Host}'.");
+            }
+
+            if (!segment.HasOfficialSource)
+            {
+                warnings.Add($"{segment.SectionCode ?? segment.RouteCode}: missing official source reference.");
+            }
+
+            if (segment.HasOfficialSource && string.IsNullOrWhiteSpace(segment.OfficialSourceVerifiedOn))
+            {
+                warnings.Add($"{segment.SectionCode ?? segment.RouteCode}: official source has no verification date.");
             }
 
             for (var index = 1; index < segment.Shape.Count; index++)

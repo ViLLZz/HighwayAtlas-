@@ -7,8 +7,9 @@ namespace Motorway.Infrastructure;
 public static class NationalNetworkSeed
 {
     private const string SeedSourceLabel = "Motorway Atlas refined seed";
-    private const string DefaultSourceName = "API Bulgaria public road status + OSM geometry cross-check";
-    private const string DefaultSourceUrl = "https://www.api.bg/";
+    private const string DefaultOfficialSourceName = "API Bulgaria public bulletins and road status portal";
+    private const string DefaultOfficialSourceUrl = "https://www.api.bg/bg/byuletin-ptna-obstanovka";
+    private const string DefaultOfficialSourceVerifiedOn = "2026-03-08";
 
     public static HighwayRoute BuildDefault()
     {
@@ -728,11 +729,28 @@ public static class NationalNetworkSeed
         string? contractor = null,
         string? sourceName = null,
         string? sourceUrl = null,
+        string? officialSourceName = null,
+        string? officialSourceUrl = null,
+        string? officialSourceVerifiedOn = null,
         ProjectMilestone[]? milestones = null)
     {
         var shape = Shape(shapePoints, lengthKm);
         var start = shape.First();
         var end = shape.Last();
+        var resolvedOfficialSourceName = string.IsNullOrWhiteSpace(officialSourceName) ? DefaultOfficialSourceName : officialSourceName;
+        var resolvedOfficialSourceUrl = string.IsNullOrWhiteSpace(officialSourceUrl) ? DefaultOfficialSourceUrl : officialSourceUrl;
+        var resolvedSecondarySourceName = NormalizeNarrativeSourceName(sourceName, sourceUrl);
+        var resolvedSecondarySourceUrl = NormalizeNarrativeSourceUrl(sourceUrl);
+
+        if (IsOfficialSourceUrl(sourceUrl))
+        {
+            resolvedOfficialSourceName = string.IsNullOrWhiteSpace(sourceName) || string.Equals(sourceName, SeedSourceLabel, StringComparison.OrdinalIgnoreCase)
+                ? DefaultOfficialSourceName
+                : sourceName;
+            resolvedOfficialSourceUrl = sourceUrl!;
+            resolvedSecondarySourceName = null;
+            resolvedSecondarySourceUrl = null;
+        }
 
         return new RouteSegment
         {
@@ -754,13 +772,67 @@ public static class NationalNetworkSeed
             BudgetMillionEur = budgetMillionEur,
             FundingProgram = fundingProgram,
             Contractor = contractor,
-            SourceName = string.IsNullOrWhiteSpace(sourceName) || string.Equals(sourceName, SeedSourceLabel, StringComparison.OrdinalIgnoreCase)
-                ? DefaultSourceName
-                : sourceName,
-            SourceUrl = string.IsNullOrWhiteSpace(sourceUrl) ? DefaultSourceUrl : sourceUrl,
+            SourceName = resolvedOfficialSourceName,
+            SourceUrl = resolvedOfficialSourceUrl,
+            OfficialSourceName = resolvedOfficialSourceName,
+            OfficialSourceUrl = resolvedOfficialSourceUrl,
+            OfficialSourceKind = InferOfficialSourceKind(resolvedOfficialSourceUrl),
+            OfficialSourceVerifiedOn = string.IsNullOrWhiteSpace(officialSourceVerifiedOn) ? DefaultOfficialSourceVerifiedOn : officialSourceVerifiedOn,
+            SecondarySourceName = resolvedSecondarySourceName,
+            SecondarySourceUrl = resolvedSecondarySourceUrl,
             Milestones = milestones ?? [],
             Shape = shape
         };
+    }
+
+    private static string? NormalizeNarrativeSourceName(string? sourceName, string? sourceUrl)
+    {
+        if (string.IsNullOrWhiteSpace(sourceName) || string.Equals(sourceName, SeedSourceLabel, StringComparison.OrdinalIgnoreCase))
+        {
+            return null;
+        }
+
+        return IsOfficialSourceUrl(sourceUrl) ? null : sourceName;
+    }
+
+    private static string? NormalizeNarrativeSourceUrl(string? sourceUrl)
+        => IsOfficialSourceUrl(sourceUrl) ? null : sourceUrl;
+
+    private static bool IsOfficialSourceUrl(string? sourceUrl)
+    {
+        if (string.IsNullOrWhiteSpace(sourceUrl) || !Uri.TryCreate(sourceUrl, UriKind.Absolute, out var uri))
+        {
+            return false;
+        }
+
+        var host = uri.Host;
+        return host.EndsWith("api.bg", StringComparison.OrdinalIgnoreCase)
+               || host.EndsWith("gov.bg", StringComparison.OrdinalIgnoreCase)
+               || host.EndsWith("government.bg", StringComparison.OrdinalIgnoreCase)
+               || host.EndsWith("egov.bg", StringComparison.OrdinalIgnoreCase)
+               || host.EndsWith("europa.eu", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static string InferOfficialSourceKind(string? sourceUrl)
+    {
+        if (string.IsNullOrWhiteSpace(sourceUrl) || !Uri.TryCreate(sourceUrl, UriKind.Absolute, out var uri))
+        {
+            return "none";
+        }
+
+        var path = uri.AbsolutePath;
+        if (path.Contains("/bg/novini/", StringComparison.OrdinalIgnoreCase)
+            || path.Contains("/byuletin-ptna-obstanovka/", StringComparison.OrdinalIgnoreCase))
+        {
+            return "route-specific";
+        }
+
+        if (string.Equals(path, "/", StringComparison.Ordinal) || path.Contains("/byuletin-ptna-obstanovka", StringComparison.OrdinalIgnoreCase))
+        {
+            return "network-wide";
+        }
+
+        return "official-reference";
     }
 
     private static RoutePoint[] Shape((double Latitude, double Longitude, string Name)[] points, double totalLengthKm)

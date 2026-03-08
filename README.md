@@ -14,6 +14,7 @@ The current production output focuses on a clean, operational motorway atlas:
 - 🎯 Clickable lots and segments with detailed on-map panel
 - 📌 Route + lot statuses (open, construction, planned, closed)
 - 📚 Source provenance field in selection details (name + link)
+- 🏛️ Separate official records and secondary narrative references per section
 - 🧪 Source-coverage controls to isolate verified, mixed, and modeled sections
 - 🌍 BG/EN language switch in the same interface
 
@@ -42,10 +43,20 @@ The current production output focuses on a clean, operational motorway atlas:
 
 The atlas now treats geometry quality and source fidelity as first-class product concerns:
 
-- `network-diagnostics.json` contains both geometry diagnostics and route continuity diagnostics
+- `network-diagnostics.json` contains geometry, route continuity, and provenance diagnostics
 - the atlas UI can filter sections by source coverage (`verified`, `mixed`, `modeled`)
-- the selection panel surfaces source-quality context alongside the published source link
+- the selection panel surfaces source-quality context, evidence grade, official source, secondary reference, and verification date
 - CI uploads the generated atlas outputs as build artifacts for review
+- the hosted atlas shows an explicit ownership and usage notice in the UI
+
+## 3.1 Upgrade Focus
+
+The current release line is moving into a 3.1 data-hardening phase:
+
+- every section now carries an explicit official source slot and an optional secondary reference slot
+- provenance diagnostics measure official coverage, route-specific references, network-wide references, and secondary narrative usage
+- the atlas distinguishes official evidence from secondary narrative support instead of collapsing both into one source label
+- GitHub Pages remains auto-deployed on every push to `main`
 
 ## Alpha quality gate
 
@@ -144,7 +155,9 @@ When serving, the console prints a localhost link and opens the preview in the d
 
 For alpha release notes, see `docs/alpha-readiness.md`.
 For the v3.0 upgrade process, see `docs/v3-upgrade-plan.md`.
+For the 3.1 provenance upgrade, see `docs/v3.1-upgrade.md`.
 For the larger product roadmap, see `docs/upgrade-roadmap.md`.
+For ownership and usage terms, see `NOTICE.md`.
 
 ## Notes
 

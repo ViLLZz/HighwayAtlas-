@@ -16,6 +16,8 @@ Recent product-grade additions:
 - source-quality classification per segment (`official`, `mixed`, `modeled`)
 - atlas-side source coverage controls for provenance-aware browsing
 - CI artifact publishing of generated atlas outputs
+- 3.1 provenance separation between official records and secondary narrative references
+- visible ownership and usage notice in the exported atlas
 
 ### Key design decisions
 
@@ -27,6 +29,8 @@ Recent product-grade additions:
 | Lot data | A2 subroutes use curated `BuildLots` cases; all other segments use `BuildGeneratedLots` |
 | Source quality | Segment source quality is derived from lot provenance: all verified lots = `official`, all modeled spans = `modeled`, mixed lot sets = `mixed` |
 | Continuity diagnostics | Engine evaluates adjacent route sections using endpoint gap and directional delta to flag transitions for review |
+| Provenance diagnostics | Engine audits official source coverage, route-specific official records, network-wide official records, and secondary narrative references |
+| Ownership notice | Exported HTML includes copyright metadata, a visible usage footer, and explicit attribution expectations |
 | Alpha verification | `scripts/verify-alpha.sh` builds, tests, exports, and checks output artifacts in one pass |
 
 ## Alpha verification scope

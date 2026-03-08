@@ -94,4 +94,18 @@ public sealed class NetworkSeedTests
         Assert.Contains(diagnostics.Transitions, item => item.RouteCode == "A2" && item.FromSectionCode == "A2-04" && item.ToSectionCode == "A2-05");
         Assert.Contains(diagnostics.Transitions, item => item.RouteCode == "A1" && item.FromSectionCode == "A1-04" && item.ToSectionCode == "A1-05");
     }
+
+    [Fact]
+    public void AnalyzeProvenance_ReportsOfficialAndSecondaryCoverageForDefaultSeed()
+    {
+        var network = NationalNetworkSeed.BuildDefault();
+        var engine = new RouteEngine();
+        var diagnostics = engine.AnalyzeProvenance(network);
+
+        Assert.Equal(network.Segments.Count, diagnostics.SegmentCount);
+        Assert.Equal(network.Segments.Count, diagnostics.OfficialSourceCount);
+        Assert.True(diagnostics.NetworkWideOfficialCount > 0);
+        Assert.True(diagnostics.SecondaryNarrativeCount > 0);
+        Assert.Equal(0, diagnostics.UnattributedSegmentCount);
+    }
 }

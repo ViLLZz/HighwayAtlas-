@@ -7,6 +7,13 @@ public sealed record LocalizedText(string Bg, string En)
 
 public sealed record ProjectMilestone(int Year, LocalizedText Label, string State = "info");
 
+public enum SourceAuthority
+{
+    Official,
+    Secondary,
+    Modeled
+}
+
 public enum SegmentStatus
 {
     Open,
@@ -46,12 +53,22 @@ public sealed record RouteSegment
     public string? Contractor { get; init; }
     public string? SourceName { get; init; }
     public string? SourceUrl { get; init; }
+    public string? OfficialSourceName { get; init; }
+    public string? OfficialSourceUrl { get; init; }
+    public string? OfficialSourceKind { get; init; }
+    public string? OfficialSourceVerifiedOn { get; init; }
+    public string? SecondarySourceName { get; init; }
+    public string? SecondarySourceUrl { get; init; }
     public IReadOnlyList<ProjectMilestone> Milestones { get; init; } = [];
     public IReadOnlyList<RoutePoint> Shape { get; init; } = [];
 
     public LocalizedText EffectiveDisplayName => DisplayName ?? new LocalizedText(Name, Name);
 
     public LocalizedText EffectiveSectionName => SectionName ?? EffectiveDisplayName;
+
+    public bool HasOfficialSource => !string.IsNullOrWhiteSpace(OfficialSourceUrl);
+
+    public bool HasSecondarySource => !string.IsNullOrWhiteSpace(SecondarySourceUrl);
 
     public double EffectiveCompletionPercent => CompletionPercentOverride ?? Status switch
     {

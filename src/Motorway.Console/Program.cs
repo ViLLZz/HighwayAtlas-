@@ -15,6 +15,7 @@ var engine = new RouteEngine();
 var stats = engine.CalculateStats(network);
 var geometryDiagnostics = engine.AnalyzeGeometry(network);
 var continuityDiagnostics = engine.AnalyzeContinuity(network);
+var provenanceDiagnostics = engine.AnalyzeProvenance(network);
 var warnings = OsmDataValidator.ValidateBulgariaBounds(network)
     .Concat(NetworkConsistencyValidator.Validate(network))
     .Distinct(StringComparer.Ordinal)
@@ -37,6 +38,10 @@ Console.WriteLine($"Longest point span:    {geometryDiagnostics.MaxObservedSpanK
 Console.WriteLine($"Continuity reviews:    {continuityDiagnostics.ReviewTransitionCount}");
 Console.WriteLine($"Continuity breaks:     {continuityDiagnostics.BrokenTransitionCount}");
 Console.WriteLine($"Largest endpoint gap:  {continuityDiagnostics.MaxEndpointGapKm:N1} km");
+Console.WriteLine($"Official sources:      {provenanceDiagnostics.OfficialSourceCount}/{provenanceDiagnostics.SegmentCount}");
+Console.WriteLine($"Route-specific refs:   {provenanceDiagnostics.RouteSpecificOfficialCount}");
+Console.WriteLine($"Network-wide refs:     {provenanceDiagnostics.NetworkWideOfficialCount}");
+Console.WriteLine($"Secondary references:  {provenanceDiagnostics.SecondaryNarrativeCount}");
 Console.WriteLine();
 
 if (warnings.Length == 0)
@@ -68,7 +73,8 @@ File.WriteAllText(
         {
             generatedAtUtc = DateTime.UtcNow,
             geometry = geometryDiagnostics,
-            continuity = continuityDiagnostics
+            continuity = continuityDiagnostics,
+            provenance = provenanceDiagnostics
         },
         new JsonSerializerOptions { WriteIndented = true }));
 File.WriteAllText(htmlPath, html);

@@ -16,6 +16,8 @@ public static class HtmlAtlasExporter
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="copyright" content="© 2026 ViLLZz. All rights reserved." />
+    <meta name="robots" content="noarchive,max-image-preview:none" />
     <title>Motorway Atlas — Premium Bulgaria Preview</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -166,6 +168,14 @@ public static class HtmlAtlasExporter
             display: block;
             font-size: 14px;
             margin-top: 6px;
+        }
+
+        .legal-strip {
+            padding: 14px 18px;
+            border-radius: var(--radius-xl);
+            background: linear-gradient(180deg, rgba(15, 28, 46, 0.64), rgba(8, 16, 29, 0.84));
+            border: 1px solid rgba(132, 169, 227, 0.16);
+            box-shadow: var(--shadow-soft);
         }
 
         .route-pills {
@@ -1548,6 +1558,12 @@ public static class HtmlAtlasExporter
                 </div>
             </aside>
         </div>
+
+        <footer class="legal-strip">
+            <div class="eyebrow" id="legal-eyebrow"></div>
+            <strong id="legal-title"></strong>
+            <div class="tiny" id="legal-copy" style="margin-top:6px"></div>
+        </footer>
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
@@ -1659,10 +1675,19 @@ public static class HtmlAtlasExporter
                 mixedSourceHint: 'частично верифицирани',
                 modeledSourceHint: 'без официален лотен разрез',
                 sourceQuality: 'Покритие',
+                evidenceGrade: 'Доказателствен клас',
                 importance: 'Стратегическо значение',
                 routeStory: 'Маршрутно значение',
                 basedOn: 'Базирано на',
                 sourceLink: 'Публикуван източник',
+                officialRecord: 'Официален запис',
+                supportingReference: 'Подкрепящ източник',
+                sourceVerifiedOn: 'Проверено',
+                evidenceRoute: 'официален маршрутно-специфичен',
+                evidenceNetwork: 'официален мрежов',
+                evidenceHybrid: 'официален + вторичен',
+                evidenceSecondary: 'само вторичен',
+                evidenceMissing: 'липсва атрибуция',
                 latestUpdate: 'Последно обновяване',
                 currentScope: 'Текущ фокус',
                 selectedContext: 'Активна бележка',
@@ -1700,7 +1725,9 @@ public static class HtmlAtlasExporter
                 timelinePlanning: 'Планиране',
                 timelineForecast: 'Хоризонт',
                 yearOpenedSuffix: 'отворени',
-                yearKmOpen: 'km отворени'
+                yearKmOpen: 'km отворени',
+                copyrightLabel: 'Права и ползване',
+                ownershipNotice: '© 2026 ViLLZz. Атласът, визуалният дизайн и подбраната структура са авторски; използване и споделяне с атрибуция към проекта.'
             },
             en: {
                 brandEyebrow: 'Premium infographic atlas',
@@ -1800,10 +1827,19 @@ public static class HtmlAtlasExporter
                 mixedSourceHint: 'partially verified',
                 modeledSourceHint: 'no official lot split',
                 sourceQuality: 'Coverage',
+                evidenceGrade: 'Evidence grade',
                 importance: 'Strategic importance',
                 routeStory: 'Route significance',
                 basedOn: 'Based on',
                 sourceLink: 'Published source',
+                officialRecord: 'Official record',
+                supportingReference: 'Supporting reference',
+                sourceVerifiedOn: 'Verified on',
+                evidenceRoute: 'official route-specific',
+                evidenceNetwork: 'official network-wide',
+                evidenceHybrid: 'official + secondary',
+                evidenceSecondary: 'secondary only',
+                evidenceMissing: 'missing attribution',
                 latestUpdate: 'Last refresh',
                 currentScope: 'Current scope',
                 selectedContext: 'Selected note',
@@ -1841,7 +1877,9 @@ public static class HtmlAtlasExporter
                 timelinePlanning: 'Planning',
                 timelineForecast: 'Forecast',
                 yearOpenedSuffix: 'opened',
-                yearKmOpen: 'km open'
+                yearKmOpen: 'km open',
+                copyrightLabel: 'Rights and usage',
+                ownershipNotice: '© 2026 ViLLZz. The atlas, visual design, and curated structure remain copyrighted; reuse and sharing require attribution to the project.'
             }
         };
 
@@ -1890,6 +1928,7 @@ public static class HtmlAtlasExporter
             lotsEyebrow: $('lots-eyebrow'), lotsTitle: $('lots-title'), lotsCount: $('lots-count'), lotList: $('lot-list'),
             heroEyebrow: $('hero-eyebrow'), heroTitle: $('hero-title'), heroSubtitle: $('hero-subtitle'), heroFocus: $('hero-focus'), heroStats: $('hero-stats'), mapStage: document.querySelector('.map-stage'), selectionPanel: $('selection-panel'),
             selectionEyebrow: $('selection-eyebrow'), selectionTitle: $('selection-title'), selectionSubtitle: $('selection-subtitle'), selectionClear: $('selection-clear'), selectionStatus: $('selection-status'), selectionPills: $('selection-pills'), selectionFacts: $('selection-facts'), selectionNote: $('selection-note'),
+            legalEyebrow: $('legal-eyebrow'), legalTitle: $('legal-title'), legalCopy: $('legal-copy'),
             timelineEyebrow: $('timeline-eyebrow'), timelineTitle: $('timeline-title'), timeline: $('timeline'), legend: $('legend')
         };
 
@@ -1941,12 +1980,20 @@ public static class HtmlAtlasExporter
             if (!url) return name;
             return `<a href="${url}" target="_blank" rel="noreferrer noopener">${name}</a>`;
         };
+        const formatSupportingSource = source => source?.name ? formatSource(source.name, source.url) : t('pending');
         const labelForStatus = status => t(statusMeta[status].bg);
         const labelForLotAudit = lot => lot.isDerived ? t('auditDerived') : t('auditSeeded');
         const labelForSourceQuality = sourceQuality => {
             if (sourceQuality === 'official') return t('officialLots');
             if (sourceQuality === 'mixed') return t('mixedSources');
             return t('modeledSources');
+        };
+        const labelForEvidenceGrade = evidenceGrade => {
+            if (evidenceGrade === 'official-route' || evidenceGrade === 'official-route-plus-secondary') return t('evidenceRoute');
+            if (evidenceGrade === 'official-network') return t('evidenceNetwork');
+            if (evidenceGrade === 'official-network-plus-secondary') return t('evidenceHybrid');
+            if (evidenceGrade === 'secondary-only') return t('evidenceSecondary');
+            return t('evidenceMissing');
         };
         const shortRouteName = route => {
             const title = pick(route.title) || '';
@@ -2285,18 +2332,18 @@ public static class HtmlAtlasExporter
             el.headlineSecondaryEyebrow.textContent = officialUpdates.length ? t('officialFeed') : t('headlineAudit');
             el.headlineSecondaryTitle.textContent = officialUpdates.length
                 ? pick(officialUpdates[0].title)
-                : `${atlas.summary.explicitLotCount} ${t('auditedLots')}`;
+                : `${atlas.summary.routeSpecificReferenceCount} ${t('evidenceRoute')}`;
             el.headlineSecondaryCopy.textContent = officialUpdates.length
                 ? `${officialUpdates[0].publishedOn} · ${pick(officialUpdates[0].routeLabel)}`
-                : `${atlas.summary.derivedLotCount} ${t('derivedLots')} · ${atlas.summary.sourceCoveragePercent.toFixed(0)}%`;
+                : `${atlas.summary.secondaryReferenceCount} ${t('supportingReference')} · ${atlas.summary.officialReferencePercent.toFixed(0)}%`;
 
             el.headlineTertiaryEyebrow.textContent = officialUpdates.length ? t('latestBulletin') : t('headlineScope');
             el.headlineTertiaryTitle.textContent = officialUpdates.length
                 ? `${atlas.officialFeed.label} · ${atlas.officialFeed.publishedOn}`
-                : `${atlas.summary.totalKm} km · Bulgaria`;
+                : `${atlas.summary.networkWideReferenceCount} ${t('evidenceNetwork')}`;
             el.headlineTertiaryCopy.textContent = officialUpdates.length
                 ? atlas.officialFeed.sourceName
-                : t('bulgariaScopeNote');
+                : t('ownershipNotice');
         }
 
         function renderLotPopup(lot, segment) {
@@ -2315,7 +2362,7 @@ public static class HtmlAtlasExporter
                     <div class="popup-chip"><div class="eyebrow">${t('targetYear')}</div><div>${formatLotTarget(lot)}</div></div>
                     <div class="popup-chip"><div class="eyebrow">${t('budget')}</div><div>${formatBudget(lot.budgetMillionEur)}</div></div>
                     <div class="popup-chip"><div class="eyebrow">${t('contractor')}</div><div>${lot.contractor || t('pending')}</div></div>
-                    <div class="popup-chip"><div class="eyebrow">${t('basedOn')}</div><div>${segment.sourceName || t('pending')}</div></div>
+                    <div class="popup-chip"><div class="eyebrow">${t('officialRecord')}</div><div>${segment.officialSource?.name || t('pending')}</div></div>
                 </div>
                 <div class="popup-note tiny">${pick(lot.note) || pick(segment.description)}</div>
             </div>`;
@@ -2343,6 +2390,7 @@ public static class HtmlAtlasExporter
                 <div class="detail-pills">
                     <span class="status-pill"><span class="dot" style="background:${statusMeta[segment.status].color}"></span>${labelForStatus(segment.status)}</span>
                     ${fundingBadge}
+                    <span class="audit-badge">${labelForEvidenceGrade(segment.evidenceGrade)}</span>
                 </div>
                 <div class="popup-grid">
                     <div class="popup-chip"><div class="eyebrow">${t('length')}</div><div>${formatKm(segment.lengthKm)}</div></div>
@@ -2724,12 +2772,16 @@ public static class HtmlAtlasExporter
                 <div class="note-block">
                     <strong>${t('auditAccuracy')}</strong>
                     <div class="tiny" style="margin-top:8px">${t('auditModeledNotice')}</div>
-                    <div class="detail-pills" style="margin-top:10px"><span class="audit-badge strong">${t('auditVerifiedShare')}: ${atlas.summary.sourceCoveragePercent.toFixed(0)}%</span><span class="audit-badge">${atlas.summary.officialSegmentCount}/${atlas.summary.segmentCount} ${t('sectionCount')}</span><span class="audit-badge">${atlas.summary.explicitLotCount}/${atlas.summary.explicitLotCount + atlas.summary.derivedLotCount} ${t('lotCount')}</span></div>
+                    <div class="detail-pills" style="margin-top:10px"><span class="audit-badge strong">${t('auditVerifiedShare')}: ${atlas.summary.sourceCoveragePercent.toFixed(0)}%</span><span class="audit-badge">${atlas.summary.routeSpecificReferenceCount} ${t('evidenceRoute')}</span><span class="audit-badge">${atlas.summary.secondaryReferenceCount} ${t('supportingReference')}</span></div>
                 </div>
                 <div class="note-block">
                     <strong>${t('officialFeed')}</strong>
                     <div class="official-list" style="margin-top:8px">${renderOfficialList(officialUpdates.slice(0, 3))}</div>
                 </div>`;
+
+            el.legalEyebrow.textContent = t('copyrightLabel');
+            el.legalTitle.textContent = pick(atlas.copyright.notice);
+            el.legalCopy.textContent = pick(atlas.copyright.usage);
 
             const routes = getVisibleRoutes();
             el.routesCount.textContent = `${routes.length} ${t('routeCount')}`;
@@ -2818,7 +2870,10 @@ public static class HtmlAtlasExporter
                     <div class="fact"><strong>${t('contractor')}</strong><div class="tiny">${lot.contractor || t('pending')}</div></div>
                     <div class="fact"><strong>${t('targetYear')}</strong><div class="tiny">${formatLotTarget(lot)}</div></div>
                     <div class="fact"><strong>${t('sourceQuality')}</strong><div class="tiny">${labelForSourceQuality(segment.sourceQuality)}</div></div>
-                    <div class="fact"><strong>${t('sourceLink')}</strong><div class="tiny">${formatSource(segment?.sourceName, segment?.sourceUrl)}</div></div>`;
+                    <div class="fact"><strong>${t('evidenceGrade')}</strong><div class="tiny">${labelForEvidenceGrade(segment.evidenceGrade)}</div></div>
+                    <div class="fact"><strong>${t('officialRecord')}</strong><div class="tiny">${formatSource(segment?.officialSource?.name, segment?.officialSource?.url)}</div></div>
+                    <div class="fact"><strong>${t('supportingReference')}</strong><div class="tiny">${formatSupportingSource(segment?.secondarySource)}</div></div>
+                    <div class="fact"><strong>${t('sourceVerifiedOn')}</strong><div class="tiny">${segment?.officialSource?.verifiedOn || t('pending')}</div></div>`;
                 el.selectionNote.textContent = pick(lot.note) || pick(segment.description);
                 renderTimeline(segment, lot);
                 return;
@@ -2834,7 +2889,10 @@ public static class HtmlAtlasExporter
                     <div class="fact"><strong>${t('avgSpeed')}</strong><div class="tiny">${segment.maxSpeedKph ? `${segment.maxSpeedKph} km/h` : '—'}</div></div>
                     <div class="fact"><strong>${t('importance')}</strong><div class="tiny">${pick(segment.importance) || t('pending')}</div></div>
                     <div class="fact"><strong>${t('sourceQuality')}</strong><div class="tiny">${labelForSourceQuality(segment.sourceQuality)}</div></div>
-                    <div class="fact"><strong>${t('basedOn')}</strong><div class="tiny">${formatSource(segment.sourceName, segment.sourceUrl)}</div></div>`;
+                    <div class="fact"><strong>${t('evidenceGrade')}</strong><div class="tiny">${labelForEvidenceGrade(segment.evidenceGrade)}</div></div>
+                    <div class="fact"><strong>${t('officialRecord')}</strong><div class="tiny">${formatSource(segment.officialSource?.name, segment.officialSource?.url)}</div></div>
+                    <div class="fact"><strong>${t('supportingReference')}</strong><div class="tiny">${formatSupportingSource(segment.secondarySource)}</div></div>
+                    <div class="fact"><strong>${t('sourceVerifiedOn')}</strong><div class="tiny">${segment.officialSource?.verifiedOn || t('pending')}</div></div>`;
                 el.selectionNote.textContent = pick(segment.importance) || pick(segment.description);
                 renderTimeline(segment, null);
                 return;
@@ -3227,7 +3285,22 @@ public static class HtmlAtlasExporter
                     contractor = segment.Contractor,
                     sourceName = segment.SourceName,
                     sourceUrl = segment.SourceUrl,
+                    officialSource = new
+                    {
+                        name = segment.OfficialSourceName,
+                        url = segment.OfficialSourceUrl,
+                        kind = segment.OfficialSourceKind,
+                        verifiedOn = segment.OfficialSourceVerifiedOn
+                    },
+                    secondarySource = string.IsNullOrWhiteSpace(segment.SecondarySourceName)
+                        ? null
+                        : new
+                        {
+                            name = segment.SecondarySourceName,
+                            url = segment.SecondarySourceUrl
+                        },
                     sourceQuality,
+                    evidenceGrade = DeriveEvidenceGrade(segment),
                     estimatedTravelMinutes = (int)Math.Round(engine.EstimateTravelTime([segment]).TotalMinutes),
                     openYear = segment.Status == SegmentStatus.Open
                         ? (segment.Milestones.OrderBy(m => m.Year).LastOrDefault(m => m.State == "success")?.Year ?? segment.StartYear)
@@ -3287,10 +3360,27 @@ public static class HtmlAtlasExporter
         var officialSegmentCount = segments.Count(segment => string.Equals(segment.sourceQuality, "official", StringComparison.OrdinalIgnoreCase));
         var mixedSegmentCount = segments.Count(segment => string.Equals(segment.sourceQuality, "mixed", StringComparison.OrdinalIgnoreCase));
         var modeledSegmentCount = segments.Count(segment => string.Equals(segment.sourceQuality, "modeled", StringComparison.OrdinalIgnoreCase));
+        var routeSpecificReferenceCount = network.Segments.Count(segment => string.Equals(segment.OfficialSourceKind, "route-specific", StringComparison.OrdinalIgnoreCase));
+        var networkWideReferenceCount = network.Segments.Count(segment => string.Equals(segment.OfficialSourceKind, "network-wide", StringComparison.OrdinalIgnoreCase));
+        var secondaryReferenceCount = network.Segments.Count(segment => segment.HasSecondarySource);
+        var officialReferenceCount = network.Segments.Count(segment => segment.HasOfficialSource);
 
         return new
         {
             generatedAtUtc = DateTime.UtcNow,
+            copyright = new
+            {
+                notice = new
+                {
+                    bg = "© 2026 ViLLZz · Bulgarian Motorway Atlas",
+                    en = "© 2026 ViLLZz · Bulgarian Motorway Atlas"
+                },
+                usage = new
+                {
+                    bg = "Публичен преглед за тестване и анализ. Данните са компилирани от официални публични източници и вторични справки; препубликуване с атрибуция към проекта.",
+                    en = "Public preview for testing and analysis. Data is compiled from official public sources and secondary references; republishing requires attribution to the project."
+                }
+            },
             officialFeed = new
             {
                 label = "API Bulgaria bulletin snapshot",
@@ -3324,6 +3414,11 @@ public static class HtmlAtlasExporter
                 officialSegmentCount,
                 mixedSegmentCount,
                 modeledSegmentCount,
+                officialReferenceCount,
+                routeSpecificReferenceCount,
+                networkWideReferenceCount,
+                secondaryReferenceCount,
+                officialReferencePercent = network.Segments.Count == 0 ? 0 : Math.Round(officialReferenceCount / (double)network.Segments.Count * 100.0, 1),
                 sourceCoveragePercent = totalLots == 0 ? 0 : Math.Round(explicitLots / (double)totalLots * 100.0, 1),
                 totalKm = Math.Round(network.TotalKm, 1),
                 openKm = Math.Round(network.OpenKm, 1),
@@ -3352,6 +3447,26 @@ public static class HtmlAtlasExporter
         }
 
         return derivedCount == flags.Length ? "modeled" : "mixed";
+    }
+
+    private static string DeriveEvidenceGrade(RouteSegment segment)
+    {
+        if (!segment.HasOfficialSource && !segment.HasSecondarySource)
+        {
+            return "unattributed";
+        }
+
+        if (!segment.HasOfficialSource)
+        {
+            return "secondary-only";
+        }
+
+        if (string.Equals(segment.OfficialSourceKind, "route-specific", StringComparison.OrdinalIgnoreCase))
+        {
+            return segment.HasSecondarySource ? "official-route-plus-secondary" : "official-route";
+        }
+
+        return segment.HasSecondarySource ? "official-network-plus-secondary" : "official-network";
     }
 
     private static object ToPoint(RoutePoint point) => new
