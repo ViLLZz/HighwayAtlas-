@@ -625,6 +625,22 @@ public static class HtmlAtlasExporter
             gap: 12px;
         }
 
+        .tablet-control-surface {
+            overflow: auto;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(128, 164, 220, 0.42) transparent;
+        }
+
+        .tablet-control-surface::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        .tablet-control-surface::-webkit-scrollbar-thumb {
+            background: rgba(128, 164, 220, 0.38);
+            border-radius: 999px;
+        }
+
         .tablet-control-cluster {
             grid-template-columns: repeat(3, minmax(0, 1fr));
         }
@@ -1309,8 +1325,20 @@ public static class HtmlAtlasExporter
         }
 
         body.device-tablet .map-stage {
+            grid-template-columns: minmax(320px, 420px) minmax(0, 1fr);
+            grid-template-areas:
+                "quick quick"
+                "surface map"
+                "selection map";
+            align-items: start;
             gap: 12px;
             padding: 16px;
+            min-height: min(860px, calc(100vh - 174px));
+        }
+
+        body.device-tablet .map-stage-quickbar {
+            grid-area: quick;
+            margin-bottom: 0;
         }
 
         body.device-tablet .map-stage-quickbar,
@@ -1321,6 +1349,87 @@ public static class HtmlAtlasExporter
 
         body.device-tablet .tablet-control-surface {
             display: grid;
+            grid-area: surface;
+            gap: 10px;
+            max-height: calc(100vh - 280px);
+        }
+
+        body.device-tablet .tablet-surface-summary,
+        body.device-tablet .tablet-control-card,
+        body.device-tablet .tablet-playback-card {
+            padding: 13px 14px;
+            border-radius: 16px;
+        }
+
+        body.device-tablet .tablet-surface-heading h3 {
+            font-size: 25px;
+        }
+
+        body.device-tablet .tablet-surface-summary strong {
+            font-size: clamp(38px, 4.2vw, 46px);
+        }
+
+        body.device-tablet .tablet-kpi-ribbon {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 8px;
+        }
+
+        body.device-tablet .tablet-kpi-chip {
+            min-height: 62px;
+            padding: 9px 10px;
+        }
+
+        body.device-tablet .tablet-kpi-chip .value {
+            font-size: 16px;
+        }
+
+        body.device-tablet .tablet-control-cluster {
+            grid-template-columns: 1fr;
+            gap: 9px;
+        }
+
+        body.device-tablet .tablet-control-card .filter-row {
+            display: grid;
+            grid-auto-flow: column;
+            grid-auto-columns: max-content;
+            overflow-x: auto;
+            overscroll-behavior-x: contain;
+            scrollbar-width: none;
+            gap: 8px;
+        }
+
+        body.device-tablet .tablet-control-card .filter-row::-webkit-scrollbar {
+            display: none;
+        }
+
+        body.device-tablet .tablet-control-card .toggle.stage-toggle {
+            min-height: 38px;
+            min-width: 122px;
+            padding: 8px 10px;
+        }
+
+        body.device-tablet .tablet-control-card .toggle.stage-toggle .label-stack span {
+            display: none;
+        }
+
+        body.device-tablet .tablet-surface-lower,
+        body.device-tablet .tablet-surface-tools {
+            grid-template-columns: 1fr;
+            gap: 9px;
+        }
+
+        body.device-tablet .tablet-map-preset-grid {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 8px;
+        }
+
+        body.device-tablet .tablet-map-preset-grid .map-preset {
+            min-height: 56px;
+            padding: 8px 10px;
+        }
+
+        body.device-tablet .tablet-map-preset-grid .map-preset span {
+            display: none;
         }
 
         body.device-tablet .floating-top-left,
@@ -1330,7 +1439,10 @@ public static class HtmlAtlasExporter
         }
 
         body.device-tablet .floating-top-right {
-            order: 4;
+            grid-area: selection;
+            order: initial;
+            max-height: 210px;
+            overflow: auto;
         }
 
         body.device-tablet .floating-top-right.passive {
@@ -1338,8 +1450,10 @@ public static class HtmlAtlasExporter
         }
 
         body.device-tablet #map {
-            order: 3;
-            min-height: 360px;
+            grid-area: map;
+            order: initial;
+            height: 100%;
+            min-height: 620px;
         }
 
         body.device-tablet .floating-top-left,
