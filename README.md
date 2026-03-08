@@ -120,14 +120,19 @@ Legacy story-heavy prototype remains available in `exports/atlas/hemus-viz-4.5.h
 
 ## GitHub Pages Preview
 
+Public project links:
+
+- GitHub repository: `https://github.com/ViLLZz/HighwayAtlas-`
+- Live atlas: `https://villzz.github.io/HighwayAtlas-/`
+
 The repository includes a GitHub Pages deployment workflow in `.github/workflows/deploy-pages.yml`.
-Once the project is pushed to a GitHub repository with Pages enabled, every push to `main` will:
+Every push to `main` will:
 
 - run the alpha verification flow
 - regenerate the atlas in `exports/atlas`
 - publish the static site to GitHub Pages
 
-That gives you a public HTTPS URL you can open on an iPad or any other device.
+That means the iPad-friendly URL is always the live atlas link above.
 
 ### Quick Start
 
