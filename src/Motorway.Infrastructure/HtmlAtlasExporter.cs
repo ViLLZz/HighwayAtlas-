@@ -1459,6 +1459,14 @@ public static class HtmlAtlasExporter
                 "sidebar";
         }
 
+        body.device-tablet .shell {
+            gap: 14px;
+        }
+
+        body.device-tablet .workspace {
+            gap: 14px;
+        }
+
         body.device-tablet .sidebar,
         body.device-desktop.viewport-short .sidebar {
             position: static;
@@ -1479,20 +1487,23 @@ public static class HtmlAtlasExporter
         }
 
         body.device-tablet .map-stage {
-            grid-template-columns: minmax(212px, 236px) minmax(0, 1fr);
+            grid-template-columns: minmax(188px, 208px) minmax(0, 1fr);
             grid-template-areas:
                 "quick quick"
                 "surface map"
                 "surface map";
             align-items: start;
-            gap: 10px;
-            padding: 12px;
-            min-height: min(860px, calc(var(--app-height) - 148px));
+            gap: 8px;
+            padding: 10px;
+            min-height: min(930px, calc(var(--app-height) - 118px));
         }
 
         body.device-tablet .map-stage-quickbar {
             grid-area: quick;
             margin-bottom: 0;
+            padding: 10px 12px;
+            border-radius: 18px;
+            gap: 8px;
         }
 
         body.device-tablet .profile-banner {
@@ -1508,7 +1519,7 @@ public static class HtmlAtlasExporter
         body.device-tablet .tablet-control-surface {
             display: grid;
             grid-area: surface;
-            gap: 8px;
+            gap: 6px;
             overflow: visible;
             max-height: none;
             padding-bottom: 0;
@@ -1521,16 +1532,17 @@ public static class HtmlAtlasExporter
         body.device-tablet .tablet-surface-summary,
         body.device-tablet .tablet-control-card,
         body.device-tablet .tablet-playback-card {
-            padding: 8px 9px;
-            border-radius: 14px;
+            padding: 7px 8px;
+            border-radius: 12px;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 10px 24px rgba(0,0,0,0.14);
         }
 
         body.device-tablet .tablet-surface-heading h3 {
-            font-size: 15px;
+            font-size: 14px;
         }
 
         body.device-tablet .tablet-surface-summary strong {
-            font-size: clamp(22px, 2.3vw, 26px);
+            font-size: clamp(20px, 2.1vw, 24px);
         }
 
         body.device-tablet .tablet-surface-heading .helper,
@@ -1555,7 +1567,7 @@ public static class HtmlAtlasExporter
 
         body.device-tablet .tablet-control-cluster {
             grid-template-columns: 1fr;
-            gap: 8px;
+            gap: 6px;
         }
 
         body.device-tablet .tablet-control-card .filter-row {
@@ -1573,13 +1585,13 @@ public static class HtmlAtlasExporter
         }
 
         body.device-tablet .tablet-control-card .toggle.stage-toggle {
-            min-height: 34px;
-            min-width: 92px;
-            padding: 5px 7px;
+            min-height: 32px;
+            min-width: 82px;
+            padding: 4px 6px;
         }
 
         body.device-tablet .tablet-control-card .toggle.stage-toggle .label-stack strong {
-            font-size: 10px;
+            font-size: 9px;
         }
 
         body.device-tablet .tablet-control-card .toggle.stage-toggle .label-stack span {
@@ -1593,12 +1605,12 @@ public static class HtmlAtlasExporter
         }
 
         body.device-tablet .tablet-playback-card {
-            padding-bottom: 7px;
+            padding-bottom: 6px;
         }
 
         body.device-tablet .tablet-playback-card .card-head,
         body.device-tablet .tablet-playback-card .playback-meta {
-            margin-bottom: 6px;
+            margin-bottom: 4px;
         }
 
         body.device-tablet .tablet-playback-card .playback-km-wrap {
@@ -1623,14 +1635,14 @@ public static class HtmlAtlasExporter
         body.device-tablet .floating-top-right {
             grid-area: selection;
             position: absolute;
-            top: 14px;
-            right: 14px;
-            width: min(252px, 34%);
+            top: 10px;
+            right: 10px;
+            width: min(224px, 30%);
             z-index: 4;
-            max-height: 164px;
+            max-height: 146px;
             overflow: auto;
-            padding: 10px 11px 12px;
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 18px 40px rgba(0,0,0,0.22);
+            padding: 8px 9px 10px;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 14px 32px rgba(0,0,0,0.18);
         }
 
         body.device-tablet .floating-top-right.passive {
@@ -1641,27 +1653,27 @@ public static class HtmlAtlasExporter
             grid-area: map;
             order: initial;
             height: 100%;
-            min-height: 812px;
+            min-height: 876px;
         }
 
         body.device-tablet .route-pills {
             gap: 8px;
-            padding: 7px;
+            padding: 6px;
         }
 
         body.device-tablet .route-pill {
-            min-width: 132px;
-            min-height: 56px;
-            padding: 11px 12px;
+            min-width: 114px;
+            min-height: 46px;
+            padding: 8px 10px;
         }
 
         body.device-tablet .route-pill .label {
-            font-size: 12px;
+            font-size: 11px;
         }
 
         body.device-tablet .route-pill .meta,
         body.device-tablet .route-pill .code {
-            font-size: 9px;
+            font-size: 8px;
         }
 
         body.device-tablet .floating-top-left,
@@ -1683,11 +1695,58 @@ public static class HtmlAtlasExporter
             position: static;
         }
 
+        body.device-tablet .topbar {
+            padding: 12px 14px;
+            gap: 10px 12px;
+            border-radius: 22px;
+            backdrop-filter: blur(16px) saturate(1.04);
+            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18), inset 0 1px 0 rgba(255,255,255,0.06);
+        }
+
+        body.device-tablet .brand {
+            gap: 2px;
+        }
+
+        body.device-tablet .brand h1 {
+            font-size: clamp(20px, 2.5vw, 26px);
+            line-height: 1;
+        }
+
+        body.device-tablet .brand .helper {
+            font-size: 12px;
+            line-height: 1.3;
+            max-width: 82%;
+        }
+
         body.device-tablet .top-actions,
         body.device-phone .top-actions,
         body.device-desktop.viewport-short .top-actions {
             grid-template-columns: 1fr;
             border-radius: 18px;
+        }
+
+        body.device-tablet .top-actions {
+            gap: 8px;
+            padding: 8px 10px;
+            min-height: 52px;
+            border-radius: 16px;
+        }
+
+        body.device-tablet .control-label {
+            font-size: 9px;
+            letter-spacing: .1em;
+        }
+
+        body.device-tablet .top-actions .tab {
+            min-width: 44px;
+            min-height: 34px;
+            font-size: 11px;
+        }
+
+        body.device-tablet .top-actions .select {
+            min-height: 36px;
+            font-size: 12px;
+            padding: 7px 30px 7px 11px;
         }
 
         body.device-tablet .top-actions .tabs,
@@ -1708,6 +1767,25 @@ public static class HtmlAtlasExporter
 
         body.device-tablet .headline-strip {
             display: none;
+        }
+
+        body.device-tablet .map-stage-quick-presets {
+            grid-auto-columns: minmax(116px, max-content);
+            gap: 8px;
+        }
+
+        body.device-tablet .map-stage-quickbar .toggle.stage-toggle {
+            min-width: 116px;
+            min-height: 40px;
+            padding: 7px 10px;
+        }
+
+        body.device-tablet .map-stage-quickbar .toggle.stage-toggle .label-stack strong {
+            font-size: 10px;
+        }
+
+        body.device-tablet .map-stage-quickbar .toggle.stage-toggle .label-stack span {
+            font-size: 8px;
         }
 
         body.device-phone .workspace {
@@ -1893,6 +1971,23 @@ public static class HtmlAtlasExporter
             padding: 12px;
             gap: 10px;
             border-radius: 20px;
+        }
+
+        @media (pointer: coarse) {
+            .topbar,
+            .sidebar,
+            .map-stage,
+            .panel,
+            .floating-card,
+            .kpi,
+            .route-card,
+            .lot-card {
+                backdrop-filter: blur(10px);
+            }
+
+            .route-pill::after {
+                display: none;
+            }
         }
 
         body.device-phone .brand h1 {
