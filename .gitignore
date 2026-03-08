@@ -14,6 +14,8 @@ artifacts/
 .vs/
 .vscode/
 .idea/
+__pycache__/
+*.pyc
 
 # Rider
 *.DotSettings.user
