@@ -25,28 +25,28 @@ var exportDirectory = Path.Combine(workspaceRoot, "exports", "atlas");
 
 Console.WriteLine("Bulgarian Motorways & Highways Map");
 Console.WriteLine(new string('=', 40));
-Console.WriteLine($"Routes tracked:        {stats.RouteCount}");
-Console.WriteLine($"Segments tracked:      {stats.SegmentCount}");
+Console.WriteLine($"Routes in atlas:       {stats.RouteCount}");
+Console.WriteLine($"Sections in atlas:     {stats.SegmentCount}");
 Console.WriteLine($"Total length:          {stats.TotalKm:N0} km");
-Console.WriteLine($"Operational length:    {stats.OpenKm:N0} km");
-Console.WriteLine($"Construction length:   {stats.ConstructionKm:N0} km");
-Console.WriteLine($"Planned length:        {stats.PlannedKm:N0} km");
-Console.WriteLine($"Completion:            {stats.CompletionPercent:N1}%");
-Console.WriteLine($"Sparse geometry:       {geometryDiagnostics.SparseSegmentCount} segments");
-Console.WriteLine($"Sharp-turn segments:   {geometryDiagnostics.SharpTurnSegmentCount}");
-Console.WriteLine($"Longest point span:    {geometryDiagnostics.MaxObservedSpanKm:N1} km");
-Console.WriteLine($"Continuity reviews:    {continuityDiagnostics.ReviewTransitionCount}");
-Console.WriteLine($"Continuity breaks:     {continuityDiagnostics.BrokenTransitionCount}");
-Console.WriteLine($"Largest endpoint gap:  {continuityDiagnostics.MaxEndpointGapKm:N1} km");
-Console.WriteLine($"Official sources:      {provenanceDiagnostics.OfficialSourceCount}/{provenanceDiagnostics.SegmentCount}");
+Console.WriteLine($"Open now:              {stats.OpenKm:N0} km");
+Console.WriteLine($"Under construction:    {stats.ConstructionKm:N0} km");
+Console.WriteLine($"Still planned:         {stats.PlannedKm:N0} km");
+Console.WriteLine($"Network complete:      {stats.CompletionPercent:N1}%");
+Console.WriteLine($"Sparse shape data:     {geometryDiagnostics.SparseSegmentCount} sections");
+Console.WriteLine($"Sharp bends to review: {geometryDiagnostics.SharpTurnSegmentCount}");
+Console.WriteLine($"Largest point gap:     {geometryDiagnostics.MaxObservedSpanKm:N1} km");
+Console.WriteLine($"Hand-offs to review:   {continuityDiagnostics.ReviewTransitionCount}");
+Console.WriteLine($"Broken hand-offs:      {continuityDiagnostics.BrokenTransitionCount}");
+Console.WriteLine($"Largest join gap:      {continuityDiagnostics.MaxEndpointGapKm:N1} km");
+Console.WriteLine($"Official-source count: {provenanceDiagnostics.OfficialSourceCount}/{provenanceDiagnostics.SegmentCount}");
 Console.WriteLine($"Route-specific refs:   {provenanceDiagnostics.RouteSpecificOfficialCount}");
-Console.WriteLine($"Network-wide refs:     {provenanceDiagnostics.NetworkWideOfficialCount}");
-Console.WriteLine($"Secondary references:  {provenanceDiagnostics.SecondaryNarrativeCount}");
+Console.WriteLine($"Network-level refs:    {provenanceDiagnostics.NetworkWideOfficialCount}");
+Console.WriteLine($"Supporting refs:       {provenanceDiagnostics.SecondaryNarrativeCount}");
 Console.WriteLine();
 
 if (warnings.Length == 0)
 {
-    Console.WriteLine("Validation: no out-of-bounds points detected.");
+    Console.WriteLine("Validation: all mapped points stay inside the Bulgaria bounds check.");
 }
 else
 {

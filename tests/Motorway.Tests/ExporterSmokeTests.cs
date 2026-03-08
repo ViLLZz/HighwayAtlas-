@@ -32,6 +32,9 @@ public sealed class ExporterSmokeTests
         Assert.Contains("map-stage-quickbar", html, StringComparison.Ordinal);
         Assert.Contains("text-wrap: balance", html, StringComparison.Ordinal);
         Assert.Contains(".timeline-item::before", html, StringComparison.Ordinal);
+        Assert.Contains("How solid the data is", html, StringComparison.Ordinal);
+        Assert.Contains("Sections with official source", html, StringComparison.Ordinal);
+        Assert.Contains("Pick a route, section, or lot on the map", html, StringComparison.Ordinal);
         Assert.Contains("Belokopitovo interchange", html, StringComparison.Ordinal);
         Assert.Contains("Strazhitsa north corridor", html, StringComparison.Ordinal);
         Assert.Contains("const ALL_STATUSES", html, StringComparison.Ordinal);
