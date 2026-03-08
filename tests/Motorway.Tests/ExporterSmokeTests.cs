@@ -49,6 +49,8 @@ public sealed class ExporterSmokeTests
         Assert.Contains("body.device-phone .tablet-control-surface", html, StringComparison.Ordinal);
         Assert.Contains("body.device-phone .workspace", html, StringComparison.Ordinal);
         Assert.Contains("const shortEdge = Math.min(width, height)", html, StringComparison.Ordinal);
+        Assert.Contains("tablet-tab-metric", html, StringComparison.Ordinal);
+        Assert.Contains("body.device-tablet .map-stage", html, StringComparison.Ordinal);
         Assert.Contains("tablet-info-tab", html, StringComparison.Ordinal);
         Assert.Contains("tablet-playback-button", html, StringComparison.Ordinal);
         Assert.Contains("tablet-map-presets", html, StringComparison.Ordinal);
