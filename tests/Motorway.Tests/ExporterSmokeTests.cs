@@ -39,6 +39,10 @@ public sealed class ExporterSmokeTests
         Assert.Contains("route-pill-progress", html, StringComparison.Ordinal);
         Assert.Contains("command-center-mode", html, StringComparison.Ordinal);
         Assert.Contains("shell-rise", html, StringComparison.Ordinal);
+        Assert.Contains("tablet-control-surface", html, StringComparison.Ordinal);
+        Assert.Contains("tablet-info-tab", html, StringComparison.Ordinal);
+        Assert.Contains("tablet-playback-button", html, StringComparison.Ordinal);
+        Assert.Contains("tablet-map-presets", html, StringComparison.Ordinal);
         Assert.Contains("stage-quick-presets", html, StringComparison.Ordinal);
         Assert.Contains("map-stage-quickbar", html, StringComparison.Ordinal);
         Assert.Contains("text-wrap: balance", html, StringComparison.Ordinal);

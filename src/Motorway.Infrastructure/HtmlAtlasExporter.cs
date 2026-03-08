@@ -550,16 +550,132 @@ public static class HtmlAtlasExporter
             padding-right: 0;
         }
 
-        .notes-body {
+        .tablet-control-surface,
+        .tablet-info-tabs {
+            display: none;
+        }
+
+        .tablet-surface-summary,
+        .tablet-control-card,
+        .tablet-playback-card {
+            padding: 18px;
+            border-radius: 20px;
+            border: 1px solid rgba(120, 154, 211, 0.14);
+            background: linear-gradient(180deg, rgba(15, 28, 46, 0.9), rgba(7, 14, 26, 0.94));
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), var(--shadow-soft), var(--glow);
+        }
+
+        .tablet-surface-heading {
             display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            gap: 14px;
+            align-items: start;
+        }
+
+        .tablet-surface-heading h3,
+        .summary-main h2,
+        .panel h3,
+        .card-head strong {
+            font-family: var(--display-font);
+            letter-spacing: -.035em;
+            line-height: 1.02;
+        }
+
+        .tablet-summary-band,
+        .summary-main {
+            display: grid;
+            gap: 12px;
+        }
+
+        .tablet-surface-summary strong,
+        .summary-main strong {
+            font-family: var(--display-font);
+            font-size: clamp(36px, 3vw, 44px);
+            line-height: .96;
+        }
+
+        .tablet-kpi-ribbon {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 10px;
+            margin-top: 4px;
+        }
+
+        .tablet-kpi-chip {
+            padding: 11px 12px;
+            border-radius: 16px;
+            border: 1px solid rgba(120, 154, 211, 0.14);
+            background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03));
+            display: grid;
+            gap: 4px;
+            min-height: 74px;
+            align-content: start;
+        }
+
+        .tablet-kpi-chip .value {
+            font-size: 18px;
+            font-weight: 800;
+            color: #f4fbff;
+        }
+
+        .tablet-control-cluster,
+        .tablet-surface-lower,
+        .tablet-surface-tools {
+            display: grid;
+            gap: 12px;
+        }
+
+        .tablet-control-cluster {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .tablet-surface-lower {
+            grid-template-columns: minmax(300px, 1.1fr) minmax(0, 1fr);
+            align-items: start;
+        }
+
+        .tablet-surface-tools {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .tablet-map-preset-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
             gap: 10px;
         }
 
+        .tablet-info-tabs {
+            gap: 12px;
+            padding: 16px 18px;
+            border-radius: 24px;
+            border: 1px solid rgba(120, 154, 211, 0.14);
+            background: linear-gradient(180deg, rgba(15, 28, 46, 0.78), rgba(7, 14, 26, 0.9));
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), var(--shadow-soft);
+        }
+
+        .tablet-tab-row {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 8px;
+        }
+
+        .tablet-info-tab {
+            min-height: 44px;
+            justify-content: center;
+            font-size: 11px;
+        }
+
+        .notes-body {
+            display: grid;
+            gap: 12px;
+        }
+
         .note-block {
-            padding: 12px;
+            padding: 14px 15px;
             border-radius: var(--radius-md);
             border: 1px solid rgba(120, 154, 211, 0.14);
             background: rgba(255, 255, 255, 0.025);
+            line-height: 1.55;
         }
 
         .audit-badge {
@@ -581,11 +697,25 @@ public static class HtmlAtlasExporter
         }
 
         .summary-card {
-            padding: 18px;
+            padding: 22px;
             border-radius: var(--radius-lg);
             background: linear-gradient(180deg, rgba(16, 31, 52, 0.98), rgba(7, 14, 26, 0.94));
             border: 1px solid rgba(105, 144, 205, 0.18);
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), var(--shadow-soft);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .summary-card::after,
+        .panel::after {
+            content: "";
+            position: absolute;
+            inset: auto -12% -32% auto;
+            width: 120px;
+            height: 120px;
+            border-radius: 999px;
+            background: radial-gradient(circle, rgba(255,255,255,0.08), rgba(255,255,255,0));
+            pointer-events: none;
         }
 
         .summary-main {
@@ -1178,10 +1308,38 @@ public static class HtmlAtlasExporter
             min-height: auto;
         }
 
+        body.device-tablet .map-stage {
+            gap: 12px;
+            padding: 16px;
+        }
+
         body.device-tablet .map-stage-quickbar,
         body.device-phone .map-stage-quickbar,
         body.device-desktop.viewport-short .map-stage-quickbar {
             display: grid;
+        }
+
+        body.device-tablet .tablet-control-surface {
+            display: grid;
+        }
+
+        body.device-tablet .floating-top-left,
+        body.device-tablet .floating-bottom-right,
+        body.device-tablet .floating-bottom-left {
+            display: none;
+        }
+
+        body.device-tablet .floating-top-right {
+            order: 4;
+        }
+
+        body.device-tablet .floating-top-right.passive {
+            display: none;
+        }
+
+        body.device-tablet #map {
+            order: 3;
+            min-height: 360px;
         }
 
         body.device-tablet .floating-top-left,
@@ -1226,6 +1384,32 @@ public static class HtmlAtlasExporter
             grid-template-columns: repeat(2, minmax(0, 1fr));
         }
 
+        body.device-tablet .headline-strip {
+            display: none;
+        }
+
+        body.device-tablet .sidebar {
+            padding: 0;
+            gap: 14px;
+            background: transparent;
+            border: 0;
+            box-shadow: none;
+            backdrop-filter: none;
+        }
+
+        body.device-tablet .tablet-info-tabs {
+            display: grid;
+        }
+
+        body.device-tablet #summary-panel,
+        body.device-tablet #filters-panel {
+            display: none;
+        }
+
+        body.device-tablet .sidebar-scroll {
+            gap: 14px;
+        }
+
         body.device-phone .headline-strip,
         body.device-desktop.viewport-short .headline-strip {
             grid-template-columns: 1fr;
@@ -1235,6 +1419,11 @@ public static class HtmlAtlasExporter
         body.device-desktop.viewport-short {
             --map-height: min(72vh, 760px);
             --map-min-height: 620px;
+        }
+
+        body.device-tablet {
+            --map-height: min(40vh, 470px);
+            --map-min-height: 360px;
         }
 
         body.device-phone {
@@ -1329,9 +1518,11 @@ public static class HtmlAtlasExporter
         .route-card,
         .lot-card,
         .panel {
-            padding: 17px;
+            padding: 20px 18px;
             background: linear-gradient(180deg, rgba(11, 22, 37, 0.88), rgba(7, 14, 26, 0.94));
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), var(--shadow-soft), var(--glow);
+            position: relative;
+            overflow: hidden;
         }
 
         .route-card.active,
@@ -1356,7 +1547,7 @@ public static class HtmlAtlasExporter
 
         .route-list,
         .lot-list,
-        .timeline { display: grid; gap: 10px; }
+        .timeline { display: grid; gap: 12px; }
 
         .lot-marker {
             display: grid;
@@ -1964,6 +2155,65 @@ public static class HtmlAtlasExporter
                     <div class="toggle-group-label" id="stage-quick-label"></div>
                     <div class="map-stage-quick-presets" id="stage-quick-presets"></div>
                 </section>
+                <section class="tablet-control-surface" aria-label="iPad control surface">
+                    <article class="tablet-surface-summary">
+                        <div class="eyebrow" id="tablet-surface-eyebrow"></div>
+                        <div class="tablet-surface-heading">
+                            <div>
+                                <h3 id="tablet-summary-title"></h3>
+                                <div class="helper" id="tablet-summary-subtitle"></div>
+                            </div>
+                            <span class="pill" id="tablet-generated-pill"></span>
+                        </div>
+                        <div class="tablet-summary-band">
+                            <strong id="tablet-summary-km"></strong>
+                            <div class="row tiny">
+                                <span id="tablet-summary-state"></span>
+                                <span id="tablet-summary-percent"></span>
+                            </div>
+                            <div class="progress-track"><div class="progress-fill" id="tablet-summary-progress"></div></div>
+                        </div>
+                        <div class="tablet-kpi-ribbon" id="tablet-summary-kpis"></div>
+                    </article>
+
+                    <div class="tablet-control-cluster">
+                        <article class="tablet-control-card">
+                            <div class="toggle-group-label" id="tablet-region-presets-label"></div>
+                            <div class="filter-row" id="tablet-region-presets"></div>
+                        </article>
+                        <article class="tablet-control-card">
+                            <div class="toggle-group-label" id="tablet-source-presets-label"></div>
+                            <div class="filter-row" id="tablet-source-presets"></div>
+                        </article>
+                        <article class="tablet-control-card">
+                            <div class="toggle-group-label" id="tablet-status-filters-label"></div>
+                            <div class="filter-row" id="tablet-status-filters"></div>
+                        </article>
+                    </div>
+
+                    <div class="tablet-surface-lower">
+                        <article class="tablet-playback-card">
+                            <div class="card-head" style="align-items:center">
+                                <div class="toggle-group-label" id="tablet-playback-label"></div>
+                                <button type="button" class="toggle" id="tablet-playback-button"></button>
+                            </div>
+                            <div class="playback-meta tiny"><span id="tablet-playback-year-label"></span><span id="tablet-playback-range-label"></span></div>
+                            <input type="range" min="1970" max="2026" value="2026" class="playback-range" id="tablet-playback-range" />
+                            <div class="playback-km-wrap"><div class="playback-km-fill" id="tablet-playback-km-fill"></div><span class="playback-km-label" id="tablet-playback-km-label"></span></div>
+                        </article>
+
+                        <div class="tablet-surface-tools">
+                            <article class="tablet-control-card">
+                                <div class="toggle-group-label" id="tablet-map-presets-label"></div>
+                                <div class="tablet-map-preset-grid" id="tablet-map-presets"></div>
+                            </article>
+                            <article class="tablet-control-card">
+                                <div class="toggle-group-label" id="tablet-legend-label"></div>
+                                <div class="legend" id="tablet-legend"></div>
+                            </article>
+                        </div>
+                    </div>
+                </section>
                 <section class="desktop-map-dock" aria-label="Desktop map controls">
                     <div class="desktop-map-dock-main" id="desktop-map-presets"></div>
                     <div class="legend" id="desktop-legend"></div>
@@ -2037,7 +2287,17 @@ public static class HtmlAtlasExporter
             </section>
 
             <aside class="sidebar">
-                <section class="summary-card">
+                <section class="tablet-info-tabs" aria-label="Tablet infographic tabs">
+                    <div class="eyebrow" id="tablet-tabs-eyebrow"></div>
+                    <div class="tablet-tab-row">
+                        <button type="button" class="tab tablet-info-tab" id="tablet-tab-facts" data-tablet-tab="facts"></button>
+                        <button type="button" class="tab tablet-info-tab" id="tablet-tab-notes" data-tablet-tab="notes"></button>
+                        <button type="button" class="tab tablet-info-tab" id="tablet-tab-routes" data-tablet-tab="routes"></button>
+                        <button type="button" class="tab tablet-info-tab" id="tablet-tab-lots" data-tablet-tab="lots"></button>
+                    </div>
+                </section>
+
+                <section class="summary-card" id="summary-panel">
                     <div class="eyebrow" id="summary-eyebrow"></div>
                     <div class="summary-main">
                         <div class="card-head">
@@ -2056,7 +2316,7 @@ public static class HtmlAtlasExporter
                     </div>
                 </section>
 
-                <section class="panel">
+                <section class="panel" id="filters-panel">
                     <div class="eyebrow" id="filters-eyebrow"></div>
                     <h3 id="filters-title" style="margin:6px 0 12px"></h3>
                     <div class="filter-stack">
@@ -2089,20 +2349,20 @@ public static class HtmlAtlasExporter
                     </div>
                 </section>
 
-                <section class="panel">
+                <section class="panel" id="network-panel" data-tablet-panel="facts">
                     <div class="eyebrow" id="network-eyebrow"></div>
                     <h3 id="network-title" style="margin:6px 0 12px"></h3>
                     <div class="kpi-grid" id="sidebar-kpis"></div>
                 </section>
 
-                <section class="panel">
+                <section class="panel" id="notes-panel" data-tablet-panel="notes">
                     <div class="eyebrow" id="notes-eyebrow"></div>
                     <h3 id="notes-title" style="margin:6px 0 12px"></h3>
                     <div class="notes-body" id="notes-body"></div>
                 </section>
 
                 <div class="sidebar-scroll">
-                    <section class="panel">
+                    <section class="panel" id="routes-panel" data-tablet-panel="routes">
                         <div class="card-head" style="margin-bottom:12px">
                             <div>
                                 <div class="eyebrow" id="routes-eyebrow"></div>
@@ -2113,7 +2373,7 @@ public static class HtmlAtlasExporter
                         <div class="route-list" id="route-list"></div>
                     </section>
 
-                    <section class="panel">
+                    <section class="panel" id="lots-panel" data-tablet-panel="lots">
                         <div class="card-head" style="margin-bottom:12px">
                             <div>
                                 <div class="eyebrow" id="lots-eyebrow"></div>
@@ -2148,6 +2408,13 @@ public static class HtmlAtlasExporter
             bg: {
                 brandEyebrow: 'Премиум инфографски атлас',
                 summaryEyebrow: 'Национален фокус',
+                controlSurfaceEyebrow: 'iPad контролна повърхност',
+                infographicTabsEyebrow: 'Инфографски изгледи',
+                factsTab: 'Факти',
+                notesTab: 'Бележки',
+                routesTab: 'Маршрути',
+                lotsTab: 'Лотове',
+                statusLegend: 'Статуси',
                 headlineNow: 'Текущ избор',
                 headlineAudit: 'Колко сигурни са данните',
                 headlineScope: 'Какво виждате',
@@ -2301,6 +2568,13 @@ public static class HtmlAtlasExporter
             en: {
                 brandEyebrow: 'Premium infographic atlas',
                 summaryEyebrow: 'National focus',
+                controlSurfaceEyebrow: 'iPad control surface',
+                infographicTabsEyebrow: 'Infographic views',
+                factsTab: 'Facts',
+                notesTab: 'Notes',
+                routesTab: 'Routes',
+                lotsTab: 'Lots',
+                statusLegend: 'Statuses',
                 headlineNow: 'Current focus',
                 headlineAudit: 'How solid the data is',
                 headlineScope: 'What you are looking at',
@@ -2479,6 +2753,7 @@ public static class HtmlAtlasExporter
             selectedSegmentId: null,
             selectedLotKey: null,
             commandCenterMode: false,
+            tabletInfoTab: 'facts',
             playbackYear: new Date(atlas.generatedAtUtc).getFullYear(),
             playbackPlaying: false
         };
@@ -2491,15 +2766,18 @@ public static class HtmlAtlasExporter
             headlineTertiaryEyebrow: $('headline-tertiary-eyebrow'), headlineTertiaryTitle: $('headline-tertiary-title'), headlineTertiaryCopy: $('headline-tertiary-copy'),
             routePills: $('route-pills'), languageLabel: $('language-label'), languageTabs: $('language-tabs'), basemapLabel: $('basemap-label'), basemapSelect: $('basemap-select'), mapPresetsEyebrow: $('map-presets-eyebrow'), mapPresets: $('map-presets'), desktopMapPresets: $('desktop-map-presets'), mapNote: $('map-note'),
             summaryEyebrow: $('summary-eyebrow'), summaryTitle: $('summary-title'), summarySubtitle: $('summary-subtitle'), generatedPill: $('generated-pill'), summaryKm: $('summary-km'), summaryState: $('summary-state'), summaryPercent: $('summary-percent'), summaryProgress: $('summary-progress'),
-            filtersEyebrow: $('filters-eyebrow'), filtersTitle: $('filters-title'), filtersCopy: $('filters-copy'), stagePresetsLabel: $('stage-presets-label'), stagePresets: $('stage-presets'), stageQuickLabel: $('stage-quick-label'), stageQuickPresets: $('stage-quick-presets'), regionPresetsLabel: $('region-presets-label'), regionPresets: $('region-presets'), sourcePresetsLabel: $('source-presets-label'), sourcePresets: $('source-presets'), statusFiltersLabel: $('status-filters-label'), statusFilters: $('status-filters'), playbackLabel: $('playback-label'), playbackButton: $('playback-button'), playbackYearLabel: $('playback-year-label'), playbackRangeLabel: $('playback-range-label'), playbackRange: $('playback-range'), yearOverlay: $('year-overlay'), yearOverlayYear: $('year-overlay-year'), yearOverlayKm: $('year-overlay-km'), playbackKmFill: $('playback-km-fill'), playbackKmLabel: $('playback-km-label'),
+            tabletSurfaceEyebrow: $('tablet-surface-eyebrow'), tabletSummaryTitle: $('tablet-summary-title'), tabletSummarySubtitle: $('tablet-summary-subtitle'), tabletGeneratedPill: $('tablet-generated-pill'), tabletSummaryKm: $('tablet-summary-km'), tabletSummaryState: $('tablet-summary-state'), tabletSummaryPercent: $('tablet-summary-percent'), tabletSummaryProgress: $('tablet-summary-progress'), tabletSummaryKpis: $('tablet-summary-kpis'),
+            filtersEyebrow: $('filters-eyebrow'), filtersTitle: $('filters-title'), filtersCopy: $('filters-copy'), stagePresetsLabel: $('stage-presets-label'), stagePresets: $('stage-presets'), stageQuickLabel: $('stage-quick-label'), stageQuickPresets: $('stage-quick-presets'), regionPresetsLabel: $('region-presets-label'), regionPresets: $('region-presets'), tabletRegionPresetsLabel: $('tablet-region-presets-label'), tabletRegionPresets: $('tablet-region-presets'), sourcePresetsLabel: $('source-presets-label'), sourcePresets: $('source-presets'), tabletSourcePresetsLabel: $('tablet-source-presets-label'), tabletSourcePresets: $('tablet-source-presets'), statusFiltersLabel: $('status-filters-label'), statusFilters: $('status-filters'), tabletStatusFiltersLabel: $('tablet-status-filters-label'), tabletStatusFilters: $('tablet-status-filters'), playbackLabel: $('playback-label'), playbackButton: $('playback-button'), playbackYearLabel: $('playback-year-label'), playbackRangeLabel: $('playback-range-label'), playbackRange: $('playback-range'), tabletPlaybackLabel: $('tablet-playback-label'), tabletPlaybackButton: $('tablet-playback-button'), tabletPlaybackYearLabel: $('tablet-playback-year-label'), tabletPlaybackRangeLabel: $('tablet-playback-range-label'), tabletPlaybackRange: $('tablet-playback-range'), yearOverlay: $('year-overlay'), yearOverlayYear: $('year-overlay-year'), yearOverlayKm: $('year-overlay-km'), playbackKmFill: $('playback-km-fill'), playbackKmLabel: $('playback-km-label'), tabletPlaybackKmFill: $('tablet-playback-km-fill'), tabletPlaybackKmLabel: $('tablet-playback-km-label'),
             networkEyebrow: $('network-eyebrow'), networkTitle: $('network-title'), sidebarKpis: $('sidebar-kpis'),
             notesEyebrow: $('notes-eyebrow'), notesTitle: $('notes-title'), notesBody: $('notes-body'),
             routesEyebrow: $('routes-eyebrow'), routesTitle: $('routes-title'), routesCount: $('routes-count'), routeList: $('route-list'),
             lotsEyebrow: $('lots-eyebrow'), lotsTitle: $('lots-title'), lotsCount: $('lots-count'), lotList: $('lot-list'),
+            tabletTabsEyebrow: $('tablet-tabs-eyebrow'), tabletTabFacts: $('tablet-tab-facts'), tabletTabNotes: $('tablet-tab-notes'), tabletTabRoutes: $('tablet-tab-routes'), tabletTabLots: $('tablet-tab-lots'),
+            summaryPanel: $('summary-panel'), filtersPanel: $('filters-panel'), networkPanel: $('network-panel'), notesPanel: $('notes-panel'), routesPanel: $('routes-panel'), lotsPanel: $('lots-panel'),
             heroEyebrow: $('hero-eyebrow'), heroTitle: $('hero-title'), heroSubtitle: $('hero-subtitle'), heroFocus: $('hero-focus'), heroStats: $('hero-stats'), mapStage: document.querySelector('.map-stage'), selectionPanel: $('selection-panel'),
             selectionEyebrow: $('selection-eyebrow'), selectionTitle: $('selection-title'), selectionSubtitle: $('selection-subtitle'), selectionClear: $('selection-clear'), selectionStatus: $('selection-status'), selectionPills: $('selection-pills'), selectionFacts: $('selection-facts'), selectionNote: $('selection-note'),
             legalEyebrow: $('legal-eyebrow'), legalTitle: $('legal-title'), legalCopy: $('legal-copy'),
-            timelineEyebrow: $('timeline-eyebrow'), timelineTitle: $('timeline-title'), timeline: $('timeline'), legend: $('legend'), desktopLegend: $('desktop-legend')
+            timelineEyebrow: $('timeline-eyebrow'), timelineTitle: $('timeline-title'), timeline: $('timeline'), legend: $('legend'), desktopLegend: $('desktop-legend'), tabletLegend: $('tablet-legend'), tabletLegendLabel: $('tablet-legend-label'), tabletMapPresets: $('tablet-map-presets'), tabletMapPresetsLabel: $('tablet-map-presets-label')
         };
 
         const pathRenderer = L.canvas({ padding: 0.55, tolerance: 5 });
@@ -3135,8 +3413,10 @@ public static class HtmlAtlasExporter
             el.mapNote.textContent = t('mapNote');
             el.mapPresets.innerHTML = presetMarkup;
             if (el.desktopMapPresets) el.desktopMapPresets.innerHTML = presetMarkup;
+            if (el.tabletMapPresets) el.tabletMapPresets.innerHTML = presetMarkup;
             bindPresetClicks(el.mapPresets);
             bindPresetClicks(el.desktopMapPresets);
+            bindPresetClicks(el.tabletMapPresets);
         }
 
         function renderToolbar() {
@@ -3255,21 +3535,52 @@ public static class HtmlAtlasExporter
             el.summaryPercent.textContent = selectedRoute ? formatPercent(selectedRoute.completionPercent) : formatPercent(metrics.completionPercent || atlas.summary.completionPercent);
             el.summaryProgress.style.width = `${selectedRoute ? selectedRoute.completionPercent : (metrics.completionPercent || atlas.summary.completionPercent)}%`;
 
+            if (el.tabletSurfaceEyebrow) el.tabletSurfaceEyebrow.textContent = t('controlSurfaceEyebrow');
+            if (el.tabletSummaryTitle) el.tabletSummaryTitle.textContent = el.summaryTitle.textContent;
+            if (el.tabletSummarySubtitle) el.tabletSummarySubtitle.textContent = el.summarySubtitle.textContent;
+            if (el.tabletGeneratedPill) el.tabletGeneratedPill.textContent = el.generatedPill.textContent;
+            if (el.tabletSummaryKm) el.tabletSummaryKm.textContent = el.summaryKm.textContent;
+            if (el.tabletSummaryState) el.tabletSummaryState.textContent = el.summaryState.textContent;
+            if (el.tabletSummaryPercent) el.tabletSummaryPercent.textContent = el.summaryPercent.textContent;
+            if (el.tabletSummaryProgress) el.tabletSummaryProgress.style.width = el.summaryProgress.style.width;
+            if (el.tabletSummaryKpis) {
+                el.tabletSummaryKpis.innerHTML = [
+                    { label: t('openToday'), value: formatKm(metrics.openKm) },
+                    { label: t('inBuild'), value: formatKm(metrics.constructionKm) },
+                    { label: t('plannedNow'), value: formatKm(metrics.plannedKm) },
+                    { label: t('visibleLots'), value: `${metrics.lotCount}` }
+                ].map(item => `<article class="tablet-kpi-chip"><div class="eyebrow">${item.label}</div><div class="value">${item.value}</div></article>`).join('');
+            }
+
             el.filtersEyebrow.textContent = t('filtersEyebrow');
             el.filtersTitle.textContent = t('filtersTitle');
             el.filtersCopy.textContent = t('filtersCopy');
             el.stagePresetsLabel.textContent = t('stagePresets');
             if (el.stageQuickLabel) el.stageQuickLabel.textContent = t('stagePresets');
             el.regionPresetsLabel.textContent = t('regionPresets');
+            if (el.tabletRegionPresetsLabel) el.tabletRegionPresetsLabel.textContent = t('regionPresets');
             el.sourcePresetsLabel.textContent = t('sourcePresets');
+            if (el.tabletSourcePresetsLabel) el.tabletSourcePresetsLabel.textContent = t('sourcePresets');
             el.statusFiltersLabel.textContent = t('granularStatus');
+            if (el.tabletStatusFiltersLabel) el.tabletStatusFiltersLabel.textContent = t('granularStatus');
             el.playbackLabel.textContent = t('playbackLabel');
+            if (el.tabletPlaybackLabel) el.tabletPlaybackLabel.textContent = t('playbackLabel');
             el.playbackButton.textContent = state.playbackPlaying ? t('playbackPause') : t('playbackPlay');
+            if (el.tabletPlaybackButton) el.tabletPlaybackButton.textContent = el.playbackButton.textContent;
             el.playbackYearLabel.textContent = `${t('playbackYear')}: ${state.playbackYear}`;
+            if (el.tabletPlaybackYearLabel) el.tabletPlaybackYearLabel.textContent = el.playbackYearLabel.textContent;
             el.playbackRangeLabel.textContent = t('playbackRange');
+            if (el.tabletPlaybackRangeLabel) el.tabletPlaybackRangeLabel.textContent = el.playbackRangeLabel.textContent;
             el.playbackRange.min = `${getPlaybackMinYear()}`;
             el.playbackRange.max = `${generated.getFullYear()}`;
             el.playbackRange.value = `${state.playbackYear}`;
+            if (el.tabletPlaybackRange) {
+                el.tabletPlaybackRange.min = el.playbackRange.min;
+                el.tabletPlaybackRange.max = el.playbackRange.max;
+                el.tabletPlaybackRange.value = el.playbackRange.value;
+            }
+            if (el.tabletMapPresetsLabel) el.tabletMapPresetsLabel.textContent = t('mapPresetsEyebrow');
+            if (el.tabletLegendLabel) el.tabletLegendLabel.textContent = t('statusLegend');
 
             // ── Year-overlay + km progress bar ────────────────────────────────────
             const currentYear = generated.getFullYear();
@@ -3312,6 +3623,8 @@ public static class HtmlAtlasExporter
                 if (el.playbackKmLabel) {
                     el.playbackKmLabel.textContent = isHistoricMode ? `${Math.round(builtKm)} km  ·  ${pct}%` : `${Math.round(totalOpenKm)} km  ·  100%`;
                 }
+                if (el.tabletPlaybackKmFill) el.tabletPlaybackKmFill.style.width = `${pct}%`;
+                if (el.tabletPlaybackKmLabel) el.tabletPlaybackKmLabel.textContent = el.playbackKmLabel.textContent;
             }
             el.networkEyebrow.textContent = t('networkEyebrow');
             el.networkTitle.textContent = t('networkTitle');
@@ -3321,6 +3634,11 @@ public static class HtmlAtlasExporter
             el.routesTitle.textContent = t('routesTitle');
             el.lotsEyebrow.textContent = t('lotsEyebrow');
             el.lotsTitle.textContent = t('lotsTitle');
+            if (el.tabletTabsEyebrow) el.tabletTabsEyebrow.textContent = t('infographicTabsEyebrow');
+            if (el.tabletTabFacts) el.tabletTabFacts.textContent = t('factsTab');
+            if (el.tabletTabNotes) el.tabletTabNotes.textContent = t('notesTab');
+            if (el.tabletTabRoutes) el.tabletTabRoutes.textContent = t('routesTab');
+            if (el.tabletTabLots) el.tabletTabLots.textContent = t('lotsTab');
 
             renderStagePresetControls(el.stagePresets, scopedSegments);
             renderStagePresetControls(el.stageQuickPresets, scopedSegments);
@@ -3335,6 +3653,15 @@ public static class HtmlAtlasExporter
                 clearFilteredSelection();
                 render();
             }));
+            if (el.tabletRegionPresets) {
+                el.tabletRegionPresets.innerHTML = el.regionPresets.innerHTML;
+                el.tabletRegionPresets.querySelectorAll('[data-region]').forEach(node => node.addEventListener('click', () => {
+                    stopPlayback();
+                    state.regionFilter = state.regionFilter === node.dataset.region ? 'ALL' : node.dataset.region;
+                    clearFilteredSelection();
+                    render();
+                }));
+            }
 
             const sourceScopedSegments = scopedSegments.filter(segment => state.activeStatuses.has(segment.status));
             el.sourcePresets.innerHTML = SOURCE_PRESETS.map(preset => {
@@ -3347,6 +3674,15 @@ public static class HtmlAtlasExporter
                 clearFilteredSelection();
                 render();
             }));
+            if (el.tabletSourcePresets) {
+                el.tabletSourcePresets.innerHTML = el.sourcePresets.innerHTML;
+                el.tabletSourcePresets.querySelectorAll('[data-source-scope]').forEach(node => node.addEventListener('click', () => {
+                    stopPlayback();
+                    state.sourceScope = state.sourceScope === node.dataset.sourceScope ? 'ALL' : node.dataset.sourceScope;
+                    clearFilteredSelection();
+                    render();
+                }));
+            }
 
             el.statusFilters.innerHTML = ['Open', 'UnderConstruction', 'Planned', 'Closed'].map(status => {
                 const count = scopedSegments.filter(segment => segment.status === status).length;
@@ -3359,6 +3695,16 @@ public static class HtmlAtlasExporter
                 clearFilteredSelection();
                 render();
             }));
+            if (el.tabletStatusFilters) {
+                el.tabletStatusFilters.innerHTML = el.statusFilters.innerHTML;
+                el.tabletStatusFilters.querySelectorAll('[data-status]').forEach(node => node.addEventListener('click', () => {
+                    stopPlayback();
+                    const status = node.dataset.status;
+                    if (state.activeStatuses.has(status) && state.activeStatuses.size > 1) state.activeStatuses.delete(status); else state.activeStatuses.add(status);
+                    clearFilteredSelection();
+                    render();
+                }));
+            }
 
             el.playbackButton.onclick = () => {
                 if (state.playbackPlaying) {
@@ -3382,6 +3728,7 @@ public static class HtmlAtlasExporter
                 }, 600);
                 render();
             };
+            if (el.tabletPlaybackButton) el.tabletPlaybackButton.onclick = el.playbackButton.onclick;
 
             el.playbackRange.oninput = event => {
                 stopPlayback();
@@ -3389,6 +3736,7 @@ public static class HtmlAtlasExporter
                 clearFilteredSelection();
                 render();
             };
+            if (el.tabletPlaybackRange) el.tabletPlaybackRange.oninput = el.playbackRange.oninput;
 
             const kpis = [
                 { label: t('openToday'), value: formatKm(metrics.openKm), statuses: ['Open'] },
@@ -3485,6 +3833,25 @@ public static class HtmlAtlasExporter
                 }
                 render();
             }));
+
+            const tabletPanels = [
+                { key: 'facts', button: el.tabletTabFacts, panel: el.networkPanel },
+                { key: 'notes', button: el.tabletTabNotes, panel: el.notesPanel },
+                { key: 'routes', button: el.tabletTabRoutes, panel: el.routesPanel },
+                { key: 'lots', button: el.tabletTabLots, panel: el.lotsPanel }
+            ];
+            tabletPanels.forEach(item => {
+                if (item.button) {
+                    item.button.classList.toggle('active', state.tabletInfoTab === item.key);
+                    item.button.onclick = () => {
+                        state.tabletInfoTab = item.key;
+                        render();
+                    };
+                }
+                if (item.panel) {
+                    item.panel.hidden = document.body.classList.contains('device-tablet') && state.tabletInfoTab !== item.key;
+                }
+            });
         }
 
         function renderHero() {
@@ -3632,8 +3999,10 @@ public static class HtmlAtlasExporter
 
             el.legend.innerHTML = legendMarkup;
             if (el.desktopLegend) el.desktopLegend.innerHTML = legendMarkup;
+            if (el.tabletLegend) el.tabletLegend.innerHTML = legendMarkup;
             bindLegendClicks(el.legend);
             bindLegendClicks(el.desktopLegend);
+            bindLegendClicks(el.tabletLegend);
         }
 
         function focusDefault() {
