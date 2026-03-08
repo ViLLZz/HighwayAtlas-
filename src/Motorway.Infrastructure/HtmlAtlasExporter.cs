@@ -1,0 +1,3750 @@
+using System.Text.Json;
+using Motorway.Domain;
+using Motorway.Engine;
+
+namespace Motorway.Infrastructure;
+
+public static class HtmlAtlasExporter
+{
+    public static string Export(HighwayRoute network)
+    {
+        var atlasJson = JsonSerializer.Serialize(BuildAtlasModel(network));
+
+        return $$"""
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Motorway Atlas — Premium Bulgaria Preview</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <style>
+        :root {
+            color-scheme: dark;
+            --bg: #030812;
+            --panel: rgba(7, 15, 28, 0.86);
+            --panel-elevated: linear-gradient(180deg, rgba(15, 28, 45, 0.88), rgba(6, 12, 24, 0.94));
+            --panel-strong: rgba(6, 12, 24, 0.95);
+            --panel-soft: rgba(13, 22, 39, 0.86);
+            --text: #eef5ff;
+            --muted: #92a6c6;
+            --line: rgba(110, 144, 200, 0.16);
+            --accent: #2ee6c0;
+            --accent-2: #3ea2ff;
+            --accent-3: #89b6ff;
+            --open: #2ee6c0;
+            --construction: #ffb357;
+            --planned: #8f74ff;
+            --closed: #ff648a;
+            --shadow: 0 24px 80px rgba(0, 0, 0, 0.34);
+            --shadow-soft: 0 16px 40px rgba(0, 0, 0, 0.22);
+            --chrome: rgba(255,255,255,0.06);
+            --radius-xl: 24px;
+            --radius-lg: 18px;
+            --radius-md: 14px;
+            --space-1: 8px;
+            --space-2: 12px;
+            --space-3: 16px;
+            --space-4: 20px;
+        }
+
+        * { box-sizing: border-box; }
+
+        html, body {
+            margin: 0;
+            min-height: 100%;
+            background:
+                radial-gradient(circle at 0 0, rgba(46, 230, 192, 0.12), transparent 20%),
+                radial-gradient(circle at 100% 0, rgba(62, 162, 255, 0.10), transparent 20%),
+                linear-gradient(180deg, #03070f 0%, #07111d 100%);
+            color: var(--text);
+            font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        }
+
+        body::before,
+        body::after {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        body::before {
+            opacity: .16;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='0.18'/%3E%3C/svg%3E");
+            mix-blend-mode: soft-light;
+        }
+
+        body::after {
+            background:
+                radial-gradient(circle at 18% 14%, rgba(46, 230, 192, 0.14), transparent 28%),
+                radial-gradient(circle at 82% 20%, rgba(62, 162, 255, 0.12), transparent 26%),
+                radial-gradient(circle at 50% 100%, rgba(143, 116, 255, 0.10), transparent 32%);
+            opacity: .9;
+        }
+
+        body { padding: 20px; }
+
+        .shell {
+            display: grid;
+            gap: 18px;
+            max-width: 1860px;
+            margin: 0 auto;
+            min-height: calc(100vh - 40px);
+        }
+
+        .topbar,
+        .sidebar,
+        .map-stage,
+        .headline-strip,
+        .panel,
+        .floating-card,
+        .kpi,
+        .route-card,
+        .lot-card {
+            background: var(--panel);
+            border: 1px solid var(--line);
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(18px);
+        }
+
+        .topbar,
+        .sidebar,
+        .headline-strip,
+        .panel,
+        .map-stage,
+        .floating-card { border-radius: var(--radius-xl); }
+        .route-card,
+        .lot-card,
+        .kpi { border-radius: var(--radius-lg); }
+
+        .topbar {
+            padding: 16px 18px;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            grid-template-areas:
+                "brand actions"
+                "routes routes";
+            gap: 14px 16px;
+            align-items: start;
+            position: sticky;
+            top: 20px;
+            z-index: 40;
+            background: linear-gradient(180deg, rgba(15, 28, 46, 0.78), rgba(8, 16, 29, 0.9));
+            border-color: rgba(132, 169, 227, 0.18);
+            backdrop-filter: blur(26px) saturate(1.15);
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.22), inset 0 1px 0 rgba(255,255,255,0.08);
+        }
+
+        .headline-strip {
+            grid-area: headlines;
+            padding: 12px;
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+            align-self: start;
+            align-items: stretch;
+        }
+
+        .headline-card {
+            min-height: 118px;
+            padding: 16px;
+            border-radius: var(--radius-lg);
+            border: 1px solid rgba(120, 154, 211, 0.14);
+            background: linear-gradient(180deg, rgba(14, 28, 47, 0.78), rgba(7, 14, 26, 0.68));
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+            display: grid;
+            align-content: start;
+            gap: 4px;
+        }
+
+        .headline-card strong {
+            display: block;
+            font-size: 14px;
+            margin-top: 6px;
+        }
+
+        .route-pills {
+            grid-area: routes;
+            display: grid;
+            grid-auto-flow: column;
+            grid-auto-columns: max-content;
+            align-items: stretch;
+            justify-self: start;
+            width: fit-content;
+            max-width: 100%;
+            padding: 8px;
+            gap: 10px;
+            overflow-x: auto;
+            border-radius: calc(var(--radius-xl) - 4px);
+            background: linear-gradient(180deg, rgba(255,255,255,0.07), rgba(255,255,255,0.025));
+            border: 1px solid rgba(142, 178, 232, 0.16);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.09), 0 14px 28px rgba(3, 8, 16, 0.14);
+            scrollbar-width: none;
+        }
+
+        .route-pills::-webkit-scrollbar { display: none; }
+
+        .brand {
+            grid-area: brand;
+            display: grid;
+            gap: 4px;
+        }
+
+        .eyebrow {
+            color: var(--muted);
+            font-size: 11px;
+            letter-spacing: .16em;
+            text-transform: uppercase;
+        }
+
+        h1,h2,h3,p { margin: 0; }
+        .brand h1 { font-size: 24px; letter-spacing: -.03em; }
+        .helper, .tiny, .muted { color: var(--muted); }
+
+        .toolbar,
+        .route-pills,
+        .filter-row,
+        .legend,
+        .detail-pills,
+        .status-grid,
+        .tabs,
+        .selection-meta,
+        .panel-list,
+        .top-actions,
+        .lot-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+
+        .top-actions {
+            grid-area: actions;
+            display: grid;
+            grid-template-columns: auto minmax(220px, 1fr);
+            justify-content: end;
+            align-items: end;
+            gap: 10px;
+            padding: 10px 12px;
+            min-height: 64px;
+            border-radius: 22px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+            border: 1px solid rgba(142, 178, 232, 0.12);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
+        }
+
+        .toolbar-block {
+            display: grid;
+            gap: 6px;
+            min-width: 0;
+        }
+
+        .toolbar-select-block {
+            align-self: stretch;
+        }
+
+        .control-label {
+            color: rgba(192, 208, 233, 0.78);
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: .14em;
+            text-transform: uppercase;
+            padding-left: 4px;
+        }
+
+        .top-actions .tabs {
+            padding: 4px;
+            border-radius: 16px;
+            background: linear-gradient(180deg, rgba(6, 14, 24, 0.72), rgba(11, 21, 35, 0.52));
+            border: 1px solid rgba(136, 172, 229, 0.14);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+        }
+
+        .filter-stack {
+            display: grid;
+            gap: 10px;
+        }
+
+        .filter-copy {
+            line-height: 1.45;
+        }
+
+        .toggle-group {
+            display: grid;
+            gap: 8px;
+        }
+
+        .toggle-group-label {
+            color: var(--muted);
+            font-size: 11px;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+        }
+
+        @keyframes year-pop {
+            0%   { transform: translateX(-50%) scale(0.88); opacity: 0; }
+            65%  { transform: translateX(-50%) scale(1.04); }
+            100% { transform: translateX(-50%) scale(1);    opacity: 1; }
+        }
+
+        .year-overlay {
+            position: absolute;
+            bottom: 90px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(3, 8, 18, 0.86);
+            color: #fff;
+            font-size: clamp(42px, 8vw, 96px);
+            font-weight: 900;
+            letter-spacing: -3px;
+            line-height: 1;
+            padding: 8px 32px 6px;
+            border-radius: 14px;
+            pointer-events: none;
+            z-index: 1200;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.38s ease, visibility 0.38s ease;
+            font-variant-numeric: tabular-nums;
+            backdrop-filter: blur(14px) saturate(1.6);
+            -webkit-backdrop-filter: blur(14px) saturate(1.6);
+            border: 1px solid rgba(255,255,255,0.12);
+            text-shadow: 0 2px 24px rgba(0,0,0,.6);
+        }
+        .year-overlay.visible {
+            opacity: 1;
+            visibility: visible;
+            animation: year-pop 0.42s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+        }
+        .year-overlay .year-km-sub {
+            display: block;
+            font-size: 0.22em;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            opacity: 0.72;
+            margin-top: 2px;
+            text-align: center;
+        }
+
+        .funding-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.70em;
+            font-weight: 600;
+            border: 1px solid rgba(80,160,255,0.28);
+            background: rgba(74,171,255,0.10);
+            color: #74b5f8;
+            letter-spacing: 0.03em;
+            vertical-align: middle;
+        }
+
+        .playback-km-wrap {
+            position: relative;
+            height: 22px;
+            background: rgba(255, 255, 255, 0.055);
+            border-radius: 999px;
+            overflow: hidden;
+            margin-top: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.07);
+        }
+        .playback-km-fill {
+            position: absolute;
+            left: 0; top: 0; bottom: 0;
+            background: linear-gradient(90deg, rgba(46,230,192,0.68) 0%, rgba(62,162,255,0.82) 100%);
+            border-radius: 999px;
+            width: 0%;
+            transition: width 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .playback-km-label {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 600;
+            color: rgba(255,255,255,0.88);
+            letter-spacing: 0.3px;
+            pointer-events: none;
+        }
+
+        .playback-meta {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .playback-range {
+            width: 100%;
+            appearance: none;
+            height: 6px;
+            border-radius: 999px;
+            background: linear-gradient(90deg, rgba(62,162,255,0.45), rgba(46,230,192,0.75));
+            outline: none;
+        }
+
+        .playback-range::-webkit-slider-thumb {
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 999px;
+            background: #f3fbff;
+            border: 2px solid rgba(62,162,255,0.8);
+            box-shadow: 0 6px 18px rgba(0,0,0,0.28);
+            cursor: pointer;
+        }
+
+        .playback-range::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            border-radius: 999px;
+            background: #f3fbff;
+            border: 2px solid rgba(62,162,255,0.8);
+            box-shadow: 0 6px 18px rgba(0,0,0,0.28);
+            cursor: pointer;
+        }
+
+        .workspace {
+            display: grid;
+            grid-template-columns: 410px minmax(0, 1fr);
+            grid-template-areas:
+                "sidebar map"
+                "sidebar headlines";
+            gap: 18px;
+            align-items: start;
+        }
+
+        .sidebar {
+            grid-area: sidebar;
+            padding: 18px;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 14px;
+            min-height: 0;
+            position: sticky;
+            top: 112px;
+            max-height: calc(100vh - 132px);
+            overflow: auto;
+            background: linear-gradient(180deg, rgba(13, 26, 42, 0.82), rgba(7, 14, 26, 0.94));
+            backdrop-filter: blur(26px) saturate(1.08);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), var(--shadow);
+        }
+
+        .sidebar-scroll {
+            min-height: 0;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            padding-right: 0;
+        }
+
+        .notes-body {
+            display: grid;
+            gap: 10px;
+        }
+
+        .note-block {
+            padding: 12px;
+            border-radius: var(--radius-md);
+            border: 1px solid rgba(120, 154, 211, 0.14);
+            background: rgba(255, 255, 255, 0.025);
+        }
+
+        .audit-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border-radius: 999px;
+            padding: 5px 10px;
+            font-size: 11px;
+            border: 1px solid rgba(120, 154, 211, 0.18);
+            background: rgba(255,255,255,0.04);
+            color: var(--muted);
+        }
+
+        .audit-badge.strong {
+            color: #dff8f2;
+            border-color: rgba(46, 230, 192, 0.35);
+            background: rgba(46, 230, 192, 0.10);
+        }
+
+        .summary-card {
+            padding: 18px;
+            border-radius: var(--radius-lg);
+            background: linear-gradient(180deg, rgba(16, 31, 52, 0.98), rgba(7, 14, 26, 0.94));
+            border: 1px solid rgba(105, 144, 205, 0.18);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), var(--shadow-soft);
+        }
+
+        .summary-main {
+            display: grid;
+            gap: 10px;
+        }
+
+        .summary-main strong { font-size: 34px; letter-spacing: -.05em; }
+
+        .progress-track {
+            width: 100%;
+            height: 8px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0;
+            background: linear-gradient(90deg, var(--accent), #9afde8);
+            border-radius: inherit;
+            transition: width .45s ease;
+        }
+
+        .progress-mini {
+            width: 100%;
+            height: 7px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.08);
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .progress-mini > span {
+            display: block;
+            height: 100%;
+            width: 0;
+            border-radius: inherit;
+            background: linear-gradient(90deg, var(--accent), #9afde8);
+        }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .kpi { padding: 12px; }
+        .kpi .value { font-size: 22px; font-weight: 800; margin-top: 6px; }
+        .kpi.interactive { cursor: pointer; transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease; }
+        .kpi.interactive:hover { transform: translateY(-1px); border-color: rgba(62, 162, 255, 0.4); box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 18px 34px rgba(4, 10, 18, 0.22); }
+        .kpi.interactive.active {
+            background: linear-gradient(180deg, rgba(17, 38, 54, 0.96), rgba(8, 18, 29, 0.96));
+            border-color: rgba(46, 230, 192, 0.42);
+        }
+
+        .pill,
+        .chip,
+        .toggle,
+        .select,
+        .status-pill,
+        .micro,
+        .route-pill,
+        .tab {
+            border-radius: 999px;
+            border: 1px solid rgba(120, 154, 211, 0.20);
+            background: linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0.03));
+            color: var(--text);
+            padding: 8px 12px;
+            font-size: 12px;
+            transition: .18s ease;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 10px 24px rgba(4, 10, 18, 0.18);
+            backdrop-filter: blur(18px) saturate(1.08);
+        }
+
+        .chip,
+        .toggle,
+        .route-pill,
+        .tab { cursor: pointer; }
+        .chip:hover,.toggle:hover,.route-pill:hover,.route-card:hover,.lot-card:hover,.tab:hover { transform: translateY(-1px); border-color: rgba(62, 162, 255, 0.4); }
+        .chip.active,.toggle.active,.route-pill.active,.tab.active {
+            background: linear-gradient(180deg, rgba(119, 221, 255, 0.18), rgba(46, 230, 192, 0.12));
+            border-color: rgba(136, 210, 255, 0.44);
+            color: #f6ffff;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.16), 0 14px 28px rgba(24, 113, 155, 0.18);
+        }
+        .select { appearance: none; cursor: pointer; }
+
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 700;
+        }
+
+        .legend .status-pill {
+            cursor: pointer;
+        }
+
+        .route-pill {
+            min-width: 0;
+            min-width: 132px;
+            padding: 11px 13px;
+            display: grid;
+            gap: 4px;
+            align-content: center;
+            text-align: left;
+            background: linear-gradient(180deg, rgba(255,255,255,0.14), rgba(255,255,255,0.04));
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 12px 24px rgba(6, 12, 22, 0.16);
+        }
+
+        .route-pill .meta {
+            font-size: 10px;
+            letter-spacing: .04em;
+            color: rgba(193, 210, 235, 0.74);
+        }
+
+        .route-pill.active .meta {
+            color: rgba(233, 248, 255, 0.92);
+        }
+
+        .tab {
+            min-width: 58px;
+            justify-content: center;
+            font-weight: 800;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            background: transparent;
+            box-shadow: none;
+        }
+
+        .top-actions .tab.active {
+            background: linear-gradient(180deg, rgba(119, 221, 255, 0.2), rgba(46, 230, 192, 0.14));
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.14), 0 10px 22px rgba(24, 113, 155, 0.16);
+        }
+
+        .top-actions .select {
+            width: 100%;
+            min-height: 42px;
+            padding-right: 34px;
+        }
+
+        .toggle {
+            display: inline-flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            min-height: 40px;
+        }
+
+        .toggle.stage-toggle {
+            min-width: 126px;
+            padding: 10px 12px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.14), rgba(255,255,255,0.05));
+        }
+
+        .toggle.stage-toggle.active {
+            border-color: rgba(136, 210, 255, 0.55);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.16), 0 16px 32px rgba(24, 113, 155, 0.22);
+        }
+
+        .toggle.stage-toggle .label-stack {
+            display: grid;
+            gap: 2px;
+            text-align: left;
+        }
+
+        .toggle.stage-toggle .label-stack strong {
+            font-size: 12px;
+        }
+
+        .toggle.stage-toggle .label-stack span {
+            color: var(--muted);
+            font-size: 10px;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+        }
+
+        .route-pill .code {
+            font-size: 11px;
+            letter-spacing: .14em;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+
+        .route-pill .label {
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: -.02em;
+        }
+
+        .map-stage {
+            grid-area: map;
+            position: relative;
+            padding: 18px;
+            overflow: hidden;
+            min-height: min(84vh, 1000px);
+            background:
+                radial-gradient(circle at 14% 12%, rgba(92, 150, 255, 0.12), transparent 24%),
+                radial-gradient(circle at 86% 14%, rgba(46, 230, 192, 0.10), transparent 22%),
+                linear-gradient(180deg, rgba(12, 20, 34, 0.82), rgba(5, 10, 20, 0.96));
+            border-color: rgba(126, 165, 223, 0.16);
+            backdrop-filter: blur(18px) saturate(1.04);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.07), 0 26px 70px rgba(0,0,0,0.22);
+        }
+
+        .map-stage::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background:
+                radial-gradient(circle at 50% 0%, rgba(255,255,255,0.08), transparent 42%),
+                linear-gradient(180deg, rgba(255,255,255,0.03), transparent 30%, transparent 72%, rgba(0,0,0,0.22));
+            opacity: .85;
+        }
+
+        #map {
+            width: 100%;
+            height: min(84vh, 1000px);
+            min-height: 760px;
+            border-radius: calc(var(--radius-xl) - 4px);
+            border: 1px solid rgba(136, 172, 229, 0.22);
+            overflow: hidden;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 18px 44px rgba(0, 0, 0, 0.24);
+            transform: translateZ(0);
+            isolation: isolate;
+        }
+
+        .floating-card {
+            position: absolute;
+            z-index: 2;
+            background: var(--panel-elevated);
+            padding: 14px;
+            border-color: rgba(132, 169, 227, 0.2);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), var(--shadow);
+            backdrop-filter: blur(26px) saturate(1.1);
+            transition: opacity .2s ease, transform .24s ease, width .24s ease, max-height .24s ease;
+        }
+
+        .floating-card::before {
+            content: "";
+            position: absolute;
+            inset: 0 0 auto 0;
+            height: 1px;
+            background: linear-gradient(90deg, rgba(255,255,255,0.22), rgba(255,255,255,0));
+            pointer-events: none;
+        }
+
+        .floating-top-left {
+            top: 18px;
+            left: 18px;
+            width: min(38%, 460px);
+            background: linear-gradient(180deg, rgba(11, 24, 40, 0.96), rgba(8, 17, 30, 0.94));
+            display: grid;
+            gap: 10px;
+        }
+
+        .floating-top-right,
+        .floating-bottom-right {
+            width: min(300px, calc(100% - 36px));
+            max-height: none;
+            overflow: visible;
+        }
+
+        .floating-top-right {
+            top: 18px;
+            right: 18px;
+            width: min(360px, calc(100% - 36px));
+        }
+
+        .floating-top-right.compact {
+            width: min(312px, calc(100% - 36px));
+        }
+
+        .floating-top-right.passive {
+            width: min(244px, calc(100% - 36px));
+            padding: 12px;
+            background: linear-gradient(180deg, rgba(10, 21, 36, 0.76), rgba(6, 13, 24, 0.82));
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 18px 38px rgba(0,0,0,0.18);
+        }
+
+        .floating-top-right.compact #selection-note,
+        .floating-top-right.compact #selection-facts,
+        .floating-top-right.passive #selection-note,
+        .floating-top-right.passive #selection-facts,
+        .floating-top-right.passive #selection-pills,
+        .floating-top-right.passive #selection-clear {
+            display: none;
+        }
+
+        .floating-top-right.passive .selection-header {
+            align-items: center;
+        }
+
+        .floating-top-right.passive .selection-title {
+            font-size: 18px;
+            line-height: 1.1;
+        }
+
+        .floating-top-right.passive #selection-subtitle {
+            margin-top: 4px;
+            font-size: 12px;
+            line-height: 1.45;
+        }
+
+        .floating-top-right.passive #selection-status {
+            opacity: .88;
+            font-size: 11px;
+        }
+
+        .floating-bottom-right {
+            right: 18px;
+            bottom: 18px;
+            max-height: 260px;
+            overflow: auto;
+        }
+
+        .floating-bottom-left {
+            left: 18px;
+            bottom: 18px;
+            width: min(360px, calc(100% - 36px));
+        }
+
+        .map-tools {
+            display: grid;
+            gap: 12px;
+            background: linear-gradient(180deg, rgba(8, 16, 29, 0.92), rgba(5, 10, 20, 0.96));
+        }
+
+        .map-preset-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 8px;
+        }
+
+        .map-preset {
+            display: grid;
+            gap: 4px;
+            align-content: start;
+            min-height: 68px;
+            border-radius: 16px;
+            border: 1px solid rgba(120, 154, 211, 0.18);
+            background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03));
+            color: var(--text);
+            padding: 10px 12px;
+            text-align: left;
+            cursor: pointer;
+            transition: transform .16s ease, border-color .16s ease, background .16s ease;
+        }
+
+        .map-preset:hover {
+            transform: translateY(-1px);
+            border-color: rgba(136, 210, 255, 0.4);
+        }
+
+        .map-preset.active {
+            border-color: rgba(136, 210, 255, 0.52);
+            background: linear-gradient(180deg, rgba(67, 113, 172, 0.28), rgba(23, 38, 62, 0.44));
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.12), 0 16px 28px rgba(4, 10, 18, 0.18);
+        }
+
+        .map-preset strong {
+            font-size: 12px;
+            letter-spacing: -.01em;
+        }
+
+        .map-preset span {
+            font-size: 10px;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 8px;
+        }
+
+        .hero-topline {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            gap: 10px;
+            align-items: start;
+        }
+
+        .hero-focus {
+            appearance: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            border: 1px solid rgba(136, 172, 229, 0.18);
+            background: rgba(255,255,255,0.04);
+            color: #dbe9ff;
+            font-size: 12px;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+            cursor: pointer;
+            transition: .18s ease;
+        }
+
+        .hero-focus:hover {
+            transform: translateY(-1px);
+            border-color: rgba(136, 210, 255, 0.36);
+        }
+
+        .hero-focus.active {
+            background: linear-gradient(180deg, rgba(119, 221, 255, 0.18), rgba(46, 230, 192, 0.12));
+            border-color: rgba(136, 210, 255, 0.44);
+            color: #f6ffff;
+        }
+
+        .map-stage.command-center .floating-top-left,
+        .map-stage.command-center .floating-bottom-right,
+        .map-stage.command-center .floating-bottom-left {
+            opacity: 0;
+            transform: translateY(-10px) scale(.985);
+            pointer-events: none;
+        }
+
+        .map-stage.command-center .floating-top-right {
+            width: min(280px, calc(100% - 36px));
+        }
+
+        .map-stage.command-center #map {
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 28px 72px rgba(0, 0, 0, 0.32);
+        }
+
+        .hero-kpis {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 8px;
+        }
+
+        .hero-kpis .kpi {
+            padding: 10px;
+            min-height: 74px;
+        }
+
+        .hero-kpis .kpi .value {
+            font-size: 18px;
+        }
+
+        .route-card,
+        .lot-card,
+        .panel {
+            padding: 16px;
+            background: linear-gradient(180deg, rgba(11, 22, 37, 0.88), rgba(7, 14, 26, 0.94));
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), var(--shadow-soft);
+        }
+
+        .route-card.active,
+        .lot-card.active,
+        .tab.active {
+            background: linear-gradient(180deg, rgba(17, 38, 54, 0.96), rgba(8, 18, 29, 0.96));
+            border-color: rgba(46, 230, 192, 0.42);
+        }
+
+        .lot-card.derived {
+            border-style: dashed;
+            opacity: 0.9;
+        }
+
+        .card-head,
+        .row {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            align-items: start;
+        }
+
+        .route-list,
+        .lot-list,
+        .timeline { display: grid; gap: 10px; }
+
+        .lot-marker {
+            display: grid;
+            place-items: center;
+            width: 22px;
+            height: 22px;
+            border-radius: 999px;
+            background: rgba(6, 14, 24, 0.88);
+            border: 2px solid rgba(255,255,255,0.88);
+            box-shadow: 0 10px 24px rgba(0,0,0,0.28);
+            backdrop-filter: blur(10px);
+        }
+
+        .lot-marker-core {
+            width: 8px;
+            height: 8px;
+            border-radius: 999px;
+            background: white;
+            box-shadow: 0 0 14px rgba(255,255,255,0.45);
+        }
+
+        .lot-marker.selected {
+            transform: scale(1.18);
+            border-color: rgba(255,255,255,0.98);
+            box-shadow: 0 0 0 6px rgba(137, 182, 255, 0.18), 0 18px 42px rgba(0,0,0,0.38);
+        }
+
+        .segment-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 9px;
+            border-radius: 999px;
+            background: rgba(8, 16, 28, 0.78);
+            border: 1px solid rgba(255,255,255,0.14);
+            color: #e9f3ff;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: .06em;
+            text-transform: uppercase;
+            box-shadow: 0 10px 24px rgba(0,0,0,0.24);
+            backdrop-filter: blur(14px);
+            white-space: nowrap;
+        }
+
+        .segment-chip .dot {
+            width: 8px;
+            height: 8px;
+        }
+
+        .selection-header {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            align-items: start;
+        }
+
+        .selection-actions {
+            display: grid;
+            justify-items: end;
+            gap: 8px;
+            min-width: 114px;
+        }
+
+        .selection-clear {
+            appearance: none;
+            border: 1px solid rgba(136, 172, 229, 0.2);
+            border-radius: 999px;
+            padding: 8px 12px;
+            min-height: 36px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.03));
+            color: #f4fbff;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: .06em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: transform .16s ease, border-color .16s ease, background .16s ease;
+        }
+
+        .selection-clear:hover {
+            transform: translateY(-1px);
+            border-color: rgba(136, 210, 255, 0.38);
+            background: linear-gradient(180deg, rgba(119, 221, 255, 0.16), rgba(46, 230, 192, 0.10));
+        }
+
+        .selection-clear[hidden] {
+            display: none;
+        }
+
+        .selection-title {
+            font-size: 24px;
+            line-height: 1.04;
+            letter-spacing: -.03em;
+        }
+        .badge-line { display: inline-flex; align-items: center; gap: 8px; }
+        .dot { width: 10px; height: 10px; border-radius: 999px; display: inline-block; }
+
+        .selection-note {
+            position: relative;
+            overflow: hidden;
+            padding: 12px 12px 12px 16px;
+            border-radius: 14px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
+            border: 1px solid rgba(136, 172, 229, 0.12);
+        }
+
+        .selection-note::before {
+            content: "";
+            position: absolute;
+            inset: 0 auto 0 0;
+            width: 3px;
+            background: linear-gradient(180deg, var(--accent-2), var(--accent));
+            opacity: .9;
+        }
+
+        .fact-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0,1fr));
+            gap: 10px;
+        }
+
+        .fact {
+            padding: 12px;
+            border-radius: var(--radius-md);
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .fact strong {
+            font-size: 11px;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            color: #eef7ff;
+        }
+
+        .fact a {
+            color: var(--accent-2);
+            text-decoration: none;
+            border-bottom: 1px solid rgba(62, 162, 255, 0.45);
+        }
+
+        .fact a:hover {
+            color: #8fcbff;
+            border-bottom-color: rgba(143, 203, 255, 0.9);
+        }
+
+        .timeline-item {
+            display: grid;
+            grid-template-columns: 56px 1fr;
+            gap: 10px;
+            align-items: start;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            position: relative;
+        }
+
+        .timeline-item:last-child { border-bottom: 0; }
+        .timeline-year { color: var(--accent); font-weight: 700; font-size: 13px; }
+        .timeline-year.success { color: var(--open); }
+        .timeline-year.warning { color: var(--construction); }
+        .timeline-year.danger  { color: var(--closed); }
+        .timeline-year.info    { color: var(--accent-2); }
+        .timeline-state-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 10px;
+            font-weight: 600;
+            padding: 2px 7px;
+            border-radius: 999px;
+            margin-top: 4px;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+        }
+        .timeline-state-badge.success { background: rgba(46,230,192,0.14); color: var(--open); }
+        .timeline-state-badge.warning { background: rgba(255,179,87,0.14); color: var(--construction); }
+        .timeline-state-badge.danger  { background: rgba(255,100,138,0.14); color: var(--closed); }
+        .timeline-state-badge.info    { background: rgba(62,162,255,0.14); color: var(--accent-2); }
+
+        .mini-note {
+            padding: 10px 12px;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .leaflet-container {
+            background: linear-gradient(180deg, #0b1524 0%, #0d1b2d 100%);
+            font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            transform: translateZ(0);
+        }
+
+        .leaflet-pane.leaflet-tile-pane img {
+            filter: saturate(1.08) contrast(1.04) brightness(1.03);
+        }
+
+        .leaflet-tile {
+            outline: 1px solid transparent;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            image-rendering: auto;
+        }
+
+        .leaflet-zoom-animated,
+        .leaflet-pane,
+        .leaflet-tile-container {
+            transform: translateZ(0);
+            will-change: transform;
+        }
+
+        .leaflet-bar,
+        .leaflet-control-zoom a,
+        .leaflet-control-layers {
+            background: rgba(10, 19, 33, 0.82);
+            border-color: rgba(131, 168, 225, 0.2);
+            color: var(--text);
+            box-shadow: var(--shadow-soft);
+            backdrop-filter: blur(14px);
+        }
+
+        .leaflet-control-zoom a {
+            width: 34px;
+            height: 34px;
+            line-height: 34px;
+        }
+
+        .leaflet-popup-content-wrapper, .leaflet-popup-tip {
+            background: linear-gradient(180deg, rgba(10, 19, 33, 0.96), rgba(5, 12, 22, 0.98));
+            color: var(--text);
+            border: 1px solid rgba(136, 172, 229, 0.24);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+        }
+
+        .leaflet-control-attribution { background: rgba(8, 14, 25, 0.74); color: var(--muted); }
+
+        .atlas-popup-card .leaflet-popup-content {
+            margin: 14px 14px 16px;
+        }
+
+        .atlas-popup-card .leaflet-popup-close-button {
+            color: #dceaff;
+            opacity: .75;
+            top: 8px;
+            right: 8px;
+        }
+
+        .atlas-popup-card .leaflet-popup-close-button:hover {
+            opacity: 1;
+        }
+
+        .map-popup {
+            min-width: 270px;
+            display: grid;
+            gap: 12px;
+        }
+
+        .map-popup strong {
+            font-size: 15px;
+            letter-spacing: -.02em;
+        }
+
+        .popup-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 8px;
+        }
+
+        .popup-chip {
+            padding: 10px;
+            border-radius: 12px;
+            border: 1px solid rgba(120,154,211,0.16);
+            background: rgba(255,255,255,0.04);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+        }
+
+        .popup-lot-list {
+            display: grid;
+            gap: 8px;
+        }
+
+        .popup-menu {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .popup-note {
+            padding: 10px 12px;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(136, 172, 229, 0.12);
+        }
+
+        .official-list {
+            display: grid;
+            gap: 8px;
+        }
+
+        .official-item {
+            padding: 10px 12px;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(136, 172, 229, 0.14);
+            display: grid;
+            gap: 6px;
+        }
+
+        .official-item a {
+            color: var(--accent-2);
+            text-decoration: none;
+        }
+
+        .official-item a:hover {
+            color: #8fcbff;
+        }
+
+        .popup-lot-item {
+            padding: 10px 12px;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(136, 172, 229, 0.14);
+            display: grid;
+            gap: 6px;
+        }
+
+        @media (max-width: 1480px) {
+            .workspace { grid-template-columns: 360px minmax(0, 1fr); }
+            .floating-top-left { width: min(42%, 420px); }
+        }
+
+        @media (max-width: 1350px) {
+            .workspace {
+                grid-template-columns: 1fr;
+                grid-template-areas:
+                    "map"
+                    "headlines"
+                    "sidebar";
+            }
+            .sidebar {
+                position: static;
+                max-height: none;
+                overflow: visible;
+            }
+            .floating-card {
+                position: static;
+            }
+            .map-stage {
+                display: grid;
+                gap: 14px;
+                min-height: auto;
+            }
+            #map { min-height: 720px; height: 720px; }
+            .floating-top-left,
+            .floating-top-right,
+            .floating-bottom-right,
+            .floating-bottom-left {
+                width: auto;
+                max-height: none;
+                overflow: visible;
+            }
+        }
+
+        @media (max-width: 1180px) {
+            body { padding: 14px; }
+            .topbar {
+                position: static;
+                gap: 12px;
+            }
+            .top-actions {
+                grid-template-columns: 1fr;
+                border-radius: 18px;
+            }
+            .top-actions .tabs,
+            .top-actions .select,
+            .toolbar-block {
+                width: 100%;
+            }
+            .map-stage {
+                padding: 14px;
+                gap: 12px;
+            }
+            #map {
+                min-height: 620px;
+                height: min(68vh, 700px);
+            }
+            .map-preset-grid {
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 960px) {
+            .topbar {
+                grid-template-columns: 1fr;
+                grid-template-areas:
+                    "brand"
+                    "actions"
+                    "routes";
+            }
+            .headline-strip { grid-template-columns: 1fr; }
+            .stats-row, .hero-kpis { grid-template-columns: repeat(2, minmax(0,1fr)); }
+            .kpi-grid, .fact-grid { grid-template-columns: 1fr; }
+            #map { min-height: 520px; height: 60vh; }
+            .map-preset-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
+
+        @media (max-width: 760px) {
+            body { padding: 10px; }
+            .shell { min-height: calc(100vh - 20px); }
+            .map-stage { padding: 10px; }
+            #map { min-height: 440px; height: 54vh; }
+            .map-preset-grid { grid-template-columns: 1fr 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="shell">
+        <header class="topbar">
+            <div class="brand">
+                <div class="eyebrow" id="brand-eyebrow"></div>
+                <h1 id="brand-title"></h1>
+                <div class="helper" id="brand-subtitle"></div>
+            </div>
+            <div class="route-pills" id="route-pills"></div>
+            <div class="top-actions">
+                <div class="toolbar-block">
+                    <div class="control-label" id="language-label"></div>
+                    <div class="tabs" id="language-tabs"></div>
+                </div>
+                <label class="toolbar-block toolbar-select-block">
+                    <span class="control-label" id="basemap-label"></span>
+                    <select class="select" id="basemap-select"></select>
+                </label>
+            </div>
+        </header>
+
+        <div class="workspace">
+            <section class="map-stage">
+                <div id="map"></div>
+                <div class="year-overlay" id="year-overlay"><span id="year-overlay-year"></span><span class="year-km-sub" id="year-overlay-km"></span></div>
+
+                <section class="floating-card floating-top-left">
+                    <div class="hero-topline">
+                        <div>
+                            <div class="eyebrow" id="hero-eyebrow"></div>
+                            <h2 style="margin:6px 0 8px" id="hero-title"></h2>
+                            <div class="helper" id="hero-subtitle"></div>
+                        </div>
+                        <button type="button" class="hero-focus" id="hero-focus"></button>
+                    </div>
+                    <div class="hero-kpis" id="hero-stats"></div>
+                </section>
+
+                <section class="floating-card floating-top-right" id="selection-panel">
+                    <div class="eyebrow" id="selection-eyebrow"></div>
+                    <div class="selection-header" style="margin:6px 0 10px">
+                        <div>
+                            <h3 class="selection-title" id="selection-title"></h3>
+                            <div class="helper" id="selection-subtitle"></div>
+                        </div>
+                        <div class="selection-actions">
+                            <button type="button" class="selection-clear" id="selection-clear"></button>
+                            <span class="status-pill" id="selection-status"></span>
+                        </div>
+                    </div>
+                    <div class="detail-pills" id="selection-pills"></div>
+                    <div class="fact-grid" id="selection-facts" style="margin-top:12px"></div>
+                    <div class="mini-note selection-note" id="selection-note" style="margin-top:12px"></div>
+                </section>
+
+                <section class="floating-card floating-bottom-right">
+                    <div class="card-head" style="margin-bottom:10px">
+                        <div>
+                            <div class="eyebrow" id="timeline-eyebrow"></div>
+                            <h3 id="timeline-title" style="margin-top:6px"></h3>
+                        </div>
+                        <div class="legend" id="legend"></div>
+                    </div>
+                    <div class="timeline" id="timeline"></div>
+                </section>
+
+                <section class="floating-card floating-bottom-left map-tools">
+                    <div class="eyebrow" id="map-presets-eyebrow"></div>
+                    <div class="map-preset-grid" id="map-presets"></div>
+                    <div class="tiny" id="map-note"></div>
+                </section>
+            </section>
+
+            <section class="headline-strip">
+                <article class="headline-card">
+                    <div class="eyebrow" id="headline-primary-eyebrow"></div>
+                    <strong id="headline-primary-title"></strong>
+                    <div class="tiny" id="headline-primary-copy" style="margin-top:6px"></div>
+                </article>
+                <article class="headline-card">
+                    <div class="eyebrow" id="headline-secondary-eyebrow"></div>
+                    <strong id="headline-secondary-title"></strong>
+                    <div class="tiny" id="headline-secondary-copy" style="margin-top:6px"></div>
+                </article>
+                <article class="headline-card">
+                    <div class="eyebrow" id="headline-tertiary-eyebrow"></div>
+                    <strong id="headline-tertiary-title"></strong>
+                    <div class="tiny" id="headline-tertiary-copy" style="margin-top:6px"></div>
+                </article>
+            </section>
+
+            <aside class="sidebar">
+                <section class="summary-card">
+                    <div class="eyebrow" id="summary-eyebrow"></div>
+                    <div class="summary-main">
+                        <div class="card-head">
+                            <div>
+                                <h2 id="summary-title"></h2>
+                                <div class="helper" id="summary-subtitle"></div>
+                            </div>
+                            <span class="pill" id="generated-pill"></span>
+                        </div>
+                        <strong id="summary-km"></strong>
+                        <div class="row tiny">
+                            <span id="summary-state"></span>
+                            <span id="summary-percent"></span>
+                        </div>
+                        <div class="progress-track"><div class="progress-fill" id="summary-progress"></div></div>
+                    </div>
+                </section>
+
+                <section class="panel">
+                    <div class="eyebrow" id="filters-eyebrow"></div>
+                    <h3 id="filters-title" style="margin:6px 0 12px"></h3>
+                    <div class="filter-stack">
+                        <div class="tiny filter-copy" id="filters-copy"></div>
+                        <div class="toggle-group">
+                            <div class="toggle-group-label" id="stage-presets-label"></div>
+                            <div class="filter-row" id="stage-presets"></div>
+                        </div>
+                        <div class="toggle-group">
+                            <div class="toggle-group-label" id="region-presets-label"></div>
+                            <div class="filter-row" id="region-presets"></div>
+                        </div>
+                        <div class="toggle-group">
+                            <div class="toggle-group-label" id="source-presets-label"></div>
+                            <div class="filter-row" id="source-presets"></div>
+                        </div>
+                        <div class="toggle-group">
+                            <div class="toggle-group-label" id="status-filters-label"></div>
+                            <div class="filter-row" id="status-filters"></div>
+                        </div>
+                        <div class="toggle-group">
+                            <div class="card-head" style="align-items:center">
+                                <div class="toggle-group-label" id="playback-label"></div>
+                                <button type="button" class="toggle" id="playback-button"></button>
+                            </div>
+                            <div class="playback-meta tiny"><span id="playback-year-label"></span><span id="playback-range-label"></span></div>
+                            <input type="range" min="1970" max="2026" value="2026" class="playback-range" id="playback-range" />
+                            <div class="playback-km-wrap"><div class="playback-km-fill" id="playback-km-fill"></div><span class="playback-km-label" id="playback-km-label"></span></div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="panel">
+                    <div class="eyebrow" id="network-eyebrow"></div>
+                    <h3 id="network-title" style="margin:6px 0 12px"></h3>
+                    <div class="kpi-grid" id="sidebar-kpis"></div>
+                </section>
+
+                <section class="panel">
+                    <div class="eyebrow" id="notes-eyebrow"></div>
+                    <h3 id="notes-title" style="margin:6px 0 12px"></h3>
+                    <div class="notes-body" id="notes-body"></div>
+                </section>
+
+                <div class="sidebar-scroll">
+                    <section class="panel">
+                        <div class="card-head" style="margin-bottom:12px">
+                            <div>
+                                <div class="eyebrow" id="routes-eyebrow"></div>
+                                <h3 id="routes-title" style="margin-top:6px"></h3>
+                            </div>
+                            <span class="pill" id="routes-count"></span>
+                        </div>
+                        <div class="route-list" id="route-list"></div>
+                    </section>
+
+                    <section class="panel">
+                        <div class="card-head" style="margin-bottom:12px">
+                            <div>
+                                <div class="eyebrow" id="lots-eyebrow"></div>
+                                <h3 id="lots-title" style="margin-top:6px"></h3>
+                            </div>
+                            <span class="pill" id="lots-count"></span>
+                        </div>
+                        <div class="lot-list" id="lot-list"></div>
+                    </section>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script>
+        const atlas = {{atlasJson}};
+        const statusMeta = {
+            Open: { color: '#2ee6c0', bg: 'open', en: 'open' },
+            UnderConstruction: { color: '#ffb357', bg: 'construction', en: 'construction' },
+            Planned: { color: '#8f74ff', bg: 'planned', en: 'planned' },
+            Closed: { color: '#ff648a', bg: 'closed', en: 'closed' }
+        };
+
+        const text = {
+            bg: {
+                brandEyebrow: 'Премиум инфографски атлас',
+                summaryEyebrow: 'Национален фокус',
+                headlineNow: 'Текущ избор',
+                headlineAudit: 'Точност на данните',
+                headlineScope: 'Оперативен режим',
+                filtersEyebrow: 'Контроли',
+                filtersTitle: 'Статус и видимост',
+                filtersCopy: 'Използвайте бързите режими за завършени, строящи се и бъдещи трасета, а при нужда донастройте статуса детайлно.',
+                stagePresets: 'Режими по етап',
+                regionPresets: 'Регионален фокус',
+                sourcePresets: 'Източниково покритие',
+                granularStatus: 'Детайлни статуси',
+                playbackLabel: 'История на строителството',
+                playbackPlay: 'Пусни',
+                playbackPause: 'Пауза',
+                playbackYear: 'Година',
+                playbackRange: 'От първите пускания до днес',
+                networkEyebrow: 'Пулс на мрежата',
+                networkTitle: 'Ключови показатели',
+                notesEyebrow: 'Обновяване',
+                notesTitle: 'Бележки и обхват',
+                routesEyebrow: 'Маршрути',
+                routesTitle: 'Коридори',
+                lotsEyebrow: 'Лотове',
+                lotsTitle: 'Кликаеми части',
+                heroEyebrow: 'Карта на България',
+                heroTitle: 'Атлас на българските автомагистрали – актуален инфографски преглед',
+                heroSubtitle: '9 ключови коридора · от София до Черно море · 1 506 km документирани',
+                heroFocus: 'Режим на команден център',
+                heroBoard: 'Инфографски обзор',
+                heroRoutes: 'Водещи коридори',
+                heroSignalLength: 'Активен обхват',
+                heroSignalReadiness: 'Оперативна готовност',
+                heroSignalAudit: 'Дял с проверени лотове',
+                allStages: 'Всички етапи',
+                allRegions: 'Цяла България',
+                westRegion: 'Запад',
+                eastRegion: 'Изток',
+                builtStage: 'Изградени',
+                buildingStage: 'В строеж',
+                plannedStage: 'Предстоят',
+                builtHint: 'отворени сега',
+                buildingHint: 'активни строежи',
+                plannedHint: 'планирани отсечки',
+                allHint: 'пълна мрежа',
+                westHint: 'София и западни коридори',
+                eastHint: 'черноморски и източни коридори',
+                commandCenterOn: 'Команден режим: ВКЛ',
+                commandCenterOff: 'Команден режим: ИЗКЛ',
+                commandCenterShow: 'Покажи панелите',
+                commandCenterHide: 'Скрий панелите',
+                selectionEyebrow: 'Активен избор',
+                timelineEyebrow: 'Времева линия',
+                timelineTitle: 'Ключови събития',
+                allRoutes: 'Всички',
+                open: 'Отворени',
+                construction: 'В строеж',
+                planned: 'Планирани',
+                closed: 'Затворени',
+                totalLength: 'Обща дължина',
+                completion: 'Готовност',
+                visibleLots: 'Видими лотове',
+                focusMode: 'Фокус',
+                nationalOverview: 'Национален обзор',
+                routeOverview: 'Маршрутен обзор',
+                lotOverview: 'Лот',
+                segmentOverview: 'Участък',
+                generated: 'Генерирано',
+                openToday: 'Отворени днес',
+                inBuild: 'В строеж',
+                plannedNow: 'Планирани',
+                avgSpeed: 'Проектна скорост',
+                openYear: 'Открита',
+                travelTime: 'Времето за пътуване',
+                targetYear: 'Целева година',
+                budget: 'Бюджет',
+                contractor: 'Изпълнител',
+                length: 'Дължина',
+                status: 'Статус',
+                sectionCode: 'Код',
+                noSelection: 'Изберете маршрут, участък или лот от картата, за да се покаже стилен инфо панел.',
+                noLots: 'Няма видими лотове за текущия избор.',
+                noRoutes: 'Няма видими маршрути за текущия избор.',
+                pending: 'Очаква верификация',
+                lotCount: 'лота',
+                modeledSpan: 'моделиран дял',
+                routeCount: 'маршрута',
+                years: 'години',
+                allSources: 'Всички източници',
+                officialLots: 'Проверени лотове',
+                mixedSources: 'Смесено покритие',
+                modeledSources: 'Моделирани участъци',
+                allSourceHint: 'целият слой',
+                officialSourceHint: 'само верифицирани',
+                mixedSourceHint: 'частично верифицирани',
+                modeledSourceHint: 'без официален лотен разрез',
+                sourceQuality: 'Покритие',
+                importance: 'Стратегическо значение',
+                routeStory: 'Маршрутно значение',
+                basedOn: 'Базирано на',
+                sourceLink: 'Публикуван източник',
+                latestUpdate: 'Последно обновяване',
+                currentScope: 'Текущ фокус',
+                selectedContext: 'Активна бележка',
+                bulgariaScopeNote: 'Мрежата обхваща 9 маршрута (А1–А6, E79, RVT, MB) – общо 1 506 km, от които 991 km са отворени.',
+                auditSeeded: 'проверен лот',
+                auditDerived: 'моделиран дял',
+                auditedLots: 'лотове с ръчно въведени дължини',
+                derivedLots: 'лотове с производни дължини',
+                popupOpenMap: 'Детайл на картата',
+                segmentLots: 'Лотове в участъка',
+                officialFeed: 'Официални известия',
+                statusWindow: 'Статус прозорец',
+                latestBulletin: 'Официален бюлетин',
+                officialSource: 'Източник АПИ',
+                publishedSource: 'Публикуван източник',
+                atlasBuild: 'български атлас',
+                languageLabel: 'Език',
+                mapStyle: 'Карта',
+                clearSelection: 'Изчисти избора',
+                resetView: 'Нулирай изгледа',
+                focusHintTitle: 'Изберете от картата',
+                focusHintCopy: 'Докоснете маршрут, участък или лот за детайлен панел, без да закривате картата.',
+                auditAccuracy: 'Точност',
+                auditVerifiedShare: 'Проверен дял',
+                auditModeledNotice: 'Показаните трасета са визуализирани от текущия seed модел и публични бюлетини; за абсолютна геодезична точност е нужен официален GIS/API feed по лотове.',
+                mapPresetsEyebrow: 'Картни режими',
+                mapNote: 'Тъмните карти намаляват отблясъка и подчертават маршрутите; сателитният изглед е полезен за терен и крайбрежие.',
+                sectionCount: 'участъка',
+                timelineOpened: 'Отворен',
+                timelineDelayed: 'Забавяне',
+                timelineIssue: 'Проблем',
+                timelineUpdate: 'Актуализация',
+                timelineCancelled: 'Отказан',
+                timelineBaseline: 'База',
+                timelinePlanning: 'Планиране',
+                timelineForecast: 'Хоризонт',
+                yearOpenedSuffix: 'отворени',
+                yearKmOpen: 'km отворени'
+            },
+            en: {
+                brandEyebrow: 'Premium infographic atlas',
+                summaryEyebrow: 'National focus',
+                headlineNow: 'Current focus',
+                headlineAudit: 'Data accuracy',
+                headlineScope: 'Operational mode',
+                filtersEyebrow: 'Controls',
+                filtersTitle: 'Status and visibility',
+                filtersCopy: 'Use quick stage modes for built, in-progress, and future roads, then fine-tune visibility with detailed status toggles.',
+                stagePresets: 'Stage modes',
+                regionPresets: 'Regional focus',
+                sourcePresets: 'Source coverage',
+                granularStatus: 'Detailed statuses',
+                playbackLabel: 'Build history playback',
+                playbackPlay: 'Play',
+                playbackPause: 'Pause',
+                playbackYear: 'Year',
+                playbackRange: 'From first openings to today',
+                networkEyebrow: 'Network pulse',
+                networkTitle: 'Key metrics',
+                notesEyebrow: 'Update notes',
+                notesTitle: 'Notes and scope',
+                routesEyebrow: 'Routes',
+                routesTitle: 'Corridors',
+                lotsEyebrow: 'Lots',
+                lotsTitle: 'Clickable parts',
+                heroEyebrow: 'Map of Bulgaria',
+                heroTitle: 'Bulgarian Motorway Atlas – live infrastructure snapshot',
+                heroSubtitle: '9 key corridors · Sofia to Black Sea · 1,506 km documented',
+                heroFocus: 'Command center mode',
+                heroBoard: 'Infographic overview',
+                heroRoutes: 'Leading corridors',
+                heroSignalLength: 'Active footprint',
+                heroSignalReadiness: 'Operational readiness',
+                heroSignalAudit: 'Verified lot share',
+                allStages: 'All stages',
+                allRegions: 'Whole country',
+                westRegion: 'West',
+                eastRegion: 'East',
+                builtStage: 'Built',
+                buildingStage: 'Building',
+                plannedStage: 'To build',
+                builtHint: 'open now',
+                buildingHint: 'active works',
+                plannedHint: 'planned sections',
+                allHint: 'full network',
+                westHint: 'Sofia and western corridors',
+                eastHint: 'Black Sea and eastern corridors',
+                commandCenterOn: 'Command mode: ON',
+                commandCenterOff: 'Command mode: OFF',
+                commandCenterShow: 'Show panels',
+                commandCenterHide: 'Hide panels',
+                selectionEyebrow: 'Active selection',
+                timelineEyebrow: 'Timeline',
+                timelineTitle: 'Key events',
+                allRoutes: 'All',
+                open: 'Open',
+                construction: 'Construction',
+                planned: 'Planned',
+                closed: 'Closed',
+                totalLength: 'Total length',
+                completion: 'Completion',
+                visibleLots: 'Visible lots',
+                focusMode: 'Focus',
+                nationalOverview: 'National overview',
+                routeOverview: 'Route overview',
+                lotOverview: 'Lot',
+                segmentOverview: 'Section',
+                generated: 'Generated',
+                openToday: 'Open today',
+                inBuild: 'Under construction',
+                plannedNow: 'Planned',
+                avgSpeed: 'Design speed',
+                openYear: 'Opened',
+                travelTime: 'Travel time',
+                targetYear: 'Target year',
+                budget: 'Budget',
+                contractor: 'Contractor',
+                length: 'Length',
+                status: 'Status',
+                sectionCode: 'Code',
+                noSelection: 'Select a route, section, or lot from the map to reveal the styled info panel.',
+                noLots: 'No lots are visible for the current selection.',
+                noRoutes: 'No routes are visible for the current selection.',
+                pending: 'Awaiting verification',
+                lotCount: 'lots',
+                modeledSpan: 'modeled span',
+                routeCount: 'routes',
+                years: 'years',
+                allSources: 'All sources',
+                officialLots: 'Verified lots',
+                mixedSources: 'Mixed coverage',
+                modeledSources: 'Modeled sections',
+                allSourceHint: 'entire layer',
+                officialSourceHint: 'verified only',
+                mixedSourceHint: 'partially verified',
+                modeledSourceHint: 'no official lot split',
+                sourceQuality: 'Coverage',
+                importance: 'Strategic importance',
+                routeStory: 'Route significance',
+                basedOn: 'Based on',
+                sourceLink: 'Published source',
+                latestUpdate: 'Last refresh',
+                currentScope: 'Current scope',
+                selectedContext: 'Selected note',
+                bulgariaScopeNote: 'The network covers 9 routes (A1–A6, E79, RVT, MB) – 1,506 km total, of which 991 km are open.',
+                auditSeeded: 'verified lot',
+                auditDerived: 'modeled span',
+                auditedLots: 'lots with manually entered lengths',
+                derivedLots: 'lots with derived lengths',
+                popupOpenMap: 'Map detail',
+                segmentLots: 'Lots in section',
+                officialFeed: 'Official notices',
+                statusWindow: 'Status window',
+                latestBulletin: 'Official bulletin',
+                officialSource: 'API source',
+                publishedSource: 'Published source',
+                atlasBuild: 'Bulgarian atlas build',
+                languageLabel: 'Language',
+                mapStyle: 'Map',
+                clearSelection: 'Clear selection',
+                resetView: 'Reset view',
+                focusHintTitle: 'Select from map',
+                focusHintCopy: 'Tap a route, section, or lot to open detailed context without covering the map.',
+                auditAccuracy: 'Accuracy',
+                auditVerifiedShare: 'Verified share',
+                auditModeledNotice: 'Displayed roads are visualized from the current seed model and public bulletins; absolute geodetic precision requires an official per-lot GIS/API feed.',
+                mapPresetsEyebrow: 'Map modes',
+                mapNote: 'Dark maps reduce glare and keep the motorway overlays crisp; satellite is useful for terrain and coast context.',
+                sectionCount: 'sections',
+                timelineOpened: 'Opened',
+                timelineDelayed: 'Delayed',
+                timelineIssue: 'Issue',
+                timelineUpdate: 'Update',
+                timelineCancelled: 'Cancelled',
+                timelineBaseline: 'Baseline',
+                timelinePlanning: 'Planning',
+                timelineForecast: 'Forecast',
+                yearOpenedSuffix: 'opened',
+                yearKmOpen: 'km open'
+            }
+        };
+
+        const tileDefaults = { detectRetina: true, updateWhenIdle: true, updateWhenZooming: false, keepBuffer: 4, crossOrigin: true };
+        const ALL_STATUSES = ['Open', 'UnderConstruction', 'Planned', 'Closed'];
+        const basemaps = {
+            monitor: { name: { bg: 'Monitor Dark', en: 'Monitor Dark' }, tone: { bg: 'Нисък отблясък', en: 'Low-glare dark' }, featured: true, url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', options: { ...tileDefaults, attribution: '&copy; OpenStreetMap contributors &copy; CARTO', subdomains: 'abcd', maxZoom: 20 } },
+            graphite: { name: { bg: 'Graphite', en: 'Graphite' }, tone: { bg: 'Минимален контраст', en: 'Minimal contrast' }, featured: true, url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', options: { ...tileDefaults, attribution: 'Tiles &copy; Esri', maxZoom: 16 } },
+            voyager: { name: { bg: 'Voyager', en: 'Voyager' }, tone: { bg: 'Инфографска светлина', en: 'Editorial light' }, featured: true, url: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', options: { ...tileDefaults, attribution: '&copy; OpenStreetMap contributors &copy; CARTO', subdomains: 'abcd', maxZoom: 20 } },
+            light: { name: { bg: 'Positron', en: 'Positron' }, tone: { bg: 'Чист светъл фон', en: 'Clean light base' }, featured: true, url: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', options: { ...tileDefaults, attribution: '&copy; OpenStreetMap contributors &copy; CARTO', subdomains: 'abcd', maxZoom: 20 } },
+            street: { name: { bg: 'Street', en: 'Street' }, tone: { bg: 'Детайлен градски слой', en: 'Detailed street layer' }, featured: false, url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', options: { ...tileDefaults, attribution: '&copy; OpenStreetMap contributors', maxZoom: 19 } },
+            osmhot: { name: { bg: 'HOT', en: 'HOT' }, tone: { bg: 'Плътен пътен контекст', en: 'Dense road context' }, featured: false, url: 'https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', options: { ...tileDefaults, attribution: '&copy; OpenStreetMap contributors, Tiles style by Humanitarian OpenStreetMap Team', maxZoom: 20 } },
+            terrain: { name: { bg: 'Релеф', en: 'Terrain' }, tone: { bg: 'Топография', en: 'Topography' }, featured: false, url: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', options: { ...tileDefaults, attribution: '&copy; OpenStreetMap contributors, SRTM | OpenTopoMap', maxZoom: 17 } },
+            gray: { name: { bg: 'Gray Canvas', en: 'Gray Canvas' }, tone: { bg: 'Неутрален фон', en: 'Neutral canvas' }, featured: false, url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', options: { ...tileDefaults, attribution: 'Tiles &copy; Esri', maxZoom: 16 } },
+            satellite: { name: { bg: 'Сателит', en: 'Satellite' }, tone: { bg: 'Терен и крайбрежие', en: 'Terrain and coast' }, featured: false, url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', options: { ...tileDefaults, attribution: 'Tiles &copy; Esri', maxZoom: 18 } }
+        };
+
+        const bulgariaBounds = [[atlas.geo.bounds.south, atlas.geo.bounds.west], [atlas.geo.bounds.north, atlas.geo.bounds.east]];
+
+        const state = {
+            lang: 'bg',
+            basemap: 'monitor',
+            activeRoute: 'ALL',
+            regionFilter: 'ALL',
+            sourceScope: 'ALL',
+            activeStatuses: new Set(ALL_STATUSES),
+            selectedSegmentId: null,
+            selectedLotKey: null,
+            commandCenterMode: false,
+            playbackYear: new Date(atlas.generatedAtUtc).getFullYear(),
+            playbackPlaying: false
+        };
+
+        const $ = id => document.getElementById(id);
+        const el = {
+            brandEyebrow: $('brand-eyebrow'), brandTitle: $('brand-title'), brandSubtitle: $('brand-subtitle'),
+            headlinePrimaryEyebrow: $('headline-primary-eyebrow'), headlinePrimaryTitle: $('headline-primary-title'), headlinePrimaryCopy: $('headline-primary-copy'),
+            headlineSecondaryEyebrow: $('headline-secondary-eyebrow'), headlineSecondaryTitle: $('headline-secondary-title'), headlineSecondaryCopy: $('headline-secondary-copy'),
+            headlineTertiaryEyebrow: $('headline-tertiary-eyebrow'), headlineTertiaryTitle: $('headline-tertiary-title'), headlineTertiaryCopy: $('headline-tertiary-copy'),
+            routePills: $('route-pills'), languageLabel: $('language-label'), languageTabs: $('language-tabs'), basemapLabel: $('basemap-label'), basemapSelect: $('basemap-select'), mapPresetsEyebrow: $('map-presets-eyebrow'), mapPresets: $('map-presets'), mapNote: $('map-note'),
+            summaryEyebrow: $('summary-eyebrow'), summaryTitle: $('summary-title'), summarySubtitle: $('summary-subtitle'), generatedPill: $('generated-pill'), summaryKm: $('summary-km'), summaryState: $('summary-state'), summaryPercent: $('summary-percent'), summaryProgress: $('summary-progress'),
+            filtersEyebrow: $('filters-eyebrow'), filtersTitle: $('filters-title'), filtersCopy: $('filters-copy'), stagePresetsLabel: $('stage-presets-label'), stagePresets: $('stage-presets'), regionPresetsLabel: $('region-presets-label'), regionPresets: $('region-presets'), sourcePresetsLabel: $('source-presets-label'), sourcePresets: $('source-presets'), statusFiltersLabel: $('status-filters-label'), statusFilters: $('status-filters'), playbackLabel: $('playback-label'), playbackButton: $('playback-button'), playbackYearLabel: $('playback-year-label'), playbackRangeLabel: $('playback-range-label'), playbackRange: $('playback-range'), yearOverlay: $('year-overlay'), yearOverlayYear: $('year-overlay-year'), yearOverlayKm: $('year-overlay-km'), playbackKmFill: $('playback-km-fill'), playbackKmLabel: $('playback-km-label'),
+            networkEyebrow: $('network-eyebrow'), networkTitle: $('network-title'), sidebarKpis: $('sidebar-kpis'),
+            notesEyebrow: $('notes-eyebrow'), notesTitle: $('notes-title'), notesBody: $('notes-body'),
+            routesEyebrow: $('routes-eyebrow'), routesTitle: $('routes-title'), routesCount: $('routes-count'), routeList: $('route-list'),
+            lotsEyebrow: $('lots-eyebrow'), lotsTitle: $('lots-title'), lotsCount: $('lots-count'), lotList: $('lot-list'),
+            heroEyebrow: $('hero-eyebrow'), heroTitle: $('hero-title'), heroSubtitle: $('hero-subtitle'), heroFocus: $('hero-focus'), heroStats: $('hero-stats'), mapStage: document.querySelector('.map-stage'), selectionPanel: $('selection-panel'),
+            selectionEyebrow: $('selection-eyebrow'), selectionTitle: $('selection-title'), selectionSubtitle: $('selection-subtitle'), selectionClear: $('selection-clear'), selectionStatus: $('selection-status'), selectionPills: $('selection-pills'), selectionFacts: $('selection-facts'), selectionNote: $('selection-note'),
+            timelineEyebrow: $('timeline-eyebrow'), timelineTitle: $('timeline-title'), timeline: $('timeline'), legend: $('legend')
+        };
+
+        const pathRenderer = L.canvas({ padding: 0.4, tolerance: 4 });
+        const map = L.map('map', {
+            zoomControl: true,
+            preferCanvas: true,
+            zoomSnap: 0.5,
+            zoomDelta: 0.5,
+            minZoom: 6.9,
+            zoomAnimationThreshold: 4,
+            wheelPxPerZoomLevel: 120,
+            maxBoundsViscosity: 1.0,
+            markerZoomAnimation: false,
+            renderer: pathRenderer
+        });
+
+        map.setMaxBounds([[41.05, 22.05], [44.35, 28.95]]);
+
+        let basemapLayer = null;
+    const contextLayer = L.layerGroup().addTo(map);
+        const segmentLayer = L.layerGroup().addTo(map);
+        const lotLineLayer = L.layerGroup().addTo(map);
+        const lotLayer = L.layerGroup().addTo(map);
+        const statusLayer = L.layerGroup().addTo(map);
+        const highlightLayer = L.layerGroup().addTo(map);
+        const lotMarkers = new Map();
+        let activePopup = null;
+        let lastViewportKey = null;
+        let suppressPopupReset = false;
+        let playbackTimer = null;
+        let resizeTimer = null;
+
+        const t = key => text[state.lang][key];
+        const pick = value => !value ? '' : (state.lang === 'bg' ? value.bg : value.en);
+        const formatKm = value => `${Math.round(Number(value) || 0)} km`;
+        const formatPercent = value => `${Number(value || 0).toFixed(1)}%`;
+        const formatLotTarget = lot => lot.forecastOpenYear || (lot.isDerived ? t('modeledSpan') : t('pending'));
+        const formatBudget = value => value == null ? t('pending') : `${new Intl.NumberFormat(state.lang === 'bg' ? 'bg-BG' : 'en-US', { maximumFractionDigits: 1, minimumFractionDigits: 1 }).format(value)} M€`;
+        const formatFunding = program => {
+            if (!program) return '';
+            const palette = [['CEF','#4aabff'],['ISPA','#5db8ff'],['Cohesion','#82c5ff'],['EIB','#a3b9ff'],['EBRD','#72d5f5'],['national','#7dc46a']];
+            const match = palette.find(([k]) => program.toLowerCase().includes(k.toLowerCase()));
+            const color = match ? match[1] : '#89a6cb';
+            return `<span class="funding-badge" style="background:${color}18;border-color:${color}33;color:${color}">${program}</span>`;
+        };
+        const formatSource = (name, url) => {
+            if (!name) return t('pending');
+            if (!url) return name;
+            return `<a href="${url}" target="_blank" rel="noreferrer noopener">${name}</a>`;
+        };
+        const labelForStatus = status => t(statusMeta[status].bg);
+        const labelForLotAudit = lot => lot.isDerived ? t('auditDerived') : t('auditSeeded');
+        const labelForSourceQuality = sourceQuality => {
+            if (sourceQuality === 'official') return t('officialLots');
+            if (sourceQuality === 'mixed') return t('mixedSources');
+            return t('modeledSources');
+        };
+        const shortRouteName = route => {
+            const title = pick(route.title) || '';
+            const quoted = title.match(/„([^“]+)“|"([^"]+)"/);
+            if (quoted) return quoted[1] || quoted[2];
+            return title
+                .replace(/\s+(Motorway|Expressway|upgrade)$/i, '')
+                .replace(/^Автомагистрала\s+/i, '')
+                .replace(/^Скоростен път\s+/i, '')
+                .trim();
+        };
+        const formatRouteCount = value => `${value} ${t('routeCount')}`;
+        const formatSectionCount = value => `${value} ${t('sectionCount')}`;
+        const getTimelineStateMeta = stateKey => {
+            const stateClass = { success: 'success', warning: 'warning', danger: 'danger', info: 'info', delayed: 'warning', cancelled: 'danger', baseline: 'info', planning: 'info', forecast: 'info' };
+            const stateIcon = { success: '✓', warning: '⏳', danger: '✗', info: 'ℹ', delayed: '⏳', cancelled: '✗', baseline: 'ℹ', planning: '📋', forecast: '→' };
+            const stateLabel = {
+                success: t('timelineOpened'),
+                warning: t('timelineDelayed'),
+                danger: t('timelineIssue'),
+                info: t('timelineUpdate'),
+                delayed: t('timelineDelayed'),
+                cancelled: t('timelineCancelled'),
+                baseline: t('timelineBaseline'),
+                planning: t('timelinePlanning'),
+                forecast: t('timelineForecast')
+            };
+
+            return {
+                cls: stateClass[stateKey] || 'info',
+                icon: stateIcon[stateKey] || '·',
+                label: stateLabel[stateKey] || stateKey
+            };
+        };
+        const renderTimelineItems = items => items.length
+            ? items.map(item => {
+                const meta = getTimelineStateMeta(item.state);
+                return `<div class="timeline-item"><div class="timeline-year ${meta.cls}">${item.year}</div><div><div style="font-weight:500;font-size:13px">${pick(item.label)}</div><div class="timeline-state-badge ${meta.cls}">${meta.icon} ${meta.label}</div></div></div>`;
+            }).join('')
+            : `<div class="tiny">${t('pending')}</div>`;
+        const STAGE_PRESETS = [
+            { key: 'ALL', label: 'allStages', hint: 'allHint', statuses: ['Open', 'UnderConstruction', 'Planned', 'Closed'], accent: 'var(--accent-2)' },
+            { key: 'BUILT', label: 'builtStage', hint: 'builtHint', statuses: ['Open'], accent: 'var(--open)' },
+            { key: 'BUILDING', label: 'buildingStage', hint: 'buildingHint', statuses: ['UnderConstruction'], accent: 'var(--construction)' },
+            { key: 'TO_BUILD', label: 'plannedStage', hint: 'plannedHint', statuses: ['Planned'], accent: 'var(--planned)' }
+        ];
+        const REGION_PRESETS = [
+            { key: 'ALL', label: 'allRegions', hint: 'allHint' },
+            { key: 'WEST', label: 'westRegion', hint: 'westHint' },
+            { key: 'EAST', label: 'eastRegion', hint: 'eastHint' }
+        ];
+        const SOURCE_PRESETS = [
+            { key: 'ALL', label: 'allSources', hint: 'allSourceHint' },
+            { key: 'official', label: 'officialLots', hint: 'officialSourceHint' },
+            { key: 'mixed', label: 'mixedSources', hint: 'mixedSourceHint' },
+            { key: 'modeled', label: 'modeledSources', hint: 'modeledSourceHint' }
+        ];
+
+        const areSetsEqual = (left, right) => left.size === right.size && Array.from(left).every(item => right.has(item));
+
+        function getActivePresetKey() {
+            const active = new Set(state.activeStatuses);
+            const preset = STAGE_PRESETS.find(item => areSetsEqual(active, new Set(item.statuses)));
+            return preset ? preset.key : null;
+        }
+
+        function clearFilteredSelection() {
+            if (state.selectedSegmentId && !getVisibleSegments().some(segment => segment.id === state.selectedSegmentId)) state.selectedSegmentId = null;
+            if (state.selectedLotKey && !getVisibleLots().some(lot => lot.key === state.selectedLotKey)) state.selectedLotKey = null;
+        }
+
+        function hasDefaultScope() {
+            const currentYear = new Date(atlas.generatedAtUtc).getFullYear();
+            return state.activeRoute === 'ALL'
+                && state.regionFilter === 'ALL'
+                && state.sourceScope === 'ALL'
+                && areSetsEqual(state.activeStatuses, new Set(ALL_STATUSES))
+                && state.playbackYear === currentYear;
+        }
+
+        function clearInteractiveContext() {
+            stopPlayback();
+            closeActivePopup();
+
+            if (state.selectedLotKey || state.selectedSegmentId) {
+                state.selectedLotKey = null;
+                state.selectedSegmentId = null;
+                render();
+                return;
+            }
+
+            if (!hasDefaultScope()) {
+                state.activeRoute = 'ALL';
+                state.regionFilter = 'ALL';
+                state.sourceScope = 'ALL';
+                state.activeStatuses = new Set(ALL_STATUSES);
+                state.playbackYear = new Date(atlas.generatedAtUtc).getFullYear();
+                render();
+            }
+        }
+
+        function setActiveStatuses(statuses) {
+            stopPlayback();
+            state.activeStatuses = new Set(statuses);
+            clearFilteredSelection();
+            render();
+        }
+
+        function stopPlayback() {
+            state.playbackPlaying = false;
+            if (playbackTimer) {
+                clearInterval(playbackTimer);
+                playbackTimer = null;
+            }
+        }
+
+        function getPlaybackOperationalYear(segment) {
+            if (segment.status !== 'Open') return new Date(atlas.generatedAtUtc).getFullYear();
+            // openYear = C#-computed last success milestone (section fully open)
+            return segment.openYear || segment.startYear || segment.forecastOpenYear || new Date(atlas.generatedAtUtc).getFullYear();
+        }
+
+        function getSegmentConstructionStartYear(segment) {
+            return segment.startYear || getPlaybackOperationalYear(segment);
+        }
+
+        // Returns 0.0-1.0 fraction of segment built at current playbackYear
+        function getSegmentPlaybackFraction(segment) {
+            const currentYear = new Date(atlas.generatedAtUtc).getFullYear();
+            if (state.playbackYear >= currentYear) return segment.completionPercent / 100;
+            if (segment.status === 'Open') {
+                const openingYears = Array.isArray(segment.openingYears) ? [...segment.openingYears].sort((left, right) => left - right) : [];
+                const opYear = getPlaybackOperationalYear(segment);
+                const startY = getSegmentConstructionStartYear(segment);
+                if (openingYears.length > 1) {
+                    if (state.playbackYear >= opYear) return 1.0;
+                    const achieved = openingYears.filter(year => year <= state.playbackYear).length;
+                    if (achieved > 0) return achieved / openingYears.length;
+                    if (state.playbackYear < startY) return 0.0;
+                    const initialSpan = Math.max(1, openingYears[0] - startY);
+                    return Math.min(1 / openingYears.length, Math.max(0.06, (state.playbackYear - startY) / initialSpan / openingYears.length));
+                }
+                if (state.playbackYear >= opYear) return 1.0;
+                if (state.playbackYear < startY) return 0.0;
+                const span = Math.max(1, opYear - startY);
+                return Math.min(0.98, (state.playbackYear - startY) / span);
+            }
+            if (segment.status === 'UnderConstruction') {
+                const startY = getSegmentConstructionStartYear(segment);
+                if (state.playbackYear < startY) return 0.0;
+                const yearsTotal = Math.max(1, currentYear - startY);
+                const yearsPlayed = state.playbackYear - startY;
+                return Math.min(segment.completionPercent / 100,
+                    (yearsPlayed / yearsTotal) * (segment.completionPercent / 100));
+            }
+            return 0;
+        }
+
+        // Clip a lat/lon polyline to a fraction [0..1] of its arc length
+        function truncatePolylineToFraction(latLngs, fraction) {
+            if (!latLngs || latLngs.length < 2) return latLngs || [];
+            if (fraction <= 0) return [];
+            if (fraction >= 1.0) return latLngs;
+            let totalLen = 0;
+            const lengths = [];
+            for (let i = 1; i < latLngs.length; i++) {
+                const dy = latLngs[i][0] - latLngs[i-1][0];
+                const dx = latLngs[i][1] - latLngs[i-1][1];
+                const len = Math.sqrt(dx*dx + dy*dy);
+                lengths.push(len);
+                totalLen += len;
+            }
+            const target = totalLen * fraction;
+            let cum = 0;
+            const result = [latLngs[0]];
+            for (let i = 0; i < lengths.length; i++) {
+                if (cum + lengths[i] >= target) {
+                    const t = (target - cum) / Math.max(lengths[i], 1e-9);
+                    result.push([
+                        latLngs[i][0] + t * (latLngs[i+1][0] - latLngs[i][0]),
+                        latLngs[i][1] + t * (latLngs[i+1][1] - latLngs[i][1])
+                    ]);
+                    break;
+                }
+                cum += lengths[i];
+                result.push(latLngs[i+1]);
+            }
+            return result;
+        }
+
+        function getPlaybackMinYear() {
+            const active = atlas.segments.filter(segment => segment.status !== 'Planned');
+            if (!active.length) return new Date(atlas.generatedAtUtc).getFullYear();
+            return Math.min(...active.map(getSegmentConstructionStartYear));
+        }
+
+        function getSegmentRegion(segment) {
+            const avgLon = segment.shape.reduce((sum, point) => sum + point.lon, 0) / Math.max(1, segment.shape.length);
+            return avgLon < 25.6 ? 'WEST' : 'EAST';
+        }
+
+        function passesRegionFilter(segment) {
+            return state.regionFilter === 'ALL' || getSegmentRegion(segment) === state.regionFilter;
+        }
+
+        function passesSourceFilter(segment) {
+            return state.sourceScope === 'ALL' || segment.sourceQuality === state.sourceScope;
+        }
+
+        function passesPlaybackFilter(segment) {
+            const currentYear = new Date(atlas.generatedAtUtc).getFullYear();
+            if (state.playbackYear >= currentYear) return true;
+            if (segment.status === 'Planned') return false;
+            const startY = getSegmentConstructionStartYear(segment);
+            return startY <= state.playbackYear;
+        }
+
+        function syncMapStageMode() {
+            if (!el.mapStage) return;
+            el.mapStage.classList.toggle('command-center', state.commandCenterMode);
+            el.heroFocus.classList.toggle('active', state.commandCenterMode);
+            el.heroFocus.setAttribute('aria-pressed', state.commandCenterMode ? 'true' : 'false');
+            el.heroFocus.title = state.commandCenterMode ? t('commandCenterShow') : t('commandCenterHide');
+        }
+
+        const closeActivePopup = () => {
+            if (!activePopup) return;
+            suppressPopupReset = true;
+            map.closePopup(activePopup);
+            activePopup = null;
+        };
+
+        function updateViewport(viewKey, action) {
+            if (lastViewportKey === viewKey) return;
+            lastViewportKey = viewKey;
+            action();
+        }
+
+        function getSingleActiveStatus() {
+            return state.activeStatuses.size === 1 ? Array.from(state.activeStatuses)[0] : null;
+        }
+
+        function getOfficialUpdates() {
+            if (state.playbackYear < new Date(atlas.generatedAtUtc).getFullYear()) return [];
+            return atlas.officialUpdates.filter(item => (state.activeRoute === 'ALL' || item.routeCode === state.activeRoute) && (!item.status || state.activeStatuses.has(item.status)));
+        }
+
+        function interpolateShapeKm(points, targetKm) {
+            if (!points.length) return null;
+            if (points.length === 1) return [points[0].lat, points[0].lon];
+
+            const clampedKm = Math.max(0, Math.min(targetKm, points[points.length - 1].cumulativeKm));
+            for (let index = 1; index < points.length; index++) {
+                const prev = points[index - 1];
+                const point = points[index];
+                if (point.cumulativeKm >= clampedKm) {
+                    const span = Math.max(0.0001, point.cumulativeKm - prev.cumulativeKm);
+                    const ratio = (clampedKm - prev.cumulativeKm) / span;
+                    return [prev.lat + ((point.lat - prev.lat) * ratio), prev.lon + ((point.lon - prev.lon) * ratio)];
+                }
+            }
+
+            const last = points[points.length - 1];
+            return [last.lat, last.lon];
+        }
+
+        function buildLotPath(segment, lot) {
+            const startKm = lot.startKm;
+            const endKm = lot.endKm;
+            const points = segment.shape;
+            if (!points.length) return [];
+
+            const result = [];
+            for (let index = 0; index < points.length; index++) {
+                const point = points[index];
+                const prev = points[Math.max(0, index - 1)];
+                const next = points[Math.min(points.length - 1, index + 1)];
+
+                if (index > 0 && prev.cumulativeKm < startKm && point.cumulativeKm >= startKm) {
+                    const ratio = (startKm - prev.cumulativeKm) / Math.max(0.0001, point.cumulativeKm - prev.cumulativeKm);
+                    result.push([prev.lat + ((point.lat - prev.lat) * ratio), prev.lon + ((point.lon - prev.lon) * ratio)]);
+                }
+
+                if (point.cumulativeKm >= startKm && point.cumulativeKm <= endKm) {
+                    result.push([point.lat, point.lon]);
+                }
+
+                if (index < points.length - 1 && point.cumulativeKm <= endKm && next.cumulativeKm > endKm) {
+                    const ratio = (endKm - point.cumulativeKm) / Math.max(0.0001, next.cumulativeKm - point.cumulativeKm);
+                    result.push([point.lat + ((next.lat - point.lat) * ratio), point.lon + ((next.lon - point.lon) * ratio)]);
+                }
+            }
+
+            if (result.length >= 2) return result;
+
+            const startPoint = interpolateShapeKm(points, startKm);
+            const endPoint = interpolateShapeKm(points, endKm);
+            return startPoint && endPoint ? [startPoint, endPoint] : points.map(point => [point.lat, point.lon]);
+        }
+
+        function getLotBounds(segment, lot) {
+            const lotPath = buildLotPath(segment, lot);
+            return lotPath.length >= 2 ? lotPath : [[lot.position.lat, lot.position.lon]];
+        }
+
+        function renderHeadlineStrip() {
+            const selectedLot = getSelectedLot();
+            const selectedSegment = selectedLot ? atlas.segments.find(item => item.id === selectedLot.segmentId) : getSelectedSegment();
+            const selectedRoute = selectedSegment
+                ? atlas.routes.find(item => item.routeCode === selectedSegment.routeCode)
+                : atlas.routes.find(item => item.routeCode === state.activeRoute);
+            const singleStatus = getSingleActiveStatus();
+            const visibleSegments = getVisibleSegments();
+            const officialUpdates = getOfficialUpdates();
+
+            el.headlinePrimaryEyebrow.textContent = t('headlineNow');
+            el.headlinePrimaryTitle.textContent = selectedLot
+                ? `${selectedLot.routeCode} · ${selectedLot.lotCode}`
+                : selectedSegment
+                    ? `${selectedSegment.routeCode} · ${pick(selectedSegment.sectionName)}`
+                    : singleStatus
+                        ? `${labelForStatus(singleStatus)} · ${t('statusWindow')}`
+                    : selectedRoute
+                        ? `${selectedRoute.routeCode} · ${pick(selectedRoute.title)}`
+                        : pick(atlas.network.title);
+            el.headlinePrimaryCopy.textContent = selectedLot
+                ? (pick(selectedLot.note) || pick(selectedSegment?.description))
+                : selectedSegment
+                    ? pick(selectedSegment.description)
+                    : singleStatus
+                        ? `${formatRouteCount(new Set(visibleSegments.map(item => item.routeCode)).size)} · ${getVisibleLots().length} ${t('lotCount')}`
+                    : selectedRoute
+                        ? pick(selectedRoute.highlight)
+                        : pick(atlas.network.message);
+
+            el.headlineSecondaryEyebrow.textContent = officialUpdates.length ? t('officialFeed') : t('headlineAudit');
+            el.headlineSecondaryTitle.textContent = officialUpdates.length
+                ? pick(officialUpdates[0].title)
+                : `${atlas.summary.explicitLotCount} ${t('auditedLots')}`;
+            el.headlineSecondaryCopy.textContent = officialUpdates.length
+                ? `${officialUpdates[0].publishedOn} · ${pick(officialUpdates[0].routeLabel)}`
+                : `${atlas.summary.derivedLotCount} ${t('derivedLots')} · ${atlas.summary.sourceCoveragePercent.toFixed(0)}%`;
+
+            el.headlineTertiaryEyebrow.textContent = officialUpdates.length ? t('latestBulletin') : t('headlineScope');
+            el.headlineTertiaryTitle.textContent = officialUpdates.length
+                ? `${atlas.officialFeed.label} · ${atlas.officialFeed.publishedOn}`
+                : `${atlas.summary.totalKm} km · Bulgaria`;
+            el.headlineTertiaryCopy.textContent = officialUpdates.length
+                ? atlas.officialFeed.sourceName
+                : t('bulgariaScopeNote');
+        }
+
+        function renderLotPopup(lot, segment) {
+            return `<div class="map-popup">
+                <div>
+                    <div class="eyebrow">${t('popupOpenMap')}</div>
+                    <strong>${pick(segment.routeName)} · ${lot.lotCode}</strong>
+                    <div class="tiny" style="margin-top:6px">${pick(lot.title)}</div>
+                </div>
+                <div class="popup-menu"><span class="micro">${lot.routeCode}</span><span class="micro">${lot.lotCode}</span><span class="micro">${labelForStatus(lot.status)}</span><span class="micro">${formatLotTarget(lot)}</span></div>
+                <div class="detail-pills"><span class="status-pill"><span class="dot" style="background:${statusMeta[lot.status].color}"></span>${labelForStatus(lot.status)}</span><span class="audit-badge ${lot.isDerived ? '' : 'strong'}">${labelForLotAudit(lot)}</span></div>
+                <div class="progress-mini"><span style="width:${Math.max(4, Math.min(100, lot.completionPercent))}%; background:linear-gradient(90deg, ${statusMeta[lot.status].color}, #ffffff99)"></span></div>
+                <div class="popup-grid">
+                    <div class="popup-chip"><div class="eyebrow">${t('length')}</div><div>${lot.startKm.toFixed(1)}–${lot.endKm.toFixed(1)} km</div></div>
+                    <div class="popup-chip"><div class="eyebrow">${t('completion')}</div><div>${formatPercent(lot.completionPercent)}</div></div>
+                    <div class="popup-chip"><div class="eyebrow">${t('targetYear')}</div><div>${formatLotTarget(lot)}</div></div>
+                    <div class="popup-chip"><div class="eyebrow">${t('budget')}</div><div>${formatBudget(lot.budgetMillionEur)}</div></div>
+                    <div class="popup-chip"><div class="eyebrow">${t('contractor')}</div><div>${lot.contractor || t('pending')}</div></div>
+                    <div class="popup-chip"><div class="eyebrow">${t('basedOn')}</div><div>${segment.sourceName || t('pending')}</div></div>
+                </div>
+                <div class="popup-note tiny">${pick(lot.note) || pick(segment.description)}</div>
+            </div>`;
+        }
+
+        function renderSegmentLotSummary(segment) {
+            return segment.lots.map(lot => `<article class="popup-lot-item">
+                <div class="card-head"><strong>${lot.lotCode}</strong><span class="status-pill"><span class="dot" style="background:${statusMeta[lot.status].color}"></span>${labelForStatus(lot.status)}</span></div>
+                <div class="tiny">${pick(lot.title)}</div>
+                <div class="detail-pills"><span class="micro">${lot.startKm.toFixed(1)}–${lot.endKm.toFixed(1)} km</span><span class="micro">${formatPercent(lot.completionPercent)}</span><span class="micro">${formatLotTarget(lot)}</span></div>
+            </article>`).join('');
+        }
+
+        function renderSegmentPopup(segment) {
+            const openYearStr = segment.openYear ? segment.openYear : (segment.forecastOpenYear ? `~${segment.forecastOpenYear}` : t('pending'));
+            const travelTime = segment.estimatedTravelMinutes ? `${segment.estimatedTravelMinutes} min` : '—';
+            const fundingBadge = formatFunding(segment.fundingProgram);
+            return `<div class="map-popup">
+                <div>
+                    <div class="eyebrow">${t('segmentOverview')}</div>
+                    <strong>${pick(segment.routeName)}</strong><br>
+                    <span class="tiny" style="opacity:0.7">${pick(segment.sectionName)}</span>
+                    <div class="tiny" style="margin-top:6px">${pick(segment.description)}</div>
+                </div>
+                <div class="detail-pills">
+                    <span class="status-pill"><span class="dot" style="background:${statusMeta[segment.status].color}"></span>${labelForStatus(segment.status)}</span>
+                    ${fundingBadge}
+                </div>
+                <div class="popup-grid">
+                    <div class="popup-chip"><div class="eyebrow">${t('length')}</div><div>${formatKm(segment.lengthKm)}</div></div>
+                    <div class="popup-chip"><div class="eyebrow">${t('completion')}</div><div>${formatPercent(segment.completionPercent)}</div></div>
+                    <div class="popup-chip"><div class="eyebrow">${t('avgSpeed')}</div><div>${segment.maxSpeedKph ? `${segment.maxSpeedKph} km/h` : '—'}</div></div>
+                    <div class="popup-chip"><div class="eyebrow">${t('openYear')}</div><div>${openYearStr}</div></div>
+                    <div class="popup-chip"><div class="eyebrow">${t('travelTime')}</div><div>${travelTime}</div></div>
+                    <div class="popup-chip"><div class="eyebrow">${t('budget')}</div><div>${formatBudget(segment.budgetMillionEur)}</div></div>
+                </div>
+                <div>
+                    <div class="eyebrow">${t('segmentLots')}</div>
+                    <div class="popup-lot-list" style="margin-top:8px">${renderSegmentLotSummary(segment)}</div>
+                </div>
+            </div>`;
+        }
+
+        function renderOfficialList(items) {
+            return items.length
+                ? items.map(item => `<article class="official-item"><div class="card-head"><strong>${pick(item.title)}</strong><span class="micro">${item.publishedOn}</span></div><div class="tiny">${pick(item.detail)}</div><div class="tiny"><a href="${item.sourceUrl}" target="_blank" rel="noreferrer noopener">${t('publishedSource')}</a></div></article>`).join('')
+                : `<div class="tiny">${t('pending')}</div>`;
+        }
+
+        function getVisibleSegments() {
+            return atlas.segments.filter(segment =>
+                (state.activeRoute === 'ALL' || segment.routeCode === state.activeRoute)
+                && state.activeStatuses.has(segment.status)
+                && passesRegionFilter(segment)
+                && passesSourceFilter(segment)
+                && passesPlaybackFilter(segment));
+        }
+
+        function getVisibleRoutes() {
+            const routeCodes = new Set(getVisibleSegments().map(segment => segment.routeCode));
+            return atlas.routes.filter(route => state.activeRoute === 'ALL' ? routeCodes.has(route.routeCode) : route.routeCode === state.activeRoute);
+        }
+
+        function getVisibleLots() {
+            return getVisibleSegments().flatMap(segment => segment.lots.map(lot => ({ ...lot, routeCode: segment.routeCode, segmentId: segment.id, sectionCode: segment.sectionCode, sectionName: segment.sectionName, segmentStatus: segment.status })));
+        }
+
+        function getSelectedSegment() {
+            return atlas.segments.find(segment => segment.id === state.selectedSegmentId) || null;
+        }
+
+        function getSelectedLot() {
+            return getVisibleLots().find(lot => lot.key === state.selectedLotKey) || atlas.segments.flatMap(segment => segment.lots.map(lot => ({ ...lot, routeCode: segment.routeCode, segmentId: segment.id, sectionCode: segment.sectionCode, sectionName: segment.sectionName, segmentStatus: segment.status }))).find(lot => lot.key === state.selectedLotKey) || null;
+        }
+
+        function computeMetrics() {
+            const segments = getVisibleSegments();
+            const totalKm = segments.reduce((sum, item) => sum + item.lengthKm, 0);
+            const openKm = segments.filter(item => item.status === 'Open').reduce((sum, item) => sum + item.lengthKm, 0);
+            const constructionKm = segments.filter(item => item.status === 'UnderConstruction').reduce((sum, item) => sum + item.lengthKm, 0);
+            const plannedKm = segments.filter(item => item.status === 'Planned').reduce((sum, item) => sum + item.lengthKm, 0);
+            const closedKm = segments.filter(item => item.status === 'Closed').reduce((sum, item) => sum + item.lengthKm, 0);
+            return {
+                totalKm,
+                openKm,
+                constructionKm,
+                plannedKm,
+                closedKm,
+                routeCount: new Set(segments.map(item => item.routeCode)).size,
+                segmentCount: segments.length,
+                lotCount: getVisibleLots().length,
+                officialSegmentCount: segments.filter(item => item.sourceQuality === 'official').length,
+                mixedSegmentCount: segments.filter(item => item.sourceQuality === 'mixed').length,
+                modeledSegmentCount: segments.filter(item => item.sourceQuality === 'modeled').length,
+                avgSpeed: segments.length ? Math.round(segments.reduce((sum, item) => sum + (item.maxSpeedKph || 0), 0) / segments.length) : 0,
+                completionPercent: totalKm === 0 ? 0 : (openKm / totalKm) * 100,
+                statusCounts: {
+                    Open: segments.filter(item => item.status === 'Open').length,
+                    UnderConstruction: segments.filter(item => item.status === 'UnderConstruction').length,
+                    Planned: segments.filter(item => item.status === 'Planned').length,
+                    Closed: segments.filter(item => item.status === 'Closed').length
+                }
+            };
+        }
+
+        function setBasemap() {
+            if (basemapLayer) map.removeLayer(basemapLayer);
+            const config = basemaps[state.basemap];
+            basemapLayer = L.tileLayer(config.url, config.options).addTo(map);
+        }
+
+        function renderMapPresets() {
+            const featuredMaps = Object.entries(basemaps).filter(([, config]) => config.featured);
+            el.mapPresetsEyebrow.textContent = t('mapPresetsEyebrow');
+            el.mapNote.textContent = t('mapNote');
+            el.mapPresets.innerHTML = featuredMaps.map(([key, config]) => `<button type="button" class="map-preset ${state.basemap === key ? 'active' : ''}" data-map-preset="${key}"><strong>${pick(config.name)}</strong><span>${pick(config.tone)}</span></button>`).join('');
+            el.mapPresets.querySelectorAll('[data-map-preset]').forEach(node => node.addEventListener('click', () => {
+                const presetKey = node.dataset.mapPreset;
+                if (!presetKey || presetKey === state.basemap) return;
+                state.basemap = presetKey;
+                setBasemap();
+                renderToolbar();
+            }));
+        }
+
+        function renderToolbar() {
+            el.brandEyebrow.textContent = t('brandEyebrow');
+            el.brandTitle.textContent = pick(atlas.network.title);
+            el.brandSubtitle.textContent = pick(atlas.network.subtitle);
+            el.languageLabel.textContent = t('languageLabel');
+            el.basemapLabel.textContent = t('mapStyle');
+
+            el.routePills.innerHTML = '';
+            const allRoutes = document.createElement('button');
+            allRoutes.className = `route-pill ${state.activeRoute === 'ALL' ? 'active' : ''}`;
+            allRoutes.innerHTML = `<span class="code">GRID</span><span class="label">${t('allRoutes')}</span><span class="meta">${atlas.summary.routeCount} ${t('routeCount')}</span>`;
+            allRoutes.addEventListener('click', () => {
+                stopPlayback();
+                state.activeRoute = 'ALL';
+                state.selectedSegmentId = null;
+                state.selectedLotKey = null;
+                render();
+            });
+            el.routePills.appendChild(allRoutes);
+
+            atlas.routes.forEach(route => {
+                const button = document.createElement('button');
+                button.className = `route-pill ${state.activeRoute === route.routeCode ? 'active' : ''}`;
+                button.innerHTML = `<span class="code">${route.routeCode}</span><span class="label">${shortRouteName(route)}</span><span class="meta">${formatKm(route.totalKm)} · ${formatPercent(route.completionPercent)}</span>`;
+                button.addEventListener('click', () => {
+                    stopPlayback();
+                    state.activeRoute = state.activeRoute === route.routeCode ? 'ALL' : route.routeCode;
+                    state.selectedSegmentId = null;
+                    state.selectedLotKey = null;
+                    render();
+                });
+                el.routePills.appendChild(button);
+            });
+
+            el.languageTabs.innerHTML = ['bg', 'en'].map(lang => `<button class="tab ${state.lang === lang ? 'active' : ''}" type="button" data-lang="${lang}">${lang.toUpperCase()}</button>`).join('');
+            el.languageTabs.querySelectorAll('[data-lang]').forEach(node => node.addEventListener('click', () => {
+                state.lang = node.dataset.lang;
+                render();
+            }));
+
+            el.basemapSelect.innerHTML = Object.entries(basemaps).map(([key, config]) => `<option value="${key}" ${state.basemap === key ? 'selected' : ''}>${pick(config.name)} · ${pick(config.tone)}</option>`).join('');
+            renderMapPresets();
+        }
+
+        el.basemapSelect.addEventListener('change', event => {
+            state.basemap = event.target.value;
+            setBasemap();
+            renderToolbar();
+        });
+
+        el.heroFocus.addEventListener('click', () => {
+            state.commandCenterMode = !state.commandCenterMode;
+            render();
+        });
+
+        el.selectionClear.addEventListener('click', () => {
+            clearInteractiveContext();
+        });
+
+        window.addEventListener('keydown', event => {
+            if (event.key !== 'Escape') return;
+            if (state.selectedLotKey || state.selectedSegmentId || !hasDefaultScope()) {
+                clearInteractiveContext();
+            }
+        });
+
+        window.addEventListener('resize', () => {
+            if (resizeTimer) clearTimeout(resizeTimer);
+            resizeTimer = window.setTimeout(() => map.invalidateSize({ pan: false, debounceMoveend: true }), 120);
+        });
+
+        function renderSidebar() {
+            const generated = new Date(atlas.generatedAtUtc);
+            const metrics = computeMetrics();
+            const selectedRoute = atlas.routes.find(route => route.routeCode === state.activeRoute) || null;
+            const baseSegments = atlas.segments.filter(segment => (state.activeRoute === 'ALL' || segment.routeCode === state.activeRoute) && passesPlaybackFilter(segment));
+            const scopedSegments = baseSegments.filter(segment => passesRegionFilter(segment));
+            const officialUpdates = getOfficialUpdates();
+
+            el.summaryEyebrow.textContent = t('summaryEyebrow');
+            el.summaryTitle.textContent = selectedRoute ? `${selectedRoute.routeCode} · ${pick(selectedRoute.title)}` : pick(atlas.network.title);
+            el.summarySubtitle.textContent = selectedRoute ? pick(selectedRoute.highlight) : pick(atlas.network.message);
+            el.generatedPill.textContent = `${t('generated')} ${generated.toLocaleString(state.lang === 'bg' ? 'bg-BG' : 'en-US')}`;
+            el.summaryKm.textContent = selectedRoute ? formatKm(selectedRoute.totalKm) : formatKm(metrics.totalKm || atlas.summary.totalKm);
+            el.summaryState.textContent = selectedRoute ? pick(selectedRoute.sectionLabel) : `${metrics.routeCount} ${t('routeCount')} · ${metrics.lotCount} ${t('lotCount')}`;
+            el.summaryPercent.textContent = selectedRoute ? formatPercent(selectedRoute.completionPercent) : formatPercent(metrics.completionPercent || atlas.summary.completionPercent);
+            el.summaryProgress.style.width = `${selectedRoute ? selectedRoute.completionPercent : (metrics.completionPercent || atlas.summary.completionPercent)}%`;
+
+            el.filtersEyebrow.textContent = t('filtersEyebrow');
+            el.filtersTitle.textContent = t('filtersTitle');
+            el.filtersCopy.textContent = t('filtersCopy');
+            el.stagePresetsLabel.textContent = t('stagePresets');
+            el.regionPresetsLabel.textContent = t('regionPresets');
+            el.sourcePresetsLabel.textContent = t('sourcePresets');
+            el.statusFiltersLabel.textContent = t('granularStatus');
+            el.playbackLabel.textContent = t('playbackLabel');
+            el.playbackButton.textContent = state.playbackPlaying ? t('playbackPause') : t('playbackPlay');
+            el.playbackYearLabel.textContent = `${t('playbackYear')}: ${state.playbackYear}`;
+            el.playbackRangeLabel.textContent = t('playbackRange');
+            el.playbackRange.min = `${getPlaybackMinYear()}`;
+            el.playbackRange.max = `${generated.getFullYear()}`;
+            el.playbackRange.value = `${state.playbackYear}`;
+
+            // ── Year-overlay + km progress bar ────────────────────────────────────
+            const currentYear = generated.getFullYear();
+            const isHistoricMode = state.playbackYear < currentYear;
+            const showYearOverlay = state.playbackPlaying || isHistoricMode;
+            if (el.yearOverlay) {
+                el.yearOverlay.classList.toggle('visible', showYearOverlay);
+                if (el.yearOverlayYear) {
+                    const prevYear = parseInt(el.yearOverlay.dataset.lastYear || '0');
+                    if (prevYear !== state.playbackYear && showYearOverlay) {
+                        el.yearOverlayYear.animate(
+                            [{opacity: 0.2, transform: 'scale(1.18)'}, {opacity: 1, transform: 'scale(1)'}],
+                            {duration: 300, easing: 'cubic-bezier(0.34,1.56,0.64,1)', fill: 'forwards'}
+                        );
+                    }
+                    el.yearOverlay.dataset.lastYear = state.playbackYear;
+                    el.yearOverlayYear.textContent = state.playbackYear;
+                }
+                if (el.yearOverlayKm && showYearOverlay) {
+                    // Show milestone achievement text if any segment opened exactly this year
+                    const justOpened = atlas.segments.filter(s => s.status === 'Open' && Array.isArray(s.openingYears) && s.openingYears.includes(state.playbackYear));
+                    if (justOpened.length > 0) {
+                        const names = justOpened.map(s => pick(s.sectionName) || s.routeCode).join(', ');
+                        el.yearOverlayKm.textContent = `🛣 ${names} ${t('yearOpenedSuffix')}`;
+                    } else {
+                        const builtKm = atlas.segments
+                            .filter(s => s.status === 'Open')
+                            .reduce((sum, s) => sum + ((s.lengthKm || 0) * getSegmentPlaybackFraction(s)), 0);
+                        el.yearOverlayKm.textContent = builtKm > 0 ? `${Math.round(builtKm)} ${t('yearKmOpen')}` : '';
+                    }
+                }
+            }
+            // km progress bar in the playback control panel
+            if (el.playbackKmFill) {
+                const allOpen = atlas.segments.filter(s => s.status === 'Open');
+                const totalOpenKm = allOpen.reduce((sum, s) => sum + (s.lengthKm || 0), 0);
+                const builtKm = allOpen.reduce((sum, s) => sum + ((s.lengthKm || 0) * getSegmentPlaybackFraction(s)), 0);
+                const pct = totalOpenKm > 0 ? Math.round(builtKm / totalOpenKm * 100) : 0;
+                el.playbackKmFill.style.width = `${pct}%`;
+                if (el.playbackKmLabel) {
+                    el.playbackKmLabel.textContent = isHistoricMode ? `${Math.round(builtKm)} km  ·  ${pct}%` : `${Math.round(totalOpenKm)} km  ·  100%`;
+                }
+            }
+            el.networkEyebrow.textContent = t('networkEyebrow');
+            el.networkTitle.textContent = t('networkTitle');
+            el.notesEyebrow.textContent = t('notesEyebrow');
+            el.notesTitle.textContent = t('notesTitle');
+            el.routesEyebrow.textContent = t('routesEyebrow');
+            el.routesTitle.textContent = t('routesTitle');
+            el.lotsEyebrow.textContent = t('lotsEyebrow');
+            el.lotsTitle.textContent = t('lotsTitle');
+
+            const activePresetKey = getActivePresetKey();
+            el.stagePresets.innerHTML = STAGE_PRESETS.map(preset => {
+                const count = scopedSegments.filter(segment => preset.statuses.includes(segment.status)).length;
+                return `<button class="toggle stage-toggle ${activePresetKey === preset.key ? 'active' : ''}" data-preset="${preset.key}"><span class="label-stack"><strong>${t(preset.label)}</strong><span>${t(preset.hint)}</span></span><span class="micro" style="padding:2px 8px; border-color:${preset.accent}; color:${preset.accent}">${count}</span></button>`;
+            }).join('');
+            el.stagePresets.querySelectorAll('[data-preset]').forEach(node => node.addEventListener('click', () => {
+                const preset = STAGE_PRESETS.find(item => item.key === node.dataset.preset);
+                if (!preset) return;
+                setActiveStatuses(activePresetKey === preset.key ? ALL_STATUSES : preset.statuses);
+            }));
+
+            el.regionPresets.innerHTML = REGION_PRESETS.map(preset => {
+                const count = baseSegments.filter(segment => preset.key === 'ALL' || getSegmentRegion(segment) === preset.key).length;
+                return `<button class="toggle stage-toggle ${state.regionFilter === preset.key ? 'active' : ''}" data-region="${preset.key}"><span class="label-stack"><strong>${t(preset.label)}</strong><span>${t(preset.hint)}</span></span><span class="micro" style="padding:2px 8px">${count}</span></button>`;
+            }).join('');
+            el.regionPresets.querySelectorAll('[data-region]').forEach(node => node.addEventListener('click', () => {
+                stopPlayback();
+                state.regionFilter = state.regionFilter === node.dataset.region ? 'ALL' : node.dataset.region;
+                clearFilteredSelection();
+                render();
+            }));
+
+            const sourceScopedSegments = scopedSegments.filter(segment => state.activeStatuses.has(segment.status));
+            el.sourcePresets.innerHTML = SOURCE_PRESETS.map(preset => {
+                const count = sourceScopedSegments.filter(segment => preset.key === 'ALL' || segment.sourceQuality === preset.key).length;
+                return `<button class="toggle stage-toggle ${state.sourceScope === preset.key ? 'active' : ''}" data-source-scope="${preset.key}"><span class="label-stack"><strong>${t(preset.label)}</strong><span>${t(preset.hint)}</span></span><span class="micro" style="padding:2px 8px">${count}</span></button>`;
+            }).join('');
+            el.sourcePresets.querySelectorAll('[data-source-scope]').forEach(node => node.addEventListener('click', () => {
+                stopPlayback();
+                state.sourceScope = state.sourceScope === node.dataset.sourceScope ? 'ALL' : node.dataset.sourceScope;
+                clearFilteredSelection();
+                render();
+            }));
+
+            el.statusFilters.innerHTML = ['Open', 'UnderConstruction', 'Planned', 'Closed'].map(status => {
+                const count = scopedSegments.filter(segment => segment.status === status).length;
+                return `<button class="toggle ${state.activeStatuses.has(status) ? 'active' : ''}" data-status="${status}"><span>${labelForStatus(status)}</span><span class="micro" style="padding:2px 8px">${count}</span></button>`;
+            }).join('');
+            el.statusFilters.querySelectorAll('[data-status]').forEach(node => node.addEventListener('click', () => {
+                stopPlayback();
+                const status = node.dataset.status;
+                if (state.activeStatuses.has(status) && state.activeStatuses.size > 1) state.activeStatuses.delete(status); else state.activeStatuses.add(status);
+                clearFilteredSelection();
+                render();
+            }));
+
+            el.playbackButton.onclick = () => {
+                if (state.playbackPlaying) {
+                    stopPlayback();
+                    render();
+                    return;
+                }
+
+                state.playbackPlaying = true;
+                playbackTimer = setInterval(() => {
+                    const maxYear = generated.getFullYear();
+                    if (state.playbackYear >= maxYear) {
+                        stopPlayback();
+                        render();
+                        return;
+                    }
+
+                    state.playbackYear += 1;
+                    clearFilteredSelection();
+                    render();
+                }, 600);
+                render();
+            };
+
+            el.playbackRange.oninput = event => {
+                stopPlayback();
+                state.playbackYear = Number(event.target.value);
+                clearFilteredSelection();
+                render();
+            };
+
+            const kpis = [
+                { label: t('openToday'), value: formatKm(metrics.openKm), statuses: ['Open'] },
+                { label: t('inBuild'), value: formatKm(metrics.constructionKm), statuses: ['UnderConstruction'] },
+                { label: t('plannedNow'), value: formatKm(metrics.plannedKm), statuses: ['Planned'] },
+                { label: t('visibleLots'), value: `${metrics.lotCount}`, statuses: null },
+                { label: t('officialLots'), value: `${metrics.officialSegmentCount}`, statuses: null },
+                { label: t('modeledSources'), value: `${metrics.modeledSegmentCount}`, statuses: null }
+            ];
+            el.sidebarKpis.innerHTML = kpis.map(item => `<article class="kpi ${item.statuses ? 'interactive' : ''} ${item.statuses && areSetsEqual(new Set(item.statuses), state.activeStatuses) ? 'active' : ''}" ${item.statuses ? `data-kpi-statuses="${item.statuses.join(',')}"` : ''}><div class="eyebrow">${item.label}</div><div class="value">${item.value}</div></article>`).join('');
+            el.sidebarKpis.querySelectorAll('[data-kpi-statuses]').forEach(node => node.addEventListener('click', () => {
+                const statuses = node.dataset.kpiStatuses.split(',');
+                const isActive = areSetsEqual(new Set(statuses), state.activeStatuses);
+                setActiveStatuses(isActive ? ALL_STATUSES : statuses);
+            }));
+
+            const selectedLot = getSelectedLot();
+            const selectedSegment = selectedLot ? atlas.segments.find(item => item.id === selectedLot.segmentId) : getSelectedSegment();
+            const activeContextRoute = selectedSegment
+                ? atlas.routes.find(item => item.routeCode === selectedSegment.routeCode)
+                : selectedRoute;
+            const contextTitle = selectedLot
+                ? `${selectedLot.routeCode} · ${selectedLot.lotCode}`
+                : selectedSegment
+                    ? `${selectedSegment.routeCode} · ${pick(selectedSegment.sectionName)}`
+                    : activeContextRoute
+                        ? `${activeContextRoute.routeCode} · ${pick(activeContextRoute.title)}`
+                        : pick(atlas.network.title);
+            const contextText = selectedLot
+                ? (pick(selectedLot.note) || pick(selectedSegment?.description))
+                : selectedSegment
+                    ? (pick(selectedSegment.description) || pick(selectedSegment.importance))
+                    : activeContextRoute
+                        ? pick(activeContextRoute.highlight)
+                        : pick(atlas.network.message);
+            el.notesBody.innerHTML = `
+                <div class="note-block">
+                    <strong>${t('selectedContext')}</strong>
+                    <div class="tiny" style="margin-top:8px">${contextTitle}</div>
+                    <div class="tiny" style="margin-top:8px">${contextText}</div>
+                </div>
+                <div class="note-block">
+                    <strong>${t('latestUpdate')}</strong>
+                    <div class="tiny" style="margin-top:8px">${generated.toLocaleString(state.lang === 'bg' ? 'bg-BG' : 'en-US')}</div>
+                    <div class="tiny" style="margin-top:8px">${atlas.summary.explicitLotCount}/${atlas.summary.explicitLotCount + atlas.summary.derivedLotCount} ${t('auditedLots')}</div>
+                </div>
+                <div class="note-block">
+                    <strong>${t('currentScope')}</strong>
+                    <div class="tiny" style="margin-top:8px">${t('bulgariaScopeNote')}</div>
+                    <div class="detail-pills" style="margin-top:10px"><span class="audit-badge strong">${atlas.summary.sourceCoveragePercent.toFixed(0)}%</span><span class="audit-badge">${atlas.summary.officialSegmentCount} ${t('officialLots')}</span><span class="audit-badge">${atlas.summary.modeledSegmentCount} ${t('modeledSources')}</span></div>
+                </div>
+                <div class="note-block">
+                    <strong>${t('auditAccuracy')}</strong>
+                    <div class="tiny" style="margin-top:8px">${t('auditModeledNotice')}</div>
+                    <div class="detail-pills" style="margin-top:10px"><span class="audit-badge strong">${t('auditVerifiedShare')}: ${atlas.summary.sourceCoveragePercent.toFixed(0)}%</span><span class="audit-badge">${atlas.summary.officialSegmentCount}/${atlas.summary.segmentCount} ${t('sectionCount')}</span><span class="audit-badge">${atlas.summary.explicitLotCount}/${atlas.summary.explicitLotCount + atlas.summary.derivedLotCount} ${t('lotCount')}</span></div>
+                </div>
+                <div class="note-block">
+                    <strong>${t('officialFeed')}</strong>
+                    <div class="official-list" style="margin-top:8px">${renderOfficialList(officialUpdates.slice(0, 3))}</div>
+                </div>`;
+
+            const routes = getVisibleRoutes();
+            el.routesCount.textContent = `${routes.length} ${t('routeCount')}`;
+            el.routeList.innerHTML = routes.length
+                ? routes.map(route => `<article class="route-card ${state.activeRoute === route.routeCode ? 'active' : ''}" data-route="${route.routeCode}"><div class="card-head"><div><strong>${shortRouteName(route)}</strong><div class="tiny" style="margin-top:6px">${route.routeCode} · ${pick(route.sectionLabel)}</div></div><span class="status-pill"><span class="dot" style="background:var(--accent)"></span>${formatPercent(route.completionPercent)}</span></div><div class="selection-meta" style="margin-top:10px"><span class="micro">${formatKm(route.totalKm)}</span><span class="micro">${route.lotCount} ${t('lotCount')}</span><span class="micro">${route.storyYears} ${t('years')}</span></div><div class="tiny" style="margin-top:10px">${pick(route.highlight)}</div></article>`).join('')
+                : `<div class="tiny">${t('noRoutes')}</div>`;
+            el.routeList.querySelectorAll('[data-route]').forEach(node => node.addEventListener('click', () => {
+                stopPlayback();
+                state.activeRoute = state.activeRoute === node.dataset.route ? 'ALL' : node.dataset.route;
+                state.selectedSegmentId = null;
+                state.selectedLotKey = null;
+                render();
+            }));
+
+            const lots = getVisibleLots();
+            el.lotsCount.textContent = `${lots.length} ${t('lotCount')}`;
+            el.lotList.innerHTML = lots.length
+                ? lots.map(lot => `<article class="lot-card ${lot.isDerived ? 'derived' : ''} ${state.selectedLotKey === lot.key ? 'active' : ''}" data-lot="${lot.key}"><div class="card-head"><div><strong>${lot.lotCode}</strong><div class="tiny" style="margin-top:6px">${pick(lot.title)}</div></div><span class="status-pill"><span class="dot" style="background:${statusMeta[lot.status].color}"></span>${labelForStatus(lot.status)}</span></div><div class="lot-actions" style="margin-top:10px"><span class="micro">${formatKm(lot.endKm - lot.startKm)}</span><span class="micro">${formatPercent(lot.completionPercent)}</span><span class="micro">${formatLotTarget(lot)}</span><span class="audit-badge ${lot.isDerived ? '' : 'strong'}">${labelForLotAudit(lot)}</span></div><div class="tiny" style="margin-top:10px">${pick(lot.note) || pick(lot.title)}</div></article>`).join('')
+                : `<div class="tiny">${t('noLots')}</div>`;
+            el.lotList.querySelectorAll('[data-lot]').forEach(node => node.addEventListener('click', () => {
+                stopPlayback();
+                const lot = lots.find(item => item.key === node.dataset.lot);
+                if (state.selectedLotKey === node.dataset.lot) {
+                    state.selectedLotKey = null;
+                    state.selectedSegmentId = null;
+                }
+                else {
+                    state.selectedLotKey = node.dataset.lot;
+                    state.selectedSegmentId = lot ? lot.segmentId : state.selectedSegmentId;
+                }
+                render();
+            }));
+        }
+
+        function renderHero() {
+            const metrics = computeMetrics();
+            const visibleRoutes = getVisibleRoutes();
+            const auditedTotal = atlas.summary.explicitLotCount + atlas.summary.derivedLotCount;
+            const auditedShare = auditedTotal === 0 ? 0 : (atlas.summary.explicitLotCount / auditedTotal) * 100;
+            const dominantStatus = Object.entries(metrics.statusCounts)
+                .sort((left, right) => right[1] - left[1])[0]?.[0] || 'Open';
+            el.heroEyebrow.textContent = t('heroEyebrow');
+            el.heroTitle.textContent = t('heroTitle');
+            el.heroSubtitle.textContent = t('heroSubtitle');
+            el.heroFocus.innerHTML = `<span class="dot" style="background:${state.commandCenterMode ? 'var(--accent)' : 'var(--accent-3)'}"></span>${state.commandCenterMode ? t('commandCenterOn') : t('commandCenterOff')}`;
+            el.heroStats.innerHTML = [
+                { label: t('totalLength'), value: formatKm(metrics.totalKm || atlas.summary.totalKm) },
+                { label: t('completion'), value: formatPercent(metrics.completionPercent || atlas.summary.completionPercent) },
+                { label: t('visibleLots'), value: `${metrics.lotCount}` },
+                { label: t('heroSignalReadiness'), value: `${formatKm(metrics.openKm)}` },
+                { label: t('heroSignalAudit'), value: `${auditedShare.toFixed(0)}%` },
+                { label: t('status'), value: labelForStatus(dominantStatus) },
+                { label: t('heroRoutes'), value: `${visibleRoutes.length}` },
+                { label: t('avgSpeed'), value: metrics.avgSpeed ? `${metrics.avgSpeed} km/h` : '—' }
+            ].map(item => `<article class="kpi"><div class="eyebrow">${item.label}</div><div class="value">${item.value}</div></article>`).join('');
+            syncMapStageMode();
+        }
+
+        function renderSelection() {
+            const lot = getSelectedLot();
+            const segment = lot ? atlas.segments.find(item => item.id === lot.segmentId) : getSelectedSegment();
+            const route = segment ? atlas.routes.find(item => item.routeCode === segment.routeCode) : atlas.routes.find(item => item.routeCode === state.activeRoute);
+            const activeStatus = getSingleActiveStatus();
+            const visibleSegments = getVisibleSegments();
+            const visibleLots = getVisibleLots();
+            const officialUpdates = getOfficialUpdates();
+            const hasSelectionOrScope = Boolean(lot || segment || route || activeStatus || !hasDefaultScope());
+            const panelMode = lot || segment ? 'full' : (route || activeStatus ? 'compact' : 'passive');
+
+            el.selectionPanel.classList.toggle('compact', panelMode === 'compact');
+            el.selectionPanel.classList.toggle('passive', panelMode === 'passive');
+
+            el.selectionClear.hidden = !hasSelectionOrScope;
+            el.selectionClear.textContent = (lot || segment) ? t('clearSelection') : t('resetView');
+
+            el.selectionEyebrow.textContent = t('selectionEyebrow');
+
+            if (lot) {
+                el.selectionTitle.textContent = `${pick(segment.routeName)} · ${lot.lotCode}`;
+                el.selectionSubtitle.textContent = `${pick(lot.title)} · ${pick(segment.sectionName)} · ${lot.routeCode}`;
+                el.selectionStatus.innerHTML = `<span class="dot" style="background:${statusMeta[lot.status].color}"></span>${labelForStatus(lot.status)}`;
+                el.selectionPills.innerHTML = `<span class="micro">${formatKm(lot.endKm - lot.startKm)}</span><span class="micro">${formatPercent(lot.completionPercent)}</span><span class="micro">${formatLotTarget(lot)}</span>`;
+                el.selectionFacts.innerHTML = `
+                    <div class="fact"><strong>${t('length')}</strong><div class="tiny">${lot.startKm.toFixed(1)}–${lot.endKm.toFixed(1)} km</div></div>
+                    <div class="fact"><strong>${t('budget')}</strong><div class="tiny">${formatBudget(lot.budgetMillionEur)}</div></div>
+                    <div class="fact"><strong>${t('contractor')}</strong><div class="tiny">${lot.contractor || t('pending')}</div></div>
+                    <div class="fact"><strong>${t('targetYear')}</strong><div class="tiny">${formatLotTarget(lot)}</div></div>
+                    <div class="fact"><strong>${t('sourceQuality')}</strong><div class="tiny">${labelForSourceQuality(segment.sourceQuality)}</div></div>
+                    <div class="fact"><strong>${t('sourceLink')}</strong><div class="tiny">${formatSource(segment?.sourceName, segment?.sourceUrl)}</div></div>`;
+                el.selectionNote.textContent = pick(lot.note) || pick(segment.description);
+                renderTimeline(segment, lot);
+                return;
+            }
+
+            if (segment) {
+                el.selectionTitle.textContent = `${pick(segment.routeName)}`;
+                el.selectionSubtitle.textContent = `${pick(segment.sectionName)} · ${segment.routeCode}`;
+                el.selectionStatus.innerHTML = `<span class="dot" style="background:${statusMeta[segment.status].color}"></span>${labelForStatus(segment.status)}`;
+                el.selectionPills.innerHTML = `<span class="micro">${segment.sectionCode || '—'}</span><span class="micro">${formatKm(segment.lengthKm)}</span><span class="micro">${segment.lots.length} ${t('lotCount')}</span>`;
+                el.selectionFacts.innerHTML = `
+                    <div class="fact"><strong>${t('completion')}</strong><div class="tiny">${formatPercent(segment.completionPercent)}</div></div>
+                    <div class="fact"><strong>${t('avgSpeed')}</strong><div class="tiny">${segment.maxSpeedKph ? `${segment.maxSpeedKph} km/h` : '—'}</div></div>
+                    <div class="fact"><strong>${t('importance')}</strong><div class="tiny">${pick(segment.importance) || t('pending')}</div></div>
+                    <div class="fact"><strong>${t('sourceQuality')}</strong><div class="tiny">${labelForSourceQuality(segment.sourceQuality)}</div></div>
+                    <div class="fact"><strong>${t('basedOn')}</strong><div class="tiny">${formatSource(segment.sourceName, segment.sourceUrl)}</div></div>`;
+                el.selectionNote.textContent = pick(segment.importance) || pick(segment.description);
+                renderTimeline(segment, null);
+                return;
+            }
+
+            if (route) {
+                el.selectionTitle.textContent = `${shortRouteName(route)}`;
+                el.selectionSubtitle.textContent = `${route.routeCode} · ${pick(route.sectionLabel)}`;
+                el.selectionStatus.innerHTML = `<span class="dot" style="background:var(--accent)"></span>${t('routeOverview')}`;
+                el.selectionPills.innerHTML = `<span class="micro">${formatKm(route.totalKm)}</span><span class="micro">${route.lotCount} ${t('lotCount')}</span><span class="micro">${route.storyYears} ${t('years')}</span>`;
+                el.selectionFacts.innerHTML = `
+                    <div class="fact"><strong>${t('completion')}</strong><div class="tiny">${formatPercent(route.completionPercent)}</div></div>
+                    <div class="fact"><strong>${t('openToday')}</strong><div class="tiny">${formatKm(route.openKm)}</div></div>
+                    <div class="fact"><strong>${t('inBuild')}</strong><div class="tiny">${formatKm(route.constructionKm)}</div></div>
+                    <div class="fact"><strong>${t('plannedNow')}</strong><div class="tiny">${formatKm(route.plannedKm)}</div></div>`;
+                el.selectionNote.textContent = pick(route.highlight);
+                el.timeline.innerHTML = renderTimelineItems(route.milestones);
+                return;
+            }
+
+            if (activeStatus) {
+                const totalKm = visibleSegments.reduce((sum, item) => sum + item.lengthKm, 0);
+                const avgCompletion = visibleSegments.length ? visibleSegments.reduce((sum, item) => sum + item.completionPercent, 0) / visibleSegments.length : 0;
+                el.selectionTitle.textContent = `${labelForStatus(activeStatus)} · ${t('statusWindow')}`;
+                el.selectionSubtitle.textContent = `${formatRouteCount(new Set(visibleSegments.map(item => item.routeCode)).size)} · ${visibleLots.length} ${t('lotCount')}`;
+                el.selectionStatus.innerHTML = `<span class="dot" style="background:${statusMeta[activeStatus].color}"></span>${labelForStatus(activeStatus)}`;
+                el.selectionPills.innerHTML = `<span class="micro">${formatKm(totalKm)}</span><span class="micro">${formatRouteCount(new Set(visibleSegments.map(item => item.routeCode)).size)}</span><span class="micro">${officialUpdates.length} ${t('officialFeed')}</span>`;
+                el.selectionFacts.innerHTML = `
+                    <div class="fact"><strong>${t('length')}</strong><div class="tiny">${formatKm(totalKm)}</div></div>
+                    <div class="fact"><strong>${t('lotCount')}</strong><div class="tiny">${visibleLots.length}</div></div>
+                    <div class="fact"><strong>${t('completion')}</strong><div class="tiny">${formatPercent(avgCompletion)}</div></div>
+                    <div class="fact"><strong>${t('latestBulletin')}</strong><div class="tiny">${atlas.officialFeed.publishedOn}</div></div>`;
+                el.selectionNote.textContent = officialUpdates.length ? pick(officialUpdates[0].detail) : t('noSelection');
+                el.timeline.innerHTML = officialUpdates.length
+                    ? officialUpdates.map(item => `<div class="timeline-item"><div class="timeline-year">${item.publishedOn}</div><div><div>${pick(item.title)}</div><div class="tiny" style="margin-top:4px">${pick(item.routeLabel)}</div></div></div>`).join('')
+                    : `<div class="tiny">${t('pending')}</div>`;
+                return;
+            }
+
+            el.selectionTitle.textContent = t('focusHintTitle');
+            el.selectionSubtitle.textContent = t('focusHintCopy');
+            el.selectionStatus.innerHTML = `<span class="dot" style="background:var(--accent-2)"></span>${t('focusMode')}`;
+            el.selectionPills.innerHTML = '';
+            el.selectionFacts.innerHTML = '';
+            el.selectionNote.textContent = '';
+            el.timeline.innerHTML = renderTimelineItems(atlas.network.milestones);
+        }
+
+        function renderTimeline(segment, lot) {
+            el.timelineEyebrow.textContent = t('timelineEyebrow');
+            el.timelineTitle.textContent = lot ? `${t('lotOverview')} ${lot.lotCode}` : t('timelineTitle');
+            const items = lot?.milestones?.length ? lot.milestones : segment.milestones;
+            el.timeline.innerHTML = renderTimelineItems(items);
+        }
+
+        function renderLegend() {
+            el.legend.innerHTML = Object.entries(statusMeta).map(([status, meta]) => `<button class="status-pill ${state.activeStatuses.has(status) ? 'active' : ''}" data-legend-status="${status}"><span class="dot" style="background:${meta.color}"></span>${labelForStatus(status)}</button>`).join('');
+            el.legend.querySelectorAll('[data-legend-status]').forEach(node => node.addEventListener('click', () => {
+                const status = node.dataset.legendStatus;
+                if (!status) return;
+                setActiveStatuses(state.activeStatuses.size === 1 && state.activeStatuses.has(status) ? ALL_STATUSES : [status]);
+            }));
+        }
+
+        function focusDefault() {
+            updateViewport('default', () => map.fitBounds(bulgariaBounds, { padding: [10, 10], animate: true, duration: 0.7, maxZoom: 7.2 }));
+        }
+
+        function focusRoute() {
+            const segments = getVisibleSegments();
+            if (!segments.length) return focusDefault();
+            const bounds = segments.flatMap(segment => segment.shape.map(point => [point.lat, point.lon]));
+            const key = `route:${state.activeRoute}:${state.regionFilter}:${state.playbackYear}:${Array.from(state.activeStatuses).sort().join(',')}`;
+            updateViewport(key, () => map.fitBounds(bounds, { padding: [34, 34], animate: true, duration: 0.75 }));
+        }
+
+        function focusLot() {
+            const lot = getSelectedLot();
+            if (!lot) return;
+            const segment = atlas.segments.find(item => item.id === lot.segmentId);
+            if (!segment) return;
+            const bounds = getLotBounds(segment, lot);
+            updateViewport(`lot:${lot.key}`, () => map.fitBounds(bounds, { padding: [88, 88], animate: true, duration: 0.55, maxZoom: 10.2 }));
+        }
+
+        function openLotPopup(lot, segment) {
+            const marker = lotMarkers.get(lot.key);
+            const popupHtml = renderLotPopup(lot, segment);
+            closeActivePopup();
+
+            if (marker) {
+                marker.setPopupContent(popupHtml);
+                marker.openPopup();
+                activePopup = marker.getPopup();
+                return;
+            }
+
+            activePopup = L.popup({ maxWidth: 360, autoPan: true, closeButton: true, closeOnClick: false, autoClose: false, keepInView: true, className: 'atlas-popup-card' })
+                .setLatLng([lot.position.lat, lot.position.lon])
+                .setContent(popupHtml);
+            map.openPopup(activePopup);
+        }
+
+        function openSegmentPopup(segment) {
+            closeActivePopup();
+            const anchor = segment.shape[Math.max(0, Math.floor(segment.shape.length / 2))];
+            activePopup = L.popup({ maxWidth: 360, autoPan: true, closeButton: true, closeOnClick: false, autoClose: false, keepInView: true, className: 'atlas-popup-card' })
+                .setLatLng([anchor.lat, anchor.lon])
+                .setContent(renderSegmentPopup(segment));
+            map.openPopup(activePopup);
+        }
+
+        function renderMap() {
+            if (!state.playbackPlaying) closeActivePopup();
+            const currentYearForMap = new Date(atlas.generatedAtUtc).getFullYear();
+            const isHistoricModeActive = state.playbackYear < currentYearForMap;
+            contextLayer.clearLayers();
+            segmentLayer.clearLayers();
+            lotLineLayer.clearLayers();
+            lotLayer.clearLayers();
+            statusLayer.clearLayers();
+            highlightLayer.clearLayers();
+            lotMarkers.clear();
+
+            const segments = getVisibleSegments();
+            const selectedLot = getSelectedLot();
+
+            atlas.segments.forEach(segment => {
+                const latLngs = segment.shape.map(point => [point.lat, point.lon]);
+                const segStart = segment.startYear || 9999;
+                const isFutureGhost = isHistoricModeActive && (segStart > state.playbackYear);
+                L.polyline(latLngs, {
+                    color: isFutureGhost ? 'rgba(100,125,160,0.10)' : 'rgba(140, 165, 198, 0.22)',
+                    weight: isFutureGhost ? 3 : 4,
+                    opacity: isFutureGhost ? 0.18 : 0.38,
+                    lineCap: 'round',
+                    lineJoin: 'round',
+                    interactive: false
+                }).addTo(contextLayer);
+            });
+
+            segments.forEach(segment => {
+                const color = statusMeta[segment.status].color;
+                const isSelectedSegment = state.selectedSegmentId === segment.id;
+                const shouldShowStatusChip = isSelectedSegment || state.selectedLotKey || state.activeRoute !== 'ALL' || map.getZoom() >= 8.35;
+                const currentYear = new Date(atlas.generatedAtUtc).getFullYear();
+                const isHistoricMode = state.playbackYear < currentYear;
+                const fraction = isHistoricMode ? getSegmentPlaybackFraction(segment) : 1.0;
+                if (fraction < 0.01) return;
+                const baseLatLngs = segment.shape.map(point => [point.lat, point.lon]);
+                const latLngs = (isHistoricMode && fraction < 0.999) ? truncatePolylineToFraction(baseLatLngs, fraction) : baseLatLngs;
+                if (!latLngs || latLngs.length < 2) return;
+
+                L.polyline(latLngs, {
+                    color: `${color}33`,
+                    weight: isSelectedSegment ? 13 : 10,
+                    opacity: segment.status === 'Planned' ? 0.2 : 0.34,
+                    lineCap: 'round',
+                    lineJoin: 'round',
+                    smoothFactor: 1.2,
+                    interactive: false
+                }).addTo(segmentLayer);
+
+                L.polyline(latLngs, {
+                    color: 'rgba(4, 10, 18, 0.92)',
+                    weight: isSelectedSegment ? 10 : 8,
+                    opacity: 0.92,
+                    lineCap: 'round',
+                    lineJoin: 'round',
+                    smoothFactor: 1.2
+                }).addTo(segmentLayer);
+
+                const line = L.polyline(latLngs, {
+                    color,
+                    weight: isSelectedSegment ? 5.8 : 4.1,
+                    opacity: 0.86,
+                    dashArray: segment.status === 'Planned' ? '12 10' : segment.status === 'UnderConstruction' ? '14 8' : null,
+                    lineCap: 'round',
+                    lineJoin: 'round',
+                    smoothFactor: 1.2
+                }).addTo(segmentLayer);
+
+                if (segment.status !== 'Planned') {
+                    L.polyline(latLngs, {
+                        color: 'rgba(255,255,255,0.46)',
+                        weight: isSelectedSegment ? 2.2 : 1.4,
+                        opacity: segment.status === 'Open' ? 0.5 : 0.3,
+                        lineCap: 'round',
+                        lineJoin: 'round',
+                        smoothFactor: 1.2,
+                        interactive: false
+                    }).addTo(segmentLayer);
+                }
+
+                line.on('click', () => {
+                    stopPlayback();
+                    if (state.selectedSegmentId === segment.id && !state.selectedLotKey) {
+                        state.selectedSegmentId = null;
+                    }
+                    else {
+                        state.selectedSegmentId = segment.id;
+                        state.selectedLotKey = null;
+                    }
+                    render();
+                });
+
+                if (segment.status !== 'Open' && shouldShowStatusChip) {
+                    const anchor = segment.shape[Math.max(0, Math.floor(segment.shape.length / 2))];
+                    const chip = L.marker([anchor.lat, anchor.lon], {
+                        keyboard: false,
+                        zIndexOffset: 1200,
+                        icon: L.divIcon({ className: '', html: `<div class="segment-chip"><span class="dot" style="background:${statusMeta[segment.status].color}"></span><span>${labelForStatus(segment.status)}</span></div>` })
+                    }).addTo(statusLayer);
+
+                    chip.on('click', () => {
+                        stopPlayback();
+                        if (state.selectedSegmentId === segment.id && !state.selectedLotKey) {
+                            state.selectedSegmentId = null;
+                        }
+                        else {
+                            state.selectedSegmentId = segment.id;
+                            state.selectedLotKey = null;
+                        }
+                        render();
+                    });
+                }
+
+                segment.lots.forEach(lot => {
+                    const isSelectedLot = state.selectedLotKey === lot.key;
+                    const lotPath = buildLotPath(segment, lot);
+                    const lotLine = L.polyline(lotPath, {
+                        color: statusMeta[lot.status].color,
+                        weight: isSelectedLot ? 7.5 : (lot.isDerived ? 4.6 : 6.0),
+                        opacity: isSelectedLot ? 0.98 : (lot.isDerived ? 0.58 : 0.88),
+                        dashArray: lot.status === 'Planned' ? '10 8' : lot.status === 'UnderConstruction' ? '14 10' : null,
+                        lineCap: 'round',
+                        lineJoin: 'round',
+                        smoothFactor: 1.2
+                    }).addTo(lotLineLayer);
+
+                    lotLine.on('click', () => {
+                        stopPlayback();
+                        if (state.selectedLotKey === lot.key) {
+                            state.selectedSegmentId = null;
+                            state.selectedLotKey = null;
+                        }
+                        else {
+                            state.selectedSegmentId = segment.id;
+                            state.selectedLotKey = lot.key;
+                        }
+                        render();
+                    });
+
+                    const marker = L.marker([lot.position.lat, lot.position.lon], {
+                        riseOnHover: true,
+                        bubblingMouseEvents: false,
+                        zIndexOffset: isSelectedLot ? 2000 : 0,
+                        icon: L.divIcon({ className: '', html: `<div class="lot-marker ${isSelectedLot ? 'selected' : ''}" style="background:${statusMeta[lot.status].color}; box-shadow: 0 0 0 ${isSelectedLot ? '6px' : '4px'} rgba(3,8,18,.48), 0 14px 32px ${statusMeta[lot.status].color}66"><span class="lot-marker-core" style="background:${lot.status === 'Planned' ? '#f3ecff' : lot.status === 'UnderConstruction' ? '#fff3de' : '#ffffff'}"></span></div>`, iconSize: [22, 22], iconAnchor: [11, 11] })
+                    }).addTo(lotLayer);
+
+                    marker.bindPopup(renderLotPopup(lot, segment), { maxWidth: 360, autoPan: true, closeButton: true, closeOnClick: false, autoClose: false, keepInView: true, className: 'atlas-popup-card' });
+                    lotMarkers.set(lot.key, marker);
+
+                    marker.on('click', () => {
+                        stopPlayback();
+                        if (state.selectedLotKey === lot.key) {
+                            state.selectedSegmentId = null;
+                            state.selectedLotKey = null;
+                        }
+                        else {
+                            state.selectedSegmentId = segment.id;
+                            state.selectedLotKey = lot.key;
+                        }
+                        render();
+                    });
+                });
+
+                if (selectedLot && selectedLot.segmentId === segment.id) {
+                    const radius = L.circle([selectedLot.position.lat, selectedLot.position.lon], {
+                        radius: selectedLot.isDerived ? 9000 : 12000,
+                        color: statusMeta[selectedLot.status].color,
+                        weight: 1,
+                        fillColor: statusMeta[selectedLot.status].color,
+                        fillOpacity: 0.08
+                    }).addTo(highlightLayer);
+                }
+            });
+
+            if (selectedLot) {
+                focusLot();
+                const segment = atlas.segments.find(item => item.id === selectedLot.segmentId);
+                if (segment) {
+                    openLotPopup(selectedLot, segment);
+                }
+            }
+            else if (state.selectedSegmentId) {
+                const segment = getSelectedSegment();
+                if (segment) {
+                    updateViewport(`segment:${segment.id}`, () => map.fitBounds(segment.shape.map(point => [point.lat, point.lon]), { padding: [40, 40], animate: true, duration: 0.8 }));
+                    openSegmentPopup(segment);
+                }
+            }
+            else if (state.activeRoute !== 'ALL') {
+                focusRoute();
+            }
+            else {
+                focusDefault();
+            }
+        }
+
+        function render() {
+            renderToolbar();
+            renderHeadlineStrip();
+            renderSidebar();
+            renderHero();
+            renderSelection();
+            renderLegend();
+            renderMap();
+        }
+
+        setBasemap();
+        focusDefault();
+        map.on('popupclose', () => {
+            activePopup = null;
+            if (suppressPopupReset) {
+                suppressPopupReset = false;
+                return;
+            }
+            if (state.selectedLotKey || state.selectedSegmentId) {
+                state.selectedLotKey = null;
+                state.selectedSegmentId = null;
+                render();
+            }
+        });
+        render();
+    </script>
+</body>
+</html>
+""";
+    }
+
+    private static object BuildAtlasModel(HighwayRoute network)
+    {
+        var engine = new RouteEngine();
+        var lengthsByStatus = network.GetLengthByStatus();
+        var currentYear = DateTime.UtcNow.Year;
+        var segments = network.Segments
+            .OrderBy(segment => GetRouteSortOrder(segment.RouteCode))
+            .ThenBy(segment => segment.SectionCode, StringComparer.OrdinalIgnoreCase)
+            .Select((segment, index) =>
+            {
+                var lots = BuildLots(segment)
+                    .Select(lot => new
+                    {
+                        key = $"{segment.SectionCode}:{lot.LotCode}",
+                        lotCode = lot.LotCode,
+                        title = new { bg = lot.Title.Bg, en = lot.Title.En },
+                        status = lot.Status.ToString(),
+                        startKm = Math.Round(lot.StartKm, 1),
+                        endKm = Math.Round(lot.EndKm, 1),
+                        completionPercent = Math.Round(lot.CompletionPercent, 1),
+                        forecastOpenYear = lot.ForecastOpenYear,
+                        budgetMillionEur = lot.BudgetMillionEur,
+                        contractor = lot.Contractor,
+                        isDerived = lot.IsDerived,
+                        note = lot.Note is null ? null : new { bg = lot.Note.Bg, en = lot.Note.En },
+                        milestones = BuildLotMilestones(segment, lot, currentYear),
+                        position = ToPoint(InterpolatePoint(segment.Shape, segment.LengthKm == 0 ? 0 : ((lot.StartKm + lot.EndKm) / 2.0) / segment.LengthKm))
+                    })
+                    .ToArray();
+                var sourceQuality = DeriveSourceQuality(lots.Select(lot => lot.isDerived));
+
+                return new
+                {
+                    id = index + 1,
+                    routeCode = segment.RouteCode,
+                    routeName = new { bg = segment.EffectiveDisplayName.Bg, en = segment.EffectiveDisplayName.En },
+                    sectionCode = segment.SectionCode,
+                    sectionName = new { bg = segment.EffectiveSectionName.Bg, en = segment.EffectiveSectionName.En },
+                    description = new { bg = segment.Description?.Bg ?? string.Empty, en = segment.Description?.En ?? string.Empty },
+                    importance = new { bg = segment.StrategicImportance?.Bg ?? string.Empty, en = segment.StrategicImportance?.En ?? string.Empty },
+                    status = segment.Status.ToString(),
+                    lengthKm = Math.Round(segment.LengthKm, 1),
+                    maxSpeedKph = segment.MaxSpeedKph,
+                    startYear = segment.StartYear,
+                    forecastOpenYear = segment.ForecastOpenYear,
+                    completionPercent = Math.Round(segment.EffectiveCompletionPercent, 1),
+                    budgetMillionEur = segment.BudgetMillionEur,
+                    fundingProgram = segment.FundingProgram,
+                    contractor = segment.Contractor,
+                    sourceName = segment.SourceName,
+                    sourceUrl = segment.SourceUrl,
+                    sourceQuality,
+                    estimatedTravelMinutes = (int)Math.Round(engine.EstimateTravelTime([segment]).TotalMinutes),
+                    openYear = segment.Status == SegmentStatus.Open
+                        ? (segment.Milestones.OrderBy(m => m.Year).LastOrDefault(m => m.State == "success")?.Year ?? segment.StartYear)
+                        : (int?)null,
+                    openingYears = segment.Status == SegmentStatus.Open
+                        ? segment.Milestones.Where(item => item.State == "success").Select(item => item.Year).Distinct().OrderBy(year => year).ToArray()
+                        : Array.Empty<int>(),
+                    milestones = segment.Milestones.OrderBy(item => item.Year).Select(item => new { year = item.Year, label = new { bg = item.Label.Bg, en = item.Label.En }, state = item.State }).ToArray(),
+                    shape = segment.Shape.Select(ToPoint).ToArray(),
+                    lots
+                };
+            })
+            .ToArray();
+        var routes = network.Segments
+            .GroupBy(segment => segment.RouteCode, StringComparer.OrdinalIgnoreCase)
+            .OrderBy(group => GetRouteSortOrder(group.Key))
+            .Select(group =>
+            {
+                var routeSegments = segments.Where(item => string.Equals(item.routeCode, group.Key, StringComparison.OrdinalIgnoreCase)).ToArray();
+                var totalKm = routeSegments.Sum(item => item.lengthKm);
+                var openKm = routeSegments.Where(item => string.Equals(item.status, SegmentStatus.Open.ToString(), StringComparison.OrdinalIgnoreCase)).Sum(item => item.lengthKm);
+                var constructionKm = routeSegments.Where(item => string.Equals(item.status, SegmentStatus.UnderConstruction.ToString(), StringComparison.OrdinalIgnoreCase)).Sum(item => item.lengthKm);
+                var plannedKm = routeSegments.Where(item => string.Equals(item.status, SegmentStatus.Planned.ToString(), StringComparison.OrdinalIgnoreCase)).Sum(item => item.lengthKm);
+                var startYear = group.Min(item => item.StartYear ?? currentYear);
+                var first = group.First();
+                var milestones = group
+                    .SelectMany(item => item.Milestones)
+                    .GroupBy(item => new { item.Year, item.Label.Bg, item.Label.En, item.State })
+                    .Select(items => items.First())
+                    .OrderBy(item => item.Year)
+                    .Select(item => new { year = item.Year, label = new { bg = item.Label.Bg, en = item.Label.En }, state = item.State })
+                    .ToArray();
+
+                return new
+                {
+                    routeCode = group.Key,
+                    title = new { bg = first.EffectiveDisplayName.Bg, en = first.EffectiveDisplayName.En },
+                    sectionLabel = new { bg = $"{group.First().Start.Name} – {group.Last().End.Name}", en = $"{group.First().Start.Name} – {group.Last().End.Name}" },
+                    highlight = BuildRouteHighlight(group.Key, first.StrategicImportance, currentYear, startYear),
+                    totalKm = Math.Round(totalKm, 1),
+                    openKm = Math.Round(openKm, 1),
+                    constructionKm = Math.Round(constructionKm, 1),
+                    plannedKm = Math.Round(plannedKm, 1),
+                    completionPercent = totalKm == 0 ? 0 : Math.Round(openKm / totalKm * 100.0, 1),
+                    storyYears = Math.Max(0, currentYear - startYear),
+                    startYear,
+                    missingKm = Math.Round(totalKm - openKm, 1),
+                    lotCount = routeSegments.Sum(item => item.lots.Length),
+                    milestones
+                };
+            })
+            .ToArray();
+
+        var totalLots = segments.Sum(segment => segment.lots.Length);
+        var derivedLots = segments.Sum(segment => segment.lots.Count(lot => lot.isDerived));
+        var explicitLots = totalLots - derivedLots;
+        var officialSegmentCount = segments.Count(segment => string.Equals(segment.sourceQuality, "official", StringComparison.OrdinalIgnoreCase));
+        var mixedSegmentCount = segments.Count(segment => string.Equals(segment.sourceQuality, "mixed", StringComparison.OrdinalIgnoreCase));
+        var modeledSegmentCount = segments.Count(segment => string.Equals(segment.sourceQuality, "modeled", StringComparison.OrdinalIgnoreCase));
+
+        return new
+        {
+            generatedAtUtc = DateTime.UtcNow,
+            officialFeed = new
+            {
+                label = "API Bulgaria bulletin snapshot",
+                publishedOn = "2026-03-07",
+                sourceName = "api.bg public bulletins and motorway notices"
+            },
+            geo = new
+            {
+                center = new { lat = 42.7339, lon = 25.4858 },
+                bounds = new { south = 41.2, west = 22.3, north = 44.3, east = 28.8 }
+            },
+            network = new
+            {
+                title = new { bg = "Атлас на българските автомагистрали", en = "Bulgarian Motorway Atlas" },
+                subtitle = new { bg = "Актуален преглед на 9 маршрута, 20 участъка и над 50 лота – от първите открития до днешните строежи.", en = "Live snapshot of 9 routes, 20 sections, 50+ lots – from first openings to today's active construction." },
+                message = new { bg = "Мрежата обхваща 1 506 km; 991 km са отворени, 250 km в строеж, 265 km планирани.", en = "The network spans 1,506 km: 991 km open, 250 km under construction, 265 km planned." },
+                milestones = routes
+                    .SelectMany(route => route.milestones)
+                    .GroupBy(item => new { item.year, item.state, item.label.bg, item.label.en })
+                    .Select(items => items.First())
+                    .OrderBy(item => item.year)
+                    .TakeLast(8)
+                    .ToArray()
+            },
+            summary = new
+            {
+                routeCount = routes.Length,
+                segmentCount = network.Segments.Count,
+                explicitLotCount = explicitLots,
+                derivedLotCount = derivedLots,
+                officialSegmentCount,
+                mixedSegmentCount,
+                modeledSegmentCount,
+                sourceCoveragePercent = totalLots == 0 ? 0 : Math.Round(explicitLots / (double)totalLots * 100.0, 1),
+                totalKm = Math.Round(network.TotalKm, 1),
+                openKm = Math.Round(network.OpenKm, 1),
+                constructionKm = Math.Round(lengthsByStatus.GetValueOrDefault(SegmentStatus.UnderConstruction), 1),
+                plannedKm = Math.Round(lengthsByStatus.GetValueOrDefault(SegmentStatus.Planned), 1),
+                completionPercent = Math.Round(network.CompletionPercent, 1)
+            },
+            officialUpdates = BuildOfficialUpdates(),
+            routes,
+            segments
+        };
+    }
+
+    private static string DeriveSourceQuality(IEnumerable<bool> derivedFlags)
+    {
+        var flags = derivedFlags.ToArray();
+        if (flags.Length == 0)
+        {
+            return "modeled";
+        }
+
+        var derivedCount = flags.Count(flag => flag);
+        if (derivedCount == 0)
+        {
+            return "official";
+        }
+
+        return derivedCount == flags.Length ? "modeled" : "mixed";
+    }
+
+    private static object ToPoint(RoutePoint point) => new
+    {
+        lat = point.Latitude,
+        lon = point.Longitude,
+        name = point.Name,
+        cumulativeKm = point.CumulativeKm
+    };
+
+    private static RoutePoint InterpolatePoint(IReadOnlyList<RoutePoint> shape, double ratio)
+    {
+        if (shape.Count == 0)
+        {
+            return new RoutePoint(42.7339, 25.4858, "Bulgaria");
+        }
+
+        if (shape.Count == 1)
+        {
+            return shape[0];
+        }
+
+        // Use cumulativeKm (Haversine-based) for consistent interpolation with JS lot-path clipping
+        var targetKm = Math.Clamp(ratio, 0, 1) * shape[shape.Count - 1].CumulativeKm;
+
+        for (var i = 1; i < shape.Count; i++)
+        {
+            if (shape[i].CumulativeKm >= targetKm)
+            {
+                var lower = shape[i - 1];
+                var upper = shape[i];
+                var span = upper.CumulativeKm - lower.CumulativeKm;
+                var factor = span > 0 ? (targetKm - lower.CumulativeKm) / span : 0.0;
+
+                return new RoutePoint(
+                    lower.Latitude + ((upper.Latitude - lower.Latitude) * factor),
+                    lower.Longitude + ((upper.Longitude - lower.Longitude) * factor),
+                    upper.Name,
+                    lower.CumulativeKm + ((upper.CumulativeKm - lower.CumulativeKm) * factor));
+            }
+        }
+
+        return shape[shape.Count - 1];
+    }
+
+    private static IReadOnlyList<LotDescriptor> BuildLots(RouteSegment segment) => (segment.SectionCode ?? string.Empty).ToUpperInvariant() switch
+    {
+        "A2-01" =>
+        [
+            Lot("Фаза I", "София – Ябланица", "Sofia – Yablanitsa", SegmentStatus.Open, 0, 62, 100, 1999, 342, noteBg: "Историческият първи завършен етап на АМ „Хемус“ в експлоатация от 1999 г.", noteEn: "Historic first completed Hemus phase, open since 1999."),
+            Lot("Фаза II", "Ябланица – Боаза", "Yablanitsa – Boaza", SegmentStatus.Open, 62, 71.3, 100, 2019, 78, noteBg: "Лот 0 по официалната терминология на АПИ; открит през 2019 г.", noteEn: "Lot 0 in the official API terminology; opened in 2019."),
+            Lot("Фаза III", "Боаза – Угърчин / Дерманци", "Boaza – Ugarchin / Dermantsi", SegmentStatus.Open, 71.3, 103, 100, 2025, 300, noteBg: "По официалните страници на АПИ участък 1 е Боаза–Дерманци; временният край при Угърчин е въведен през 2025 г.", noteEn: "On the official API pages section 1 is Boaza–Dermantsi; the temporary Ugarchin end opened in 2025.")
+        ],
+        "A2-02" =>
+            BuildScaledLots(segment,
+            [
+                new OfficialLotTemplate("Участък 2", "Край на п.в. „Дерманци“ – п.в. „Каленик“", "Dermantsi interchange end – Kalenik interchange", SegmentStatus.UnderConstruction, 19.2, 23, null, null, "Автомагистрали ЕАД", "Официален участък 2 на АПИ: км 103+060 до км 122+260, срок 48 месеца след Протокол обр. 2а.", "Official API section 2: km 103+060 to km 122+260, execution term 48 months after Protocol 2a."),
+                new OfficialLotTemplate("Участък 3", "П.в. „Каленик“ – п.в. „Плевен“", "Kalenik interchange – Pleven interchange", SegmentStatus.UnderConstruction, 17.08, 53, null, null, "Автомагистрали ЕАД", "Официален участък 3 на АПИ: км 122+260 до км 139+340; през март 2024 г. АПИ отчита 53% изпълнение.", "Official API section 3: km 122+260 to km 139+340; in March 2024 API reported 53% completion."),
+                new OfficialLotTemplate("Участък 4", "П.в. „Плевен“ – п.в. „Летница“", "Pleven interchange – Letnitsa interchange", SegmentStatus.UnderConstruction, 26.804, 0, null, null, "Автомагистрали ЕАД", "Официален участък 4 на АПИ: км 139+340 до км 166+144.09; договорният срок е 180 дни за проектиране и 36 месеца за СМР след Протокол обр. 2а.", "Official API section 4: km 139+340 to km 166+144.09; contract term is 180 days for design and 36 months for works after Protocol 2a.")
+            ]),
+        "A2-03" =>
+            BuildScaledLots(segment,
+            [
+                new OfficialLotTemplate("Участък 5", "П.в. „Летница“ – път III-303", "Letnitsa interchange – road III-303", SegmentStatus.Planned, 23.2, 0, null, null, "Автомагистрали ЕАД", "Официален участък 5 на АПИ: км 166+144.09 до км 189+344; 180 дни за проектиране и 36 месеца за СМР след Протокол обр. 2а.", "Official API section 5: km 166+144.09 to km 189+344; 180 days for design and 36 months for works after Protocol 2a."),
+                new OfficialLotTemplate("Участък 6", "Път III-303 – път I-5 Русе – Велико Търново", "Road III-303 – road I-5 Ruse – Veliko Tarnovo", SegmentStatus.Planned, 32.656, 0, null, null, "Автомагистрали ЕАД", "Официален участък 6 на АПИ: км 189+344 до км 222+000; 180 дни за проектиране и 42 месеца за СМР след Протокол обр. 2а.", "Official API section 6: km 189+344 to km 222+000; 180 days for design and 42 months for works after Protocol 2a."),
+                new OfficialLotTemplate("Участък 7", "Път I-5 – п.в. „Ковачевско кале“", "Road I-5 – Kovachevsko Kale interchange", SegmentStatus.Planned, 43.6, 0, null, null, "Автомагистрали ЕАД", "Официален участък 7 на АПИ: км 222+000 до км 265+600, срок 36 месеца след Протокол обр. 2а.", "Official API section 7: km 222+000 to km 265+600, execution term 36 months after Protocol 2a.")
+            ]),
+        "A2-04" =>
+            BuildScaledLots(segment,
+            [
+                new OfficialLotTemplate("Участък 8", "П.в. „Ковачевско кале“ – п.в. „Лозница“", "Kovachevsko Kale interchange – Loznitsa interchange", SegmentStatus.Planned, 33.4, 0, null, null, "Автомагистрали ЕАД", "Официален участък 8 на АПИ: км 265+600 до км 299+000, срок 36 месеца след Протокол обр. 2а.", "Official API section 8: km 265+600 to km 299+000, execution term 36 months after Protocol 2a."),
+                new OfficialLotTemplate("Участък 9", "П.в. „Лозница“ – п.в. „Буховци-юг“", "Loznitsa interchange – Buhovtsi-south interchange", SegmentStatus.Planned, 11.94, 0, null, null, "Автомагистрали ЕАД", "Официален участък 9 на АПИ: км 299+000 до км 310+940; срокът за изграждане е 30 месеца след разрешение за строеж и Протокол обр. 2а.", "Official API section 9: km 299+000 to km 310+940; the execution term is 30 months after the building permit and Protocol 2a.")
+            ]),
+        "A2-05" =>
+        [
+            Lot("Фаза I", "Буховци – Белокопитово", "Buhovtsi – Belokopitovo", SegmentStatus.Open, 0, 28, 100, 2022, 175, noteBg: "Открит през октомври 2022 г.; затваря последния незавършен дял към Шумен.", noteEn: "Opened in October 2022; closed the last unfinished gap toward Shumen."),
+            Lot("Фаза II", "Шумен / Белокопитово – Провадия", "Shumen / Belokopitovo – Provadiya", SegmentStatus.Open, 28, 67, 100, 2015, 190, noteBg: "Включва възела „Белокопитово“ и следва модернизираната шуменска ос към Варна.", noteEn: "Includes the Belokopitovo interchange and follows the modernized Shumen axis toward Varna."),
+            Lot("Фаза III", "Провадия – Варна", "Provadiya – Varna", SegmentStatus.Open, 67, 107, 100, 1974, 210, noteBg: "Историческата източна магистрална връзка Шумен – Варна, по-късно интегрирана в A2.", noteEn: "The historic eastern Shumen–Varna motorway link later integrated into A2.")
+        ],
+        "MB-01" =>
+            BuildScaledLots(segment,
+            [
+                new OfficialLotTemplate("Лот 2", "Мездра – Лютидол", "Mezdra – Lyutidol", SegmentStatus.UnderConstruction, 13.433, segment.EffectiveCompletionPercent, null, 136.5, "Консорциум ДЗЗД „МБ ЛОТ 2-2019“", "Официален лот 2 на АПИ: км 161+367 до км 174+800, договорен срок 1096 дни; по договор край на 2023 г., но без потвърдена актуална дата за въвеждане в експлоатация.", "Official API lot 2: km 161+367 to km 174+800, contract term 1096 days; contract finish was end-2023, but there is no confirmed current opening date."),
+                new OfficialLotTemplate("Лот 1", "Лютидол – Ботевград", "Lyutidol – Botevgrad", SegmentStatus.UnderConstruction, 19.322, segment.EffectiveCompletionPercent, null, 81.6, "Обединение „ГЕОПЪТ ЛОТ 1“", "Официален лот 1 на АПИ: км 174+800 до км 194+122, договорен срок 1096 дни; без потвърдена актуална дата за въвеждане в експлоатация.", "Official API lot 1: km 174+800 to km 194+122, contract term 1096 days; there is no confirmed current opening date.")
+            ]),
+        _ => BuildGeneratedLots(segment)
+    };
+
+    private static IReadOnlyList<LotDescriptor> BuildGeneratedLots(RouteSegment segment)
+    {
+        var sectionName = segment.EffectiveSectionName;
+        var count = segment.LengthKm switch
+        {
+            >= 140 => 3,
+            >= 70 => 2,
+            _ => 1
+        };
+
+        var results = new List<LotDescriptor>(count);
+        var piece = segment.LengthKm / count;
+
+        for (var index = 0; index < count; index++)
+        {
+            var startKm = Math.Round(piece * index, 1);
+            var endKm = Math.Round(index == count - 1 ? segment.LengthKm : piece * (index + 1), 1);
+            var startPoint = InterpolatePoint(segment.Shape, segment.LengthKm == 0 ? 0 : startKm / segment.LengthKm);
+            var endPoint = InterpolatePoint(segment.Shape, segment.LengthKm == 0 ? 1 : endKm / segment.LengthKm);
+            var band = DescribeLotBand(index, count);
+            var sameAnchor = string.Equals(startPoint.Name, endPoint.Name, StringComparison.OrdinalIgnoreCase);
+            results.Add(new LotDescriptor(
+                $"Span {index + 1}",
+                new LocalizedText($"{sectionName.Bg} · {band.Bg}", $"{sectionName.En} · {band.En}"),
+                segment.Status,
+                startKm,
+                endKm,
+                segment.EffectiveCompletionPercent,
+                null,
+                segment.BudgetMillionEur,
+                segment.Contractor,
+                new LocalizedText(
+                    sameAnchor
+                        ? $"{band.Bg} около {startPoint.Name}. Това е моделиран дял по оста {sectionName.Bg}, а не официално номериран лот ({startKm:0.0}–{endKm:0.0} km)."
+                        : $"{band.Bg} между {startPoint.Name} и {endPoint.Name}. Това е моделиран дял по оста {sectionName.Bg}, а не официално номериран лот ({startKm:0.0}–{endKm:0.0} km).",
+                    sameAnchor
+                        ? $"{band.En} around {startPoint.Name}. This is a modeled span along {sectionName.En}, not an official numbered lot ({startKm:0.0}–{endKm:0.0} km)."
+                        : $"{band.En} between {startPoint.Name} and {endPoint.Name}. This is a modeled span along {sectionName.En}, not an official numbered lot ({startKm:0.0}–{endKm:0.0} km)."),
+                true));
+        }
+
+        return results;
+    }
+
+    private static IReadOnlyList<LotDescriptor> BuildScaledLots(RouteSegment segment, params OfficialLotTemplate[] templates)
+    {
+        if (templates.Length == 0)
+        {
+            return BuildGeneratedLots(segment);
+        }
+
+        var totalTemplateKm = templates.Sum(item => item.LengthKm);
+        var scale = totalTemplateKm <= 0 ? 1.0 : segment.LengthKm / totalTemplateKm;
+        var cursor = 0.0;
+        var lots = new List<LotDescriptor>(templates.Length);
+
+        foreach (var template in templates)
+        {
+            var scaledLength = Math.Round(template.LengthKm * scale, 1);
+            var startKm = Math.Round(cursor, 1);
+            var endKm = Math.Round(template == templates[^1] ? segment.LengthKm : cursor + scaledLength, 1);
+            cursor = endKm;
+
+            lots.Add(new LotDescriptor(
+                template.Code,
+                new LocalizedText(template.TitleBg, template.TitleEn),
+                template.Status,
+                startKm,
+                endKm,
+                template.CompletionPercent,
+                template.ForecastOpenYear,
+                template.BudgetMillionEur,
+                template.Contractor,
+                new LocalizedText(template.NoteBg, template.NoteEn),
+                false));
+        }
+
+        return lots;
+    }
+
+    private static LotDescriptor Lot(
+        string code,
+        string bg,
+        string en,
+        SegmentStatus status,
+        double startKm,
+        double endKm,
+        double completionPercent,
+        int? forecastOpenYear = null,
+        double? budgetMillionEur = null,
+        string? contractor = null,
+        string? noteBg = null,
+        string? noteEn = null)
+        => new(
+            code,
+            new LocalizedText(bg, en),
+            status,
+            startKm,
+            endKm,
+            completionPercent,
+            forecastOpenYear,
+            budgetMillionEur,
+            contractor,
+            noteBg is null || noteEn is null ? null : new LocalizedText(noteBg, noteEn),
+            false);
+
+    private static int GetRouteSortOrder(string routeCode) => routeCode.ToUpperInvariant() switch
+    {
+        "A1" => 1,
+        "A2" => 2,
+        "A3" => 3,
+        "A4" => 4,
+        "A5" => 5,
+        "A6" => 6,
+        "E79" => 7,
+        "RVT" => 8,
+        "MB" => 9,
+        _ => 100
+    };
+
+    private static object[] BuildOfficialUpdates() =>
+    [
+        new
+        {
+            routeCode = "A3",
+            status = SegmentStatus.UnderConstruction.ToString(),
+            routeLabel = new { bg = "АМ „Струма“", en = "A3 Struma" },
+            publishedOn = "2026-03-06",
+            title = new
+            {
+                bg = "Ограничение в тунел „Железница“ за тестове и профилактика",
+                en = "Restrictions in Zheleznitsa tunnel for testing and maintenance"
+            },
+            detail = new
+            {
+                bg = "АПИ публикува известие за временна организация на движението на 11 и 12 март в тунел „Железница“ на АМ „Струма“.",
+                en = "API Bulgaria published a notice for temporary traffic organization on March 11–12 in Zheleznitsa tunnel on A3 Struma."
+            },
+            sourceUrl = "https://www.api.bg/bg/novini/na-11-i-12-mart-shche-se-ogranichi-dvizhenieto-v-tunel-zheleznitsa-na-am-struma-za-testvane-i-profilaktika-na-sistemata-za-upravlenie-na-suoruzhenieto.html"
+        },
+        new
+        {
+            routeCode = "A3",
+            status = SegmentStatus.UnderConstruction.ToString(),
+            routeLabel = new { bg = "АМ „Струма“", en = "A3 Struma" },
+            publishedOn = "2026-03-06",
+            title = new
+            {
+                bg = "Ремонт на фуга при 58-и км в посока София",
+                en = "Joint repair at km 58 towards Sofia"
+            },
+            detail = new
+            {
+                bg = "Официалното съобщение на АПИ описва ограничение на движението за ремонтни дейности в посока София при 58-и км на АМ „Струма“.",
+                en = "An official API Bulgaria notice describes lane restrictions for repair works towards Sofia at km 58 of A3 Struma."
+            },
+            sourceUrl = "https://www.api.bg/bg/novini/ot-9-mart-za-remont-na-fuga-shche-se-ogranichava-dvizhenieto-v-posoka-sofiya-po-aktivnata-lenta-pri-58-i-km-na-am-struma-v-oblast-kyustendil.html"
+        },
+        new
+        {
+            routeCode = "A1",
+            status = SegmentStatus.Open.ToString(),
+            routeLabel = new { bg = "АМ „Тракия“", en = "A1 Trakia" },
+            publishedOn = "2026-03-04",
+            title = new
+            {
+                bg = "Ремонт в платното за Бургас на 6-и км от АМ „Тракия“",
+                en = "Repair works in the Burgas carriageway at km 6 on A1 Trakia"
+            },
+            detail = new
+            {
+                bg = "Последното официално известие на АПИ за АМ „Тракия“ въвежда временна организация за ремонт в ранния софийски участък към Бургас.",
+                en = "The latest official API Bulgaria notice for A1 Trakia introduces temporary traffic organization for repair works in the early Sofia-to-Burgas reach."
+            },
+            sourceUrl = "https://www.api.bg/bg/novini/ot-utre-5-mart-zapochva-remont-v-platnoto-za-burgas-na-6-km-ot-am-trakiya.html"
+        },
+        new
+        {
+            routeCode = "A3",
+            status = SegmentStatus.UnderConstruction.ToString(),
+            routeLabel = new { bg = "АМ „Струма“", en = "A3 Struma" },
+            publishedOn = "2026-03-06",
+            title = new
+            {
+                bg = "Обрушване на скатове в област Кюстендил",
+                en = "Slope scaling works in Kyustendil region"
+            },
+            detail = new
+            {
+                bg = "АПИ предупреждава за временни промени в организацията на движението по АМ „Струма“ заради обезопасяване на скатове.",
+                en = "API Bulgaria warns of temporary traffic changes on A3 Struma due to slope safety works."
+            },
+            sourceUrl = "https://www.api.bg/bg/novini/prez-sledvashchata-sedmitsa-za-obrushvane-na-skatove-vremenno-shche-se-promenya-organizatsiyata-na-dvizhenie-po-am-struma-v-oblast-kyustendil.html"
+        }
+    ];
+
+    private static object BuildRouteHighlight(string routeCode, LocalizedText? defaultText, int currentYear, int startYear)
+    {
+        if (string.Equals(routeCode, "A2", StringComparison.OrdinalIgnoreCase))
+        {
+            var years = Math.Max(0, currentYear - startYear);
+            return new
+            {
+                bg = $"{years} години след началото „Хемус“ остава символ на това колко важно е лотовете да бъдат завършвани навреме.",
+                en = $"{years} years after launch, Hemus remains a symbol of why motorway lots must be delivered on time."
+            };
+        }
+
+        return new
+        {
+            bg = defaultText?.Bg ?? "Стратегически коридор за национална свързаност.",
+            en = defaultText?.En ?? "Strategic corridor for national connectivity."
+        };
+    }
+
+    private static object[] BuildLotMilestones(RouteSegment segment, LotDescriptor lot, int currentYear)
+    {
+        var items = new List<(int Year, string Bg, string En, string State)>();
+
+        if (segment.StartYear is int startYear)
+        {
+            items.Add((startYear, "Начало на участъка", "Section baseline", "baseline"));
+        }
+
+        if (lot.IsDerived)
+        {
+            items.Add((currentYear, "Моделиран дял", "Modeled span", "info"));
+
+            return items
+                .OrderBy(item => item.Year)
+                .Select(item => new
+                {
+                    year = item.Year,
+                    label = new { bg = item.Bg, en = item.En },
+                    state = item.State
+                })
+                .ToArray();
+        }
+
+        if (lot.Status == SegmentStatus.Open)
+        {
+            items.Add((lot.ForecastOpenYear ?? currentYear, "Лотът е в експлоатация", "Lot operational", "success"));
+        }
+        else if (lot.Status == SegmentStatus.UnderConstruction)
+        {
+            items.Add((Math.Max(segment.StartYear ?? currentYear, currentYear - 2), $"Активно строителство · {lot.CompletionPercent:0}%", $"Active construction · {lot.CompletionPercent:0}%", "warning"));
+            if (lot.ForecastOpenYear is int forecastOpenYear)
+            {
+                items.Add((forecastOpenYear, "Очаквано пускане", "Expected opening", "forecast"));
+            }
+        }
+        else if (lot.Status == SegmentStatus.Planned)
+        {
+            items.Add((currentYear, "Планиране и подготовка", "Planning and preparation", "planning"));
+            if (lot.ForecastOpenYear is int forecastOpenYear)
+            {
+                items.Add((forecastOpenYear, "Целеви хоризонт", "Target horizon", "forecast"));
+            }
+        }
+
+        return items
+            .OrderBy(item => item.Year)
+            .Select(item => new
+            {
+                year = item.Year,
+                label = new { bg = item.Bg, en = item.En },
+                state = item.State
+            })
+            .ToArray();
+    }
+
+    private static LocalizedText DescribeLotBand(int index, int count) => (index, count) switch
+    {
+        (0, 1) => new LocalizedText("основен лот", "main lot"),
+        (0, 2) => new LocalizedText("западен лот", "western lot"),
+        (1, 2) => new LocalizedText("източен лот", "eastern lot"),
+        (0, 3) => new LocalizedText("западен дял", "western reach"),
+        (1, 3) => new LocalizedText("централен дял", "central reach"),
+        (2, 3) => new LocalizedText("източен дял", "eastern reach"),
+        _ => new LocalizedText($"лот {index + 1}", $"lot {index + 1}")
+    };
+
+    private sealed record LotDescriptor(
+        string LotCode,
+        LocalizedText Title,
+        SegmentStatus Status,
+        double StartKm,
+        double EndKm,
+        double CompletionPercent,
+        int? ForecastOpenYear,
+        double? BudgetMillionEur,
+        string? Contractor,
+        LocalizedText? Note,
+        bool IsDerived);
+
+    private sealed record OfficialLotTemplate(
+        string Code,
+        string TitleBg,
+        string TitleEn,
+        SegmentStatus Status,
+        double LengthKm,
+        double CompletionPercent,
+        int? ForecastOpenYear,
+        double? BudgetMillionEur,
+        string? Contractor,
+        string NoteBg,
+        string NoteEn);
+}

@@ -1,0 +1,40 @@
+name: Alpha Verification
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Restore
+        run: dotnet restore Motorway.sln
+
+      - name: Run alpha verification
+        run: ./scripts/verify-alpha.sh
+
+      - name: Upload atlas artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: motorway-atlas-artifacts
+          path: |
+            exports/atlas/index.html
+            exports/atlas/bulgarian-motorway-atlas-v5.html
+            exports/atlas/network.geojson
+            exports/atlas/network-diagnostics.json
+          if-no-files-found: error

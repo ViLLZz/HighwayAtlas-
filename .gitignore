@@ -1,0 +1,36 @@
+# Build
+bin/
+obj/
+out/
+artifacts/
+
+# User-specific files
+*.user
+*.rsuser
+*.suo
+*.userprefs
+
+# IDE
+.vs/
+.vscode/
+.idea/
+
+# Rider
+*.DotSettings.user
+
+# Test / coverage
+TestResults/
+coverage/
+*.coverage
+*.coveragexml
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Generated exports
+exports/

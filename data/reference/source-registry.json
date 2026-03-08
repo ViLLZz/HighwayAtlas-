@@ -1,0 +1,47 @@
+{
+  "capturedAt": "2026-03-07",
+  "sources": [
+    {
+      "name": "API Bulgaria home",
+      "url": "https://www.api.bg/",
+      "type": "official-homepage",
+      "purpose": "agency entrypoint, news, bulletin links, live road situation references"
+    },
+    {
+      "name": "API Bulgaria road bulletin 2026-03-07 17:30",
+      "url": "https://www.api.bg/bg/byuletin-ptna-obstanovka/07-03-2026-17-30.html",
+      "type": "official-bulletin",
+      "purpose": "temporary restrictions and motorway condition snapshot"
+    },
+    {
+      "name": "API Bulgaria Trakia repair notice",
+      "url": "https://www.api.bg/bg/novini/ot-utre-5-mart-zapochva-remont-v-platnoto-za-burgas-na-6-km-ot-am-trakiya.html",
+      "type": "official-news",
+      "purpose": "route-specific temporary works and forecast timing"
+    },
+    {
+      "name": "API Bulgaria Struma tunnel Zheleznitsa notice",
+      "url": "https://www.api.bg/bg/novini/na-11-i-12-mart-shche-se-ogranichi-dvizhenieto-v-tunel-zheleznitsa-na-am-struma-za-testvane-i-profilaktika-na-sistemata-za-upravlenie-na-suoruzhenieto.html",
+      "type": "official-news",
+      "purpose": "route-specific operational restrictions and diversions"
+    },
+    {
+      "name": "LIMA dashboard entrypoint",
+      "url": "https://lima.api.bg/dashboard",
+      "type": "official-dashboard",
+      "purpose": "live operational road situation reference"
+    },
+    {
+      "name": "Magistrala Hemus public lot tracker",
+      "url": "https://magistralahemus.bg/",
+      "type": "secondary-reference",
+      "purpose": "Hemus lot naming, public progress storytelling, and section breakdown cross-check"
+    }
+  ],
+  "notes": [
+    "Current atlas geometry is still seeded/model-driven.",
+    "Official notices are suitable for provenance and temporary traffic context.",
+    "magistralahemus.bg is treated as a secondary non-official reference.",
+    "Pinpoint lot geometry accuracy requires structured official GIS or per-lot API data."
+  ]
+}
