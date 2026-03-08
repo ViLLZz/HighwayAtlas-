@@ -1479,16 +1479,15 @@ public static class HtmlAtlasExporter
         }
 
         body.device-tablet .map-stage {
-            grid-template-columns: minmax(234px, 268px) minmax(0, 1fr);
+            grid-template-columns: minmax(212px, 236px) minmax(0, 1fr);
             grid-template-areas:
-                "banner banner"
                 "quick quick"
                 "surface map"
-                "selection map";
+                "surface map";
             align-items: start;
-            gap: 12px;
-            padding: 14px;
-            min-height: min(860px, calc(var(--app-height) - 168px));
+            gap: 10px;
+            padding: 12px;
+            min-height: min(860px, calc(var(--app-height) - 148px));
         }
 
         body.device-tablet .map-stage-quickbar {
@@ -1497,7 +1496,7 @@ public static class HtmlAtlasExporter
         }
 
         body.device-tablet .profile-banner {
-            grid-area: banner;
+            display: none;
         }
 
         body.device-tablet .map-stage-quickbar,
@@ -1510,42 +1509,35 @@ public static class HtmlAtlasExporter
             display: grid;
             grid-area: surface;
             gap: 8px;
-            max-height: calc(var(--app-height) - 250px);
+            overflow: visible;
+            max-height: none;
+            padding-bottom: 0;
         }
 
         body.device-tablet .tablet-scroll-cue {
-            display: flex;
-            justify-content: center;
-            position: sticky;
-            bottom: 0;
-            z-index: 5;
-            pointer-events: none;
-            padding: 10px 4px 2px;
-            margin-top: -2px;
-            background: linear-gradient(180deg, rgba(8, 19, 30, 0), rgba(8, 19, 30, 0.7) 45%, rgba(8, 19, 30, 0.95));
-            opacity: 0;
-            transform: translateY(6px);
-            transition: opacity .18s ease, transform .18s ease;
-        }
-
-        body.device-tablet .tablet-control-surface.show-scroll-cue .tablet-scroll-cue {
-            opacity: 1;
-            transform: translateY(0);
+            display: none;
         }
 
         body.device-tablet .tablet-surface-summary,
         body.device-tablet .tablet-control-card,
         body.device-tablet .tablet-playback-card {
-            padding: 10px 11px;
-            border-radius: 15px;
+            padding: 8px 9px;
+            border-radius: 14px;
         }
 
         body.device-tablet .tablet-surface-heading h3 {
-            font-size: 17px;
+            font-size: 15px;
         }
 
         body.device-tablet .tablet-surface-summary strong {
-            font-size: clamp(24px, 2.7vw, 30px);
+            font-size: clamp(22px, 2.3vw, 26px);
+        }
+
+        body.device-tablet .tablet-surface-heading .helper,
+        body.device-tablet .tablet-summary-band .row,
+        body.device-tablet .progress-track,
+        body.device-tablet #tablet-generated-pill {
+            display: none;
         }
 
         body.device-tablet .tablet-kpi-ribbon {
@@ -1582,8 +1574,8 @@ public static class HtmlAtlasExporter
 
         body.device-tablet .tablet-control-card .toggle.stage-toggle {
             min-height: 34px;
-            min-width: 98px;
-            padding: 6px 8px;
+            min-width: 92px;
+            padding: 5px 7px;
         }
 
         body.device-tablet .tablet-control-card .toggle.stage-toggle .label-stack strong {
@@ -1600,21 +1592,25 @@ public static class HtmlAtlasExporter
             gap: 6px;
         }
 
-        body.device-tablet .tablet-map-preset-grid {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 6px;
+        body.device-tablet .tablet-playback-card {
+            padding-bottom: 7px;
         }
 
-        body.device-tablet .tablet-map-preset-grid .map-preset {
-            min-height: 42px;
-            padding: 6px 7px;
+        body.device-tablet .tablet-playback-card .card-head,
+        body.device-tablet .tablet-playback-card .playback-meta {
+            margin-bottom: 6px;
         }
 
-        body.device-tablet .tablet-map-preset-grid .map-preset strong {
+        body.device-tablet .tablet-playback-card .playback-km-wrap {
+            margin-top: 6px;
+            height: 16px;
+        }
+
+        body.device-tablet .tablet-playback-card .playback-km-label {
             font-size: 10px;
         }
 
-        body.device-tablet .tablet-map-preset-grid .map-preset span {
+        body.device-tablet .tablet-surface-tools {
             display: none;
         }
 
@@ -1626,10 +1622,15 @@ public static class HtmlAtlasExporter
 
         body.device-tablet .floating-top-right {
             grid-area: selection;
-            order: initial;
-            max-height: 170px;
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            width: min(252px, 34%);
+            z-index: 4;
+            max-height: 164px;
             overflow: auto;
             padding: 10px 11px 12px;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 18px 40px rgba(0,0,0,0.22);
         }
 
         body.device-tablet .floating-top-right.passive {
@@ -1640,7 +1641,7 @@ public static class HtmlAtlasExporter
             grid-area: map;
             order: initial;
             height: 100%;
-            min-height: 780px;
+            min-height: 812px;
         }
 
         body.device-tablet .route-pills {
@@ -3461,7 +3462,7 @@ public static class HtmlAtlasExporter
             minZoom: 6.9,
             zoomAnimationThreshold: 4,
             wheelPxPerZoomLevel: 120,
-            maxBoundsViscosity: 1.0,
+            maxBoundsViscosity: 0.28,
             markerZoomAnimation: false,
             renderer: pathRenderer
         });
@@ -3483,7 +3484,7 @@ public static class HtmlAtlasExporter
         map.on('movestart', () => setMapGestureLock(true));
         map.on('moveend', () => setMapGestureLock(false));
 
-        map.setMaxBounds([[41.05, 22.05], [44.35, 28.95]]);
+        map.setMaxBounds([[40.55, 21.45], [44.85, 29.65]]);
 
         let basemapLayer = null;
     const contextLayer = L.layerGroup().addTo(map);
@@ -4065,13 +4066,16 @@ public static class HtmlAtlasExporter
         }
 
         function renderLotPopup(lot, segment) {
+            const fundingBadge = formatFunding(lot.fundingProgram || segment.fundingProgram);
+            const contractor = lot.contractor || segment.contractor || '—';
+            const sourceName = segment.officialSource?.name || t('pending');
             return `<div class="map-popup">
                 <div class="popup-header">
                     <div class="eyebrow">${t('popupOpenMap')}</div>
                     <strong>${pick(segment.routeName)} · ${lot.lotCode}</strong>
                     <div class="popup-subtitle">${pick(lot.title)}</div>
                 </div>
-                <div class="popup-menu"><span class="micro">${lot.routeCode}</span><span class="micro">${lot.lotCode}</span><span class="micro">${labelForStatus(lot.status)}</span><span class="micro">${formatLotTarget(lot)}</span></div>
+                <div class="popup-menu"><span class="micro">${lot.routeCode}</span><span class="micro">${lot.lotCode}</span><span class="micro">${labelForStatus(lot.status)}</span><span class="micro">${formatLotTarget(lot)}</span>${fundingBadge}</div>
                 <div class="detail-pills"><span class="status-pill"><span class="dot" style="background:${statusMeta[lot.status].color}"></span>${labelForStatus(lot.status)}</span><span class="audit-badge ${lot.isDerived ? '' : 'strong'}">${labelForLotAudit(lot)}</span></div>
                 <div class="progress-mini"><span style="width:${Math.max(4, Math.min(100, lot.completionPercent))}%; background:linear-gradient(90deg, ${statusMeta[lot.status].color}, #ffffff99)"></span></div>
                 <div class="popup-metrics">
@@ -4079,6 +4083,8 @@ public static class HtmlAtlasExporter
                     <div class="popup-metric"><div class="eyebrow">${t('completion')}</div><div>${formatPercent(lot.completionPercent)}</div></div>
                     <div class="popup-metric"><div class="eyebrow">${t('targetYear')}</div><div>${formatLotTarget(lot)}</div></div>
                     <div class="popup-metric"><div class="eyebrow">${t('budget')}</div><div>${formatBudget(lot.budgetMillionEur)}</div></div>
+                    <div class="popup-metric"><div class="eyebrow">${t('contractor')}</div><div>${contractor}</div></div>
+                    <div class="popup-metric"><div class="eyebrow">${t('officialRecord')}</div><div>${sourceName}</div></div>
                 </div>
                 <div class="popup-note tiny">${pick(lot.note) || pick(segment.description)}</div>
                 <div class="popup-footer">${t('popupPinnedHint')}</div>
