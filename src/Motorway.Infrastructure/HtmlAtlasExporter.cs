@@ -1619,6 +1619,194 @@ public static class HtmlAtlasExporter
             display: none;
         }
 
+        body.device-phone .workspace {
+            grid-template-columns: 1fr;
+            grid-template-areas:
+                "map"
+                "sidebar";
+            gap: 14px;
+        }
+
+        body.device-phone .map-stage {
+            display: grid;
+            grid-template-columns: 1fr;
+            grid-template-areas:
+                "quick"
+                "surface"
+                "map"
+                "selection";
+            gap: 12px;
+            padding: 12px;
+            min-height: auto;
+        }
+
+        body.device-phone .map-stage-quickbar {
+            grid-area: quick;
+            margin-bottom: 0;
+            padding: 10px;
+        }
+
+        body.device-phone .map-stage-quick-presets {
+            grid-auto-columns: minmax(132px, max-content);
+            gap: 8px;
+        }
+
+        body.device-phone .map-stage-quickbar .toggle.stage-toggle {
+            min-width: 132px;
+            min-height: 48px;
+            padding: 9px 10px;
+        }
+
+        body.device-phone .tablet-control-surface {
+            display: grid;
+            grid-area: surface;
+            gap: 8px;
+            overflow: visible;
+            max-height: none;
+            padding-bottom: 0;
+        }
+
+        body.device-phone .tablet-scroll-cue {
+            display: none !important;
+        }
+
+        body.device-phone .tablet-surface-summary,
+        body.device-phone .tablet-control-card,
+        body.device-phone .tablet-playback-card {
+            padding: 12px;
+            border-radius: 16px;
+        }
+
+        body.device-phone .tablet-surface-heading h3 {
+            font-size: 19px;
+        }
+
+        body.device-phone .tablet-surface-summary strong {
+            font-size: clamp(30px, 9vw, 38px);
+        }
+
+        body.device-phone .tablet-kpi-ribbon {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 6px;
+        }
+
+        body.device-phone .tablet-kpi-chip {
+            min-height: 54px;
+            padding: 8px;
+        }
+
+        body.device-phone .tablet-kpi-chip .value {
+            font-size: 14px;
+        }
+
+        body.device-phone .tablet-control-cluster,
+        body.device-phone .tablet-surface-lower,
+        body.device-phone .tablet-surface-tools {
+            grid-template-columns: 1fr;
+            gap: 8px;
+        }
+
+        body.device-phone .tablet-control-card .filter-row {
+            display: grid;
+            grid-auto-flow: column;
+            grid-auto-columns: max-content;
+            overflow-x: auto;
+            overscroll-behavior-x: contain;
+            scrollbar-width: none;
+            gap: 8px;
+        }
+
+        body.device-phone .tablet-control-card .filter-row::-webkit-scrollbar {
+            display: none;
+        }
+
+        body.device-phone .tablet-control-card .toggle.stage-toggle {
+            min-height: 38px;
+            min-width: 116px;
+            padding: 8px 10px;
+        }
+
+        body.device-phone .tablet-map-preset-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 7px;
+        }
+
+        body.device-phone .tablet-map-preset-grid .map-preset {
+            min-height: 52px;
+            padding: 8px;
+        }
+
+        body.device-phone .tablet-map-preset-grid .map-preset span {
+            display: none;
+        }
+
+        body.device-phone #map {
+            grid-area: map;
+            min-height: 56vh;
+            height: min(62vh, 620px);
+        }
+
+        body.device-phone .floating-top-left,
+        body.device-phone .floating-bottom-right,
+        body.device-phone .floating-bottom-left {
+            display: none;
+        }
+
+        body.device-phone .floating-top-right {
+            grid-area: selection;
+            max-height: none;
+            overflow: visible;
+            padding: 13px;
+        }
+
+        body.device-phone .floating-top-right.passive {
+            display: none;
+        }
+
+        body.device-phone .sidebar {
+            padding: 0;
+            gap: 12px;
+            background: transparent;
+            border: 0;
+            box-shadow: none;
+            backdrop-filter: none;
+        }
+
+        body.device-phone .sidebar-scroll {
+            gap: 12px;
+        }
+
+        body.device-phone .tablet-info-tabs {
+            display: grid;
+        }
+
+        body.device-phone #summary-panel,
+        body.device-phone #filters-panel,
+        body.device-phone .headline-strip {
+            display: none;
+        }
+
+        body.device-phone .topbar {
+            padding: 12px;
+            gap: 10px;
+            border-radius: 20px;
+        }
+
+        body.device-phone .brand h1 {
+            font-size: clamp(22px, 7vw, 28px);
+        }
+
+        body.device-phone .route-pills {
+            gap: 8px;
+            padding: 7px;
+        }
+
+        body.device-phone .route-pill {
+            min-width: 124px;
+            min-height: 52px;
+            padding: 10px 11px;
+        }
+
         body.device-tablet .sidebar {
             padding: 0;
             gap: 14px;
@@ -3191,8 +3379,11 @@ public static class HtmlAtlasExporter
         function getDeviceProfile() {
             const width = window.innerWidth || 1280;
             const height = window.innerHeight || 900;
+            const shortEdge = Math.min(width, height);
             const coarsePointer = window.matchMedia('(pointer: coarse)').matches;
 
+            // Keep iPhone landscape in the phone profile to avoid loading tablet cockpit density.
+            if (shortEdge <= 520) return 'phone';
             if (width <= 760) return 'phone';
             if (coarsePointer || width <= 1366) return 'tablet';
             return 'desktop';
