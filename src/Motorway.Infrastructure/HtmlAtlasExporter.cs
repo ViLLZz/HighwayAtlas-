@@ -106,6 +106,11 @@ public static class HtmlAtlasExporter
             padding: var(--shell-padding-top) var(--shell-padding-right) var(--shell-padding-bottom) var(--shell-padding);
         }
 
+        body.map-gesture-active {
+            overflow: hidden;
+            overscroll-behavior: none;
+        }
+
         .shell {
             display: grid;
             gap: 22px;
@@ -1208,6 +1213,9 @@ public static class HtmlAtlasExporter
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 20px 50px rgba(0, 0, 0, 0.27);
             transform: translateZ(0);
             isolation: isolate;
+            touch-action: none;
+            -webkit-user-select: none;
+            user-select: none;
         }
 
         .floating-card {
@@ -2339,6 +2347,9 @@ public static class HtmlAtlasExporter
             background: linear-gradient(180deg, #0b1524 0%, #0d1b2d 100%);
             font-family: var(--body-font);
             transform: translateZ(0);
+            touch-action: none;
+            -webkit-user-select: none;
+            user-select: none;
         }
 
         .leaflet-pane.leaflet-tile-pane img {
@@ -2736,6 +2747,17 @@ public static class HtmlAtlasExporter
 
         <div class="workspace">
             <section class="map-stage">
+                <section class="profile-banner" aria-label="Device profile summary">
+                    <div class="profile-banner-copy">
+                        <div class="eyebrow" id="profile-eyebrow"></div>
+                        <div class="profile-banner-title" id="profile-title"></div>
+                        <div class="helper" id="profile-copy"></div>
+                    </div>
+                    <div class="profile-badge-row">
+                        <span class="profile-badge accent" id="profile-device-badge"></span>
+                        <span class="profile-badge" id="profile-focus-badge"></span>
+                    </div>
+                </section>
                 <section class="map-stage-quickbar" aria-label="Stage filters">
                     <div class="toggle-group-label" id="stage-quick-label"></div>
                     <div class="map-stage-quick-presets" id="stage-quick-presets"></div>
@@ -2984,6 +3006,29 @@ public static class HtmlAtlasExporter
             <strong id="legal-title"></strong>
             <div class="tiny" id="legal-copy" style="margin-top:6px"></div>
         </footer>
+
+        <nav class="phone-action-dock" aria-label="Phone action dock">
+            <button type="button" class="phone-action" id="phone-action-facts">
+                <span class="phone-action-key" id="phone-action-facts-label"></span>
+                <span class="phone-action-value" id="phone-action-facts-value"></span>
+            </button>
+            <button type="button" class="phone-action" id="phone-action-notes">
+                <span class="phone-action-key" id="phone-action-notes-label"></span>
+                <span class="phone-action-value" id="phone-action-notes-value"></span>
+            </button>
+            <button type="button" class="phone-action" id="phone-action-routes">
+                <span class="phone-action-key" id="phone-action-routes-label"></span>
+                <span class="phone-action-value" id="phone-action-routes-value"></span>
+            </button>
+            <button type="button" class="phone-action" id="phone-action-lots">
+                <span class="phone-action-key" id="phone-action-lots-label"></span>
+                <span class="phone-action-value" id="phone-action-lots-value"></span>
+            </button>
+            <button type="button" class="phone-action" id="phone-action-reset">
+                <span class="phone-action-key" id="phone-action-reset-label"></span>
+                <span class="phone-action-value" id="phone-action-reset-value"></span>
+            </button>
+        </nav>
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
@@ -3134,6 +3179,21 @@ public static class HtmlAtlasExporter
                 atlasBuild: 'български атлас',
                 languageLabel: 'Език',
                 mapStyle: 'Карта',
+                profileEyebrow: 'Профил на устройството',
+                profileDesktop: 'Mac / Desktop режим',
+                profileTablet: 'iPad режим',
+                profilePhone: 'iPhone режим',
+                profileDesktopCopy: 'Широк инфографски режим с команден център, по-големи панели и редакционен ритъм.',
+                profileTabletCopy: 'Картата е водеща, а контролите са сведени до компактен страничен гръбнак за бърза работа.',
+                profilePhoneCopy: 'Слоевете са подредени за палец и бързи превключвания без визуален шум.',
+                profileFocusAll: 'Цялата мрежа',
+                profileFocusRoute: 'Активен маршрут',
+                phoneFacts: 'Факти',
+                phoneNotes: 'Бележки',
+                phoneRoutes: 'Маршрути',
+                phoneLots: 'Лотове',
+                phoneReset: 'Нулирай',
+                phoneResetHint: 'Изглед',
                 clearSelection: 'Изчисти избора',
                 resetView: 'Нулирай изгледа',
                 focusHintTitle: 'Изберете от картата',
@@ -3295,6 +3355,21 @@ public static class HtmlAtlasExporter
                 atlasBuild: 'Bulgarian atlas build',
                 languageLabel: 'Language',
                 mapStyle: 'Map',
+                profileEyebrow: 'Device profile',
+                profileDesktop: 'Mac / desktop mode',
+                profileTablet: 'iPad mode',
+                profilePhone: 'iPhone mode',
+                profileDesktopCopy: 'Wide editorial command-center mode with stronger panels and more breathing room.',
+                profileTabletCopy: 'Map-first layout with a slimmer control spine for quick scanning and touch control.',
+                profilePhoneCopy: 'Thumb-first stacked flow with quick switching and lower visual noise.',
+                profileFocusAll: 'Whole network',
+                profileFocusRoute: 'Active route',
+                phoneFacts: 'Facts',
+                phoneNotes: 'Notes',
+                phoneRoutes: 'Routes',
+                phoneLots: 'Lots',
+                phoneReset: 'Reset',
+                phoneResetHint: 'View',
                 clearSelection: 'Clear selection',
                 resetView: 'Reset view',
                 focusHintTitle: 'Select from map',
@@ -3358,6 +3433,7 @@ public static class HtmlAtlasExporter
             headlinePrimaryEyebrow: $('headline-primary-eyebrow'), headlinePrimaryTitle: $('headline-primary-title'), headlinePrimaryCopy: $('headline-primary-copy'),
             headlineSecondaryEyebrow: $('headline-secondary-eyebrow'), headlineSecondaryTitle: $('headline-secondary-title'), headlineSecondaryCopy: $('headline-secondary-copy'),
             headlineTertiaryEyebrow: $('headline-tertiary-eyebrow'), headlineTertiaryTitle: $('headline-tertiary-title'), headlineTertiaryCopy: $('headline-tertiary-copy'),
+            profileEyebrow: $('profile-eyebrow'), profileTitle: $('profile-title'), profileCopy: $('profile-copy'), profileDeviceBadge: $('profile-device-badge'), profileFocusBadge: $('profile-focus-badge'),
             routePills: $('route-pills'), languageLabel: $('language-label'), languageTabs: $('language-tabs'), basemapLabel: $('basemap-label'), basemapSelect: $('basemap-select'), mapPresetsEyebrow: $('map-presets-eyebrow'), mapPresets: $('map-presets'), desktopMapPresets: $('desktop-map-presets'), mapNote: $('map-note'),
             summaryEyebrow: $('summary-eyebrow'), summaryTitle: $('summary-title'), summarySubtitle: $('summary-subtitle'), generatedPill: $('generated-pill'), summaryKm: $('summary-km'), summaryState: $('summary-state'), summaryPercent: $('summary-percent'), summaryProgress: $('summary-progress'),
             tabletSurfaceEyebrow: $('tablet-surface-eyebrow'), tabletSummaryTitle: $('tablet-summary-title'), tabletSummarySubtitle: $('tablet-summary-subtitle'), tabletGeneratedPill: $('tablet-generated-pill'), tabletSummaryKm: $('tablet-summary-km'), tabletSummaryState: $('tablet-summary-state'), tabletSummaryPercent: $('tablet-summary-percent'), tabletSummaryProgress: $('tablet-summary-progress'), tabletSummaryKpis: $('tablet-summary-kpis'),
@@ -3372,6 +3448,7 @@ public static class HtmlAtlasExporter
             heroEyebrow: $('hero-eyebrow'), heroTitle: $('hero-title'), heroSubtitle: $('hero-subtitle'), heroFocus: $('hero-focus'), heroStats: $('hero-stats'), mapStage: document.querySelector('.map-stage'), selectionPanel: $('selection-panel'),
             selectionEyebrow: $('selection-eyebrow'), selectionTitle: $('selection-title'), selectionSubtitle: $('selection-subtitle'), selectionClear: $('selection-clear'), selectionStatus: $('selection-status'), selectionPills: $('selection-pills'), selectionFacts: $('selection-facts'), selectionNote: $('selection-note'),
             legalEyebrow: $('legal-eyebrow'), legalTitle: $('legal-title'), legalCopy: $('legal-copy'),
+            phoneActionFacts: $('phone-action-facts'), phoneActionFactsLabel: $('phone-action-facts-label'), phoneActionFactsValue: $('phone-action-facts-value'), phoneActionNotes: $('phone-action-notes'), phoneActionNotesLabel: $('phone-action-notes-label'), phoneActionNotesValue: $('phone-action-notes-value'), phoneActionRoutes: $('phone-action-routes'), phoneActionRoutesLabel: $('phone-action-routes-label'), phoneActionRoutesValue: $('phone-action-routes-value'), phoneActionLots: $('phone-action-lots'), phoneActionLotsLabel: $('phone-action-lots-label'), phoneActionLotsValue: $('phone-action-lots-value'), phoneActionReset: $('phone-action-reset'), phoneActionResetLabel: $('phone-action-reset-label'), phoneActionResetValue: $('phone-action-reset-value'),
             timelineEyebrow: $('timeline-eyebrow'), timelineTitle: $('timeline-title'), timeline: $('timeline'), legend: $('legend'), desktopLegend: $('desktop-legend'), tabletLegend: $('tablet-legend'), tabletLegendLabel: $('tablet-legend-label'), tabletMapPresets: $('tablet-map-presets'), tabletMapPresetsLabel: $('tablet-map-presets-label')
         };
 
@@ -3388,6 +3465,23 @@ public static class HtmlAtlasExporter
             markerZoomAnimation: false,
             renderer: pathRenderer
         });
+
+        const mapContainer = map.getContainer();
+        L.DomEvent.disableClickPropagation(mapContainer);
+        L.DomEvent.disableScrollPropagation(mapContainer);
+
+        function setMapGestureLock(isActive) {
+            if (getDeviceProfile() === 'desktop') return;
+            document.body.classList.toggle('map-gesture-active', isActive);
+        }
+
+        mapContainer.addEventListener('touchstart', event => {
+            if (event.touches.length > 0) setMapGestureLock(true);
+        }, { passive: true });
+        mapContainer.addEventListener('touchend', () => setMapGestureLock(false), { passive: true });
+        mapContainer.addEventListener('touchcancel', () => setMapGestureLock(false), { passive: true });
+        map.on('movestart', () => setMapGestureLock(true));
+        map.on('moveend', () => setMapGestureLock(false));
 
         map.setMaxBounds([[41.05, 22.05], [44.35, 28.95]]);
 
@@ -3557,8 +3651,12 @@ public static class HtmlAtlasExporter
 
         function syncDeviceProfile() {
             const profile = getDeviceProfile();
-            const height = window.innerHeight || 900;
+            const visualViewport = window.visualViewport;
+            const height = Math.round(visualViewport?.height ?? window.innerHeight ?? 900);
             const isShortViewport = height < 980;
+
+            document.documentElement.style.setProperty('--app-height', `${height}px`);
+            document.documentElement.style.setProperty('--visual-viewport-height', `${height}px`);
 
             document.body.classList.toggle('device-desktop', profile === 'desktop');
             document.body.classList.toggle('device-tablet', profile === 'tablet');
@@ -3573,12 +3671,69 @@ public static class HtmlAtlasExporter
             renderFrame = null;
             renderToolbar();
             renderHeadlineStrip();
+            renderProfileBanner();
             renderSidebar();
             renderHero();
             renderSelection();
             renderLegend();
             renderMap();
+            renderPhoneActionDock();
             updateTabletSurfaceScrollCue();
+        }
+
+        function renderProfileBanner() {
+            const profile = getDeviceProfile();
+            const selectedRoute = atlas.routes.find(route => route.routeCode === state.activeRoute) || null;
+
+            if (el.profileEyebrow) el.profileEyebrow.textContent = t('profileEyebrow');
+            if (el.profileTitle) {
+                el.profileTitle.textContent = profile === 'desktop'
+                    ? t('profileDesktop')
+                    : profile === 'tablet'
+                        ? t('profileTablet')
+                        : t('profilePhone');
+            }
+            if (el.profileCopy) {
+                el.profileCopy.textContent = profile === 'desktop'
+                    ? t('profileDesktopCopy')
+                    : profile === 'tablet'
+                        ? t('profileTabletCopy')
+                        : t('profilePhoneCopy');
+            }
+            if (el.profileDeviceBadge) el.profileDeviceBadge.textContent = profile.toUpperCase();
+            if (el.profileFocusBadge) {
+                el.profileFocusBadge.textContent = selectedRoute
+                    ? `${t('profileFocusRoute')} · ${selectedRoute.routeCode}`
+                    : t('profileFocusAll');
+            }
+        }
+
+        function renderPhoneActionDock() {
+            const metrics = computeMetrics();
+            const isPhone = getDeviceProfile() === 'phone';
+            const tabs = [
+                { button: el.phoneActionFacts, label: el.phoneActionFactsLabel, value: el.phoneActionFactsValue, key: 'facts', title: t('phoneFacts'), metric: `${metrics.segmentCount}` },
+                { button: el.phoneActionNotes, label: el.phoneActionNotesLabel, value: el.phoneActionNotesValue, key: 'notes', title: t('phoneNotes'), metric: `${atlas.summary.officialReferencePercent.toFixed(0)}%` },
+                { button: el.phoneActionRoutes, label: el.phoneActionRoutesLabel, value: el.phoneActionRoutesValue, key: 'routes', title: t('phoneRoutes'), metric: `${metrics.routeCount}` },
+                { button: el.phoneActionLots, label: el.phoneActionLotsLabel, value: el.phoneActionLotsValue, key: 'lots', title: t('phoneLots'), metric: `${metrics.lotCount}` }
+            ];
+
+            tabs.forEach(item => {
+                if (!item.button) return;
+                if (item.label) item.label.textContent = item.title;
+                if (item.value) item.value.textContent = item.metric;
+                item.button.classList.toggle('active', isPhone && state.tabletInfoTab === item.key);
+                item.button.onclick = () => {
+                    state.tabletInfoTab = item.key;
+                    render();
+                };
+            });
+
+            if (el.phoneActionReset && el.phoneActionResetLabel && el.phoneActionResetValue) {
+                el.phoneActionResetLabel.textContent = t('phoneReset');
+                el.phoneActionResetValue.textContent = t('phoneResetHint');
+                el.phoneActionReset.onclick = () => clearInteractiveContext();
+            }
         }
 
         function updateTabletSurfaceScrollCue() {
@@ -4498,7 +4653,7 @@ public static class HtmlAtlasExporter
                     };
                 }
                 if (item.panel) {
-                    item.panel.hidden = document.body.classList.contains('device-tablet') && state.tabletInfoTab !== item.key;
+                    item.panel.hidden = (document.body.classList.contains('device-tablet') || document.body.classList.contains('device-phone')) && state.tabletInfoTab !== item.key;
                 }
             });
         }

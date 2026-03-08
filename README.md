@@ -21,6 +21,18 @@ The current production output focuses on a polished atlas release that is easier
 - 🏛️ Separate official records and secondary narrative references per section
 - 🧪 Source-coverage controls to isolate verified, mixed, and modeled sections
 - 🌍 BG/EN language switch in the same interface
+- 📲 A `v3.7` device-runtime pass that is actively tuning Mac, iPad, and iPhone Safari behavior as distinct product profiles
+
+## v3.7 Cross-Device Direction
+
+The atlas is now moving into a `v3.7` release line focused on making the experience feel intentionally designed on every major Apple device class:
+
+- Mac / desktop keeps a wider editorial command-center layout
+- iPad prioritizes a larger map with a slimmer control spine and compact infographic navigation
+- iPhone uses a thumb-first stacked flow with lower interface clutter and quicker panel switching
+- iOS Safari viewport changes are being hardened so map framing and gesture behavior stay stable during toolbar collapse, scrolling, and orientation changes
+
+The working plan for this release is documented in `docs/v3.7-cross-device-master-plan.md`.
 
 ---
 
