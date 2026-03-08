@@ -773,6 +773,38 @@ public static class HtmlAtlasExporter
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 12px 24px rgba(3, 10, 18, 0.18);
         }
 
+        .desktop-map-dock {
+            display: none;
+            position: relative;
+            z-index: 3;
+            gap: 12px;
+            padding: 12px 14px;
+            border-radius: 18px;
+            border: 1px solid rgba(136, 172, 229, 0.16);
+            background: linear-gradient(180deg, rgba(9, 18, 31, 0.92), rgba(6, 12, 23, 0.88));
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), var(--shadow-soft);
+            backdrop-filter: blur(18px) saturate(1.08);
+            align-items: center;
+        }
+
+        .desktop-map-dock-main {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 10px;
+            flex: 1 1 auto;
+        }
+
+        .desktop-map-dock .legend {
+            justify-content: flex-end;
+            flex: 0 0 auto;
+            max-width: 44%;
+        }
+
+        .desktop-map-dock .legend .status-pill {
+            min-height: 38px;
+            padding: 8px 12px;
+        }
+
         .map-stage::before {
             content: "";
             position: absolute;
@@ -962,11 +994,24 @@ public static class HtmlAtlasExporter
             display: grid;
             grid-template-columns: minmax(0, 1fr) minmax(284px, 318px);
             grid-template-areas:
+                "quick quick"
+                "dock dock"
                 "map map"
                 "hero selection"
-                "tools timeline";
+                "timeline timeline";
             align-items: start;
             gap: 16px;
+        }
+
+        body.device-desktop:not(.viewport-short) .map-stage-quickbar {
+            display: grid;
+            grid-area: quick;
+            margin-bottom: 0;
+        }
+
+        body.device-desktop:not(.viewport-short) .desktop-map-dock {
+            display: flex;
+            grid-area: dock;
         }
 
         body.device-desktop:not(.viewport-short) #map {
@@ -991,8 +1036,7 @@ public static class HtmlAtlasExporter
         }
 
         body.device-desktop:not(.viewport-short) .floating-bottom-left {
-            grid-area: tools;
-            width: auto;
+            display: none;
         }
 
         body.device-desktop:not(.viewport-short) .floating-bottom-right {
@@ -1457,29 +1501,72 @@ public static class HtmlAtlasExporter
         .leaflet-control-attribution { background: rgba(8, 14, 25, 0.74); color: var(--muted); }
 
         .atlas-popup-card .leaflet-popup-content {
-            margin: 14px 14px 16px;
+            margin: 12px 12px 13px;
+        }
+
+        .atlas-popup-card .leaflet-popup-content-wrapper {
+            border-radius: 20px;
+            min-width: 0;
         }
 
         .atlas-popup-card .leaflet-popup-close-button {
-            color: #dceaff;
-            opacity: .75;
-            top: 8px;
-            right: 8px;
+            color: #e6f0ff;
+            opacity: .86;
+            top: 10px;
+            right: 10px;
+            width: 28px;
+            height: 28px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.06);
+            line-height: 28px;
+            text-align: center;
         }
 
         .atlas-popup-card .leaflet-popup-close-button:hover {
             opacity: 1;
+            background: rgba(255,255,255,0.1);
         }
 
         .map-popup {
-            min-width: 270px;
+            min-width: 236px;
+            max-width: 292px;
             display: grid;
-            gap: 12px;
+            gap: 10px;
         }
 
         .map-popup strong {
-            font-size: 15px;
+            font-size: 14px;
             letter-spacing: -.02em;
+        }
+
+        .popup-header {
+            display: grid;
+            gap: 5px;
+            padding-right: 24px;
+        }
+
+        .popup-subtitle {
+            color: rgba(219, 231, 247, 0.72);
+            font-size: 11px;
+            line-height: 1.4;
+        }
+
+        .popup-metrics {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 7px;
+        }
+
+        .popup-metric {
+            padding: 9px 10px;
+            border-radius: 12px;
+            border: 1px solid rgba(120,154,211,0.14);
+            background: rgba(255,255,255,0.035);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
+        }
+
+        .popup-metric .eyebrow {
+            margin-bottom: 3px;
         }
 
         .popup-grid {
@@ -1508,10 +1595,17 @@ public static class HtmlAtlasExporter
         }
 
         .popup-note {
-            padding: 10px 12px;
+            padding: 9px 11px;
             border-radius: 12px;
-            background: rgba(255,255,255,0.04);
-            border: 1px solid rgba(136, 172, 229, 0.12);
+            background: rgba(255,255,255,0.035);
+            border: 1px solid rgba(136, 172, 229, 0.1);
+        }
+
+        .popup-footer {
+            font-size: 11px;
+            color: rgba(219, 231, 247, 0.68);
+            border-top: 1px solid rgba(255,255,255,0.06);
+            padding-top: 9px;
         }
 
         .official-list {
@@ -1574,6 +1668,10 @@ public static class HtmlAtlasExporter
             }
             .map-stage-quickbar {
                 display: grid;
+            }
+
+            .desktop-map-dock {
+                display: none;
             }
             :root {
                 --map-height: min(72vh, 760px);
@@ -1757,6 +1855,10 @@ public static class HtmlAtlasExporter
                 <section class="map-stage-quickbar" aria-label="Stage filters">
                     <div class="toggle-group-label" id="stage-quick-label"></div>
                     <div class="map-stage-quick-presets" id="stage-quick-presets"></div>
+                </section>
+                <section class="desktop-map-dock" aria-label="Desktop map controls">
+                    <div class="desktop-map-dock-main" id="desktop-map-presets"></div>
+                    <div class="legend" id="desktop-legend"></div>
                 </section>
                 <div id="map"></div>
                 <div class="year-overlay" id="year-overlay"><span id="year-overlay-year"></span><span class="year-km-sub" id="year-overlay-km"></span></div>
@@ -2055,6 +2157,7 @@ public static class HtmlAtlasExporter
                 auditedLots: 'лота са с ръчно въведени дължини',
                 derivedLots: 'лотове с производни дължини',
                 popupOpenMap: 'Детайл на картата',
+                popupPinnedHint: 'Можете да затворите този прозорец и изборът ще остане в панела вдясно.',
                 segmentLots: 'Лотове в участъка',
                 officialFeed: 'Официални известия',
                 statusWindow: 'Статус прозорец',
@@ -2207,6 +2310,7 @@ public static class HtmlAtlasExporter
                 auditedLots: 'lots use hand-entered lengths',
                 derivedLots: 'lots with derived lengths',
                 popupOpenMap: 'Map detail',
+                popupPinnedHint: 'You can close this card and keep the selection in the right-hand panel.',
                 segmentLots: 'Lots in section',
                 officialFeed: 'Official updates',
                 statusWindow: 'Status window',
@@ -2277,7 +2381,7 @@ public static class HtmlAtlasExporter
             headlinePrimaryEyebrow: $('headline-primary-eyebrow'), headlinePrimaryTitle: $('headline-primary-title'), headlinePrimaryCopy: $('headline-primary-copy'),
             headlineSecondaryEyebrow: $('headline-secondary-eyebrow'), headlineSecondaryTitle: $('headline-secondary-title'), headlineSecondaryCopy: $('headline-secondary-copy'),
             headlineTertiaryEyebrow: $('headline-tertiary-eyebrow'), headlineTertiaryTitle: $('headline-tertiary-title'), headlineTertiaryCopy: $('headline-tertiary-copy'),
-            routePills: $('route-pills'), languageLabel: $('language-label'), languageTabs: $('language-tabs'), basemapLabel: $('basemap-label'), basemapSelect: $('basemap-select'), mapPresetsEyebrow: $('map-presets-eyebrow'), mapPresets: $('map-presets'), mapNote: $('map-note'),
+            routePills: $('route-pills'), languageLabel: $('language-label'), languageTabs: $('language-tabs'), basemapLabel: $('basemap-label'), basemapSelect: $('basemap-select'), mapPresetsEyebrow: $('map-presets-eyebrow'), mapPresets: $('map-presets'), desktopMapPresets: $('desktop-map-presets'), mapNote: $('map-note'),
             summaryEyebrow: $('summary-eyebrow'), summaryTitle: $('summary-title'), summarySubtitle: $('summary-subtitle'), generatedPill: $('generated-pill'), summaryKm: $('summary-km'), summaryState: $('summary-state'), summaryPercent: $('summary-percent'), summaryProgress: $('summary-progress'),
             filtersEyebrow: $('filters-eyebrow'), filtersTitle: $('filters-title'), filtersCopy: $('filters-copy'), stagePresetsLabel: $('stage-presets-label'), stagePresets: $('stage-presets'), stageQuickLabel: $('stage-quick-label'), stageQuickPresets: $('stage-quick-presets'), regionPresetsLabel: $('region-presets-label'), regionPresets: $('region-presets'), sourcePresetsLabel: $('source-presets-label'), sourcePresets: $('source-presets'), statusFiltersLabel: $('status-filters-label'), statusFilters: $('status-filters'), playbackLabel: $('playback-label'), playbackButton: $('playback-button'), playbackYearLabel: $('playback-year-label'), playbackRangeLabel: $('playback-range-label'), playbackRange: $('playback-range'), yearOverlay: $('year-overlay'), yearOverlayYear: $('year-overlay-year'), yearOverlayKm: $('year-overlay-km'), playbackKmFill: $('playback-km-fill'), playbackKmLabel: $('playback-km-label'),
             networkEyebrow: $('network-eyebrow'), networkTitle: $('network-title'), sidebarKpis: $('sidebar-kpis'),
@@ -2287,7 +2391,7 @@ public static class HtmlAtlasExporter
             heroEyebrow: $('hero-eyebrow'), heroTitle: $('hero-title'), heroSubtitle: $('hero-subtitle'), heroFocus: $('hero-focus'), heroStats: $('hero-stats'), mapStage: document.querySelector('.map-stage'), selectionPanel: $('selection-panel'),
             selectionEyebrow: $('selection-eyebrow'), selectionTitle: $('selection-title'), selectionSubtitle: $('selection-subtitle'), selectionClear: $('selection-clear'), selectionStatus: $('selection-status'), selectionPills: $('selection-pills'), selectionFacts: $('selection-facts'), selectionNote: $('selection-note'),
             legalEyebrow: $('legal-eyebrow'), legalTitle: $('legal-title'), legalCopy: $('legal-copy'),
-            timelineEyebrow: $('timeline-eyebrow'), timelineTitle: $('timeline-title'), timeline: $('timeline'), legend: $('legend')
+            timelineEyebrow: $('timeline-eyebrow'), timelineTitle: $('timeline-title'), timeline: $('timeline'), legend: $('legend'), desktopLegend: $('desktop-legend')
         };
 
         const pathRenderer = L.canvas({ padding: 0.55, tolerance: 5 });
@@ -2778,23 +2882,22 @@ public static class HtmlAtlasExporter
 
         function renderLotPopup(lot, segment) {
             return `<div class="map-popup">
-                <div>
+                <div class="popup-header">
                     <div class="eyebrow">${t('popupOpenMap')}</div>
                     <strong>${pick(segment.routeName)} · ${lot.lotCode}</strong>
-                    <div class="tiny" style="margin-top:6px">${pick(lot.title)}</div>
+                    <div class="popup-subtitle">${pick(lot.title)}</div>
                 </div>
                 <div class="popup-menu"><span class="micro">${lot.routeCode}</span><span class="micro">${lot.lotCode}</span><span class="micro">${labelForStatus(lot.status)}</span><span class="micro">${formatLotTarget(lot)}</span></div>
                 <div class="detail-pills"><span class="status-pill"><span class="dot" style="background:${statusMeta[lot.status].color}"></span>${labelForStatus(lot.status)}</span><span class="audit-badge ${lot.isDerived ? '' : 'strong'}">${labelForLotAudit(lot)}</span></div>
                 <div class="progress-mini"><span style="width:${Math.max(4, Math.min(100, lot.completionPercent))}%; background:linear-gradient(90deg, ${statusMeta[lot.status].color}, #ffffff99)"></span></div>
-                <div class="popup-grid">
-                    <div class="popup-chip"><div class="eyebrow">${t('length')}</div><div>${lot.startKm.toFixed(1)}–${lot.endKm.toFixed(1)} km</div></div>
-                    <div class="popup-chip"><div class="eyebrow">${t('completion')}</div><div>${formatPercent(lot.completionPercent)}</div></div>
-                    <div class="popup-chip"><div class="eyebrow">${t('targetYear')}</div><div>${formatLotTarget(lot)}</div></div>
-                    <div class="popup-chip"><div class="eyebrow">${t('budget')}</div><div>${formatBudget(lot.budgetMillionEur)}</div></div>
-                    <div class="popup-chip"><div class="eyebrow">${t('contractor')}</div><div>${lot.contractor || t('pending')}</div></div>
-                    <div class="popup-chip"><div class="eyebrow">${t('officialRecord')}</div><div>${segment.officialSource?.name || t('pending')}</div></div>
+                <div class="popup-metrics">
+                    <div class="popup-metric"><div class="eyebrow">${t('length')}</div><div>${lot.startKm.toFixed(1)}–${lot.endKm.toFixed(1)} km</div></div>
+                    <div class="popup-metric"><div class="eyebrow">${t('completion')}</div><div>${formatPercent(lot.completionPercent)}</div></div>
+                    <div class="popup-metric"><div class="eyebrow">${t('targetYear')}</div><div>${formatLotTarget(lot)}</div></div>
+                    <div class="popup-metric"><div class="eyebrow">${t('budget')}</div><div>${formatBudget(lot.budgetMillionEur)}</div></div>
                 </div>
                 <div class="popup-note tiny">${pick(lot.note) || pick(segment.description)}</div>
+                <div class="popup-footer">${t('popupPinnedHint')}</div>
             </div>`;
         }
 
@@ -2810,30 +2913,30 @@ public static class HtmlAtlasExporter
             const openYearStr = segment.openYear ? segment.openYear : (segment.forecastOpenYear ? `~${segment.forecastOpenYear}` : t('pending'));
             const travelTime = segment.estimatedTravelMinutes ? `${segment.estimatedTravelMinutes} min` : '—';
             const fundingBadge = formatFunding(segment.fundingProgram);
+            const visibleLots = segment.lots.slice(0, 3);
+            const hiddenLotCount = Math.max(0, segment.lots.length - visibleLots.length);
             return `<div class="map-popup">
-                <div>
+                <div class="popup-header">
                     <div class="eyebrow">${t('segmentOverview')}</div>
-                    <strong>${pick(segment.routeName)}</strong><br>
-                    <span class="tiny" style="opacity:0.7">${pick(segment.sectionName)}</span>
-                    <div class="tiny" style="margin-top:6px">${pick(segment.description)}</div>
+                    <strong>${pick(segment.routeName)}</strong>
+                    <div class="popup-subtitle">${pick(segment.sectionName)} · ${pick(segment.description)}</div>
                 </div>
                 <div class="detail-pills">
                     <span class="status-pill"><span class="dot" style="background:${statusMeta[segment.status].color}"></span>${labelForStatus(segment.status)}</span>
                     ${fundingBadge}
                     <span class="audit-badge">${labelForEvidenceGrade(segment.evidenceGrade)}</span>
                 </div>
-                <div class="popup-grid">
-                    <div class="popup-chip"><div class="eyebrow">${t('length')}</div><div>${formatKm(segment.lengthKm)}</div></div>
-                    <div class="popup-chip"><div class="eyebrow">${t('completion')}</div><div>${formatPercent(segment.completionPercent)}</div></div>
-                    <div class="popup-chip"><div class="eyebrow">${t('avgSpeed')}</div><div>${segment.maxSpeedKph ? `${segment.maxSpeedKph} km/h` : '—'}</div></div>
-                    <div class="popup-chip"><div class="eyebrow">${t('openYear')}</div><div>${openYearStr}</div></div>
-                    <div class="popup-chip"><div class="eyebrow">${t('travelTime')}</div><div>${travelTime}</div></div>
-                    <div class="popup-chip"><div class="eyebrow">${t('budget')}</div><div>${formatBudget(segment.budgetMillionEur)}</div></div>
+                <div class="popup-metrics">
+                    <div class="popup-metric"><div class="eyebrow">${t('length')}</div><div>${formatKm(segment.lengthKm)}</div></div>
+                    <div class="popup-metric"><div class="eyebrow">${t('completion')}</div><div>${formatPercent(segment.completionPercent)}</div></div>
+                    <div class="popup-metric"><div class="eyebrow">${t('avgSpeed')}</div><div>${segment.maxSpeedKph ? `${segment.maxSpeedKph} km/h` : '—'}</div></div>
+                    <div class="popup-metric"><div class="eyebrow">${t('openYear')}</div><div>${openYearStr}</div></div>
                 </div>
                 <div>
                     <div class="eyebrow">${t('segmentLots')}</div>
-                    <div class="popup-lot-list" style="margin-top:8px">${renderSegmentLotSummary(segment)}</div>
+                    <div class="popup-lot-list" style="margin-top:8px">${renderSegmentLotSummary({ ...segment, lots: visibleLots })}</div>
                 </div>
+                ${hiddenLotCount ? `<div class="popup-footer">+${hiddenLotCount} ${t('lotCount')} · ${t('popupPinnedHint')}</div>` : `<div class="popup-footer">${t('popupPinnedHint')}</div>`}
             </div>`;
         }
 
@@ -2907,16 +3010,24 @@ public static class HtmlAtlasExporter
 
         function renderMapPresets() {
             const featuredMaps = Object.entries(basemaps).filter(([, config]) => config.featured);
+            const presetMarkup = featuredMaps.map(([key, config]) => `<button type="button" class="map-preset ${state.basemap === key ? 'active' : ''}" data-map-preset="${key}"><strong>${pick(config.name)}</strong><span>${pick(config.tone)}</span></button>`).join('');
+            const bindPresetClicks = container => {
+                if (!container) return;
+                container.querySelectorAll('[data-map-preset]').forEach(node => node.addEventListener('click', () => {
+                    const presetKey = node.dataset.mapPreset;
+                    if (!presetKey || presetKey === state.basemap) return;
+                    state.basemap = presetKey;
+                    setBasemap();
+                    renderToolbar();
+                }));
+            };
+
             el.mapPresetsEyebrow.textContent = t('mapPresetsEyebrow');
             el.mapNote.textContent = t('mapNote');
-            el.mapPresets.innerHTML = featuredMaps.map(([key, config]) => `<button type="button" class="map-preset ${state.basemap === key ? 'active' : ''}" data-map-preset="${key}"><strong>${pick(config.name)}</strong><span>${pick(config.tone)}</span></button>`).join('');
-            el.mapPresets.querySelectorAll('[data-map-preset]').forEach(node => node.addEventListener('click', () => {
-                const presetKey = node.dataset.mapPreset;
-                if (!presetKey || presetKey === state.basemap) return;
-                state.basemap = presetKey;
-                setBasemap();
-                renderToolbar();
-            }));
+            el.mapPresets.innerHTML = presetMarkup;
+            if (el.desktopMapPresets) el.desktopMapPresets.innerHTML = presetMarkup;
+            bindPresetClicks(el.mapPresets);
+            bindPresetClicks(el.desktopMapPresets);
         }
 
         function renderToolbar() {
@@ -3400,12 +3511,20 @@ public static class HtmlAtlasExporter
         }
 
         function renderLegend() {
-            el.legend.innerHTML = Object.entries(statusMeta).map(([status, meta]) => `<button class="status-pill ${state.activeStatuses.has(status) ? 'active' : ''}" data-legend-status="${status}"><span class="dot" style="background:${meta.color}"></span>${labelForStatus(status)}</button>`).join('');
-            el.legend.querySelectorAll('[data-legend-status]').forEach(node => node.addEventListener('click', () => {
-                const status = node.dataset.legendStatus;
-                if (!status) return;
-                setActiveStatuses(state.activeStatuses.size === 1 && state.activeStatuses.has(status) ? ALL_STATUSES : [status]);
-            }));
+            const legendMarkup = Object.entries(statusMeta).map(([status, meta]) => `<button class="status-pill ${state.activeStatuses.has(status) ? 'active' : ''}" data-legend-status="${status}"><span class="dot" style="background:${meta.color}"></span>${labelForStatus(status)}</button>`).join('');
+            const bindLegendClicks = container => {
+                if (!container) return;
+                container.querySelectorAll('[data-legend-status]').forEach(node => node.addEventListener('click', () => {
+                    const status = node.dataset.legendStatus;
+                    if (!status) return;
+                    setActiveStatuses(state.activeStatuses.size === 1 && state.activeStatuses.has(status) ? ALL_STATUSES : [status]);
+                }));
+            };
+
+            el.legend.innerHTML = legendMarkup;
+            if (el.desktopLegend) el.desktopLegend.innerHTML = legendMarkup;
+            bindLegendClicks(el.legend);
+            bindLegendClicks(el.desktopLegend);
         }
 
         function focusDefault() {
@@ -3441,7 +3560,7 @@ public static class HtmlAtlasExporter
                 return;
             }
 
-            activePopup = L.popup({ maxWidth: 360, autoPan: true, closeButton: true, closeOnClick: false, autoClose: false, keepInView: true, className: 'atlas-popup-card' })
+            activePopup = L.popup({ maxWidth: 320, autoPan: true, closeButton: true, closeOnClick: false, autoClose: false, keepInView: true, className: 'atlas-popup-card' })
                 .setLatLng([lot.position.lat, lot.position.lon])
                 .setContent(popupHtml);
             map.openPopup(activePopup);
@@ -3450,7 +3569,7 @@ public static class HtmlAtlasExporter
         function openSegmentPopup(segment) {
             closeActivePopup();
             const anchor = segment.shape[Math.max(0, Math.floor(segment.shape.length / 2))];
-            activePopup = L.popup({ maxWidth: 360, autoPan: true, closeButton: true, closeOnClick: false, autoClose: false, keepInView: true, className: 'atlas-popup-card' })
+            activePopup = L.popup({ maxWidth: 320, autoPan: true, closeButton: true, closeOnClick: false, autoClose: false, keepInView: true, className: 'atlas-popup-card' })
                 .setLatLng([anchor.lat, anchor.lon])
                 .setContent(renderSegmentPopup(segment));
             map.openPopup(activePopup);
@@ -3604,7 +3723,7 @@ public static class HtmlAtlasExporter
                         icon: L.divIcon({ className: '', html: `<div class="lot-marker ${isSelectedLot ? 'selected' : ''}" style="background:${statusMeta[lot.status].color}; box-shadow: 0 0 0 ${isSelectedLot ? '4px' : '2.5px'} rgba(3,8,18,.44), 0 10px 20px ${statusMeta[lot.status].color}4d"><span class="lot-marker-core" style="background:${lot.status === 'Planned' ? '#f3ecff' : lot.status === 'UnderConstruction' ? '#fff3de' : '#ffffff'}"></span></div>`, iconSize: [18, 18], iconAnchor: [9, 9] })
                     }).addTo(lotLayer);
 
-                    marker.bindPopup(renderLotPopup(lot, segment), { maxWidth: 360, autoPan: true, closeButton: true, closeOnClick: false, autoClose: false, keepInView: true, className: 'atlas-popup-card' });
+                    marker.bindPopup(renderLotPopup(lot, segment), { maxWidth: 320, autoPan: true, closeButton: true, closeOnClick: false, autoClose: false, keepInView: true, className: 'atlas-popup-card' });
                     lotMarkers.set(lot.key, marker);
 
                     marker.on('click', () => {
@@ -3662,11 +3781,6 @@ public static class HtmlAtlasExporter
             if (suppressPopupReset) {
                 suppressPopupReset = false;
                 return;
-            }
-            if (state.selectedLotKey || state.selectedSegmentId) {
-                state.selectedLotKey = null;
-                state.selectedSegmentId = null;
-                render('popup-close');
             }
         });
         renderNow();
