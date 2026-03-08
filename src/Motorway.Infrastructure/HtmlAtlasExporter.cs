@@ -1377,40 +1377,41 @@ public static class HtmlAtlasExporter
         }
 
         body.device-desktop:not(.viewport-short) .workspace {
-            grid-template-columns: minmax(350px, 404px) minmax(0, 1fr);
+            grid-template-columns: minmax(292px, 336px) minmax(0, 1fr);
+            gap: 16px;
         }
 
         body.device-desktop:not(.viewport-short) .map-stage {
             display: grid;
-            grid-template-columns: minmax(0, 1fr) minmax(316px, 360px);
+            grid-template-columns: minmax(0, 1fr) minmax(280px, 320px);
             grid-template-areas:
-                "banner banner"
                 "quick quick"
-                "dock dock"
-                "map map"
-                "hero selection"
+                "map hero"
+                "map selection"
                 "timeline timeline";
             align-items: start;
-            gap: 18px;
+            gap: 14px;
         }
 
         body.device-desktop:not(.viewport-short) .map-stage-quickbar {
             display: grid;
             grid-area: quick;
             margin-bottom: 0;
+            padding: 12px 14px;
+            border-radius: 18px;
         }
 
         body.device-desktop:not(.viewport-short) .profile-banner {
-            grid-area: banner;
+            display: none;
         }
 
         body.device-desktop:not(.viewport-short) .desktop-map-dock {
-            display: flex;
-            grid-area: dock;
+            display: none;
         }
 
         body.device-desktop:not(.viewport-short) #map {
             grid-area: map;
+            min-height: clamp(640px, 74vh, 980px);
         }
 
         body.device-desktop:not(.viewport-short) .floating-card {
@@ -1423,6 +1424,7 @@ public static class HtmlAtlasExporter
         body.device-desktop:not(.viewport-short) .floating-top-left {
             grid-area: hero;
             width: auto;
+            min-height: 100%;
         }
 
         body.device-desktop:not(.viewport-short) .floating-top-right {
@@ -1441,13 +1443,35 @@ public static class HtmlAtlasExporter
         }
 
         body.device-desktop:not(.viewport-short) {
-            --map-height: clamp(540px, 65vh, 860px);
-            --map-min-height: 560px;
+            --map-height: clamp(640px, 74vh, 980px);
+            --map-min-height: 640px;
         }
 
         body.device-desktop:not(.viewport-short) .year-overlay {
             top: calc(var(--map-height) - 120px);
             bottom: auto;
+        }
+
+        body.device-desktop:not(.viewport-short) .topbar {
+            padding: 14px 16px;
+            gap: 12px 16px;
+        }
+
+        body.device-desktop:not(.viewport-short) .route-pills {
+            padding: 7px;
+            gap: 9px;
+        }
+
+        body.device-desktop:not(.viewport-short) .route-pill {
+            min-width: 126px;
+            min-height: 52px;
+            padding: 9px 11px;
+        }
+
+        body.device-desktop:not(.viewport-short) .top-actions {
+            padding: 10px 12px;
+            min-height: 60px;
+            border-radius: 18px;
         }
 
         body.device-tablet .workspace,
@@ -1790,141 +1814,36 @@ public static class HtmlAtlasExporter
 
         body.device-phone .workspace {
             grid-template-columns: 1fr;
-            grid-template-areas:
-                "map"
-                "sidebar";
-            gap: 14px;
+            grid-template-areas: "map";
+            gap: 0;
         }
 
         body.device-phone .map-stage {
-            display: grid;
-            grid-template-columns: 1fr;
-            grid-template-areas:
-                "banner"
-                "quick"
-                "surface"
-                "map"
-                "selection";
-            gap: 12px;
-            padding: 12px;
+            display: block;
+            gap: 0;
+            padding: 0;
             min-height: auto;
+            background: transparent;
+            border: 0;
+            box-shadow: none;
+            backdrop-filter: none;
         }
 
-        body.device-phone .profile-banner {
-            grid-area: banner;
-            grid-template-columns: 1fr;
-            gap: 10px;
-            padding: 12px 13px;
-        }
-
-        body.device-phone .profile-badge-row {
-            justify-content: flex-start;
-        }
-
-        body.device-phone .map-stage-quickbar {
-            grid-area: quick;
-            margin-bottom: 0;
-            padding: 10px;
-        }
-
-        body.device-phone .map-stage-quick-presets {
-            grid-auto-columns: minmax(132px, max-content);
-            gap: 8px;
-        }
-
-        body.device-phone .map-stage-quickbar .toggle.stage-toggle {
-            min-width: 132px;
-            min-height: 48px;
-            padding: 9px 10px;
-        }
-
-        body.device-phone .tablet-control-surface {
-            display: grid;
-            grid-area: surface;
-            gap: 8px;
-            overflow: visible;
-            max-height: none;
-            padding-bottom: 0;
-        }
-
-        body.device-phone .tablet-scroll-cue {
+        body.device-phone .profile-banner,
+        body.device-phone .map-stage-quickbar,
+        body.device-phone .tablet-control-surface,
+        body.device-phone .desktop-map-dock,
+        body.device-phone .map-tools,
+        body.device-phone .headline-strip,
+        body.device-phone .legal-strip {
             display: none !important;
         }
 
-        body.device-phone .tablet-surface-summary,
-        body.device-phone .tablet-control-card,
-        body.device-phone .tablet-playback-card {
-            padding: 12px;
-            border-radius: 16px;
-        }
-
-        body.device-phone .tablet-surface-heading h3 {
-            font-size: 19px;
-        }
-
-        body.device-phone .tablet-surface-summary strong {
-            font-size: clamp(30px, 9vw, 38px);
-        }
-
-        body.device-phone .tablet-kpi-ribbon {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 6px;
-        }
-
-        body.device-phone .tablet-kpi-chip {
-            min-height: 54px;
-            padding: 8px;
-        }
-
-        body.device-phone .tablet-kpi-chip .value {
-            font-size: 14px;
-        }
-
-        body.device-phone .tablet-control-cluster,
-        body.device-phone .tablet-surface-lower,
-        body.device-phone .tablet-surface-tools {
-            grid-template-columns: 1fr;
-            gap: 8px;
-        }
-
-        body.device-phone .tablet-control-card .filter-row {
-            display: grid;
-            grid-auto-flow: column;
-            grid-auto-columns: max-content;
-            overflow-x: auto;
-            overscroll-behavior-x: contain;
-            scrollbar-width: none;
-            gap: 8px;
-        }
-
-        body.device-phone .tablet-control-card .filter-row::-webkit-scrollbar {
-            display: none;
-        }
-
-        body.device-phone .tablet-control-card .toggle.stage-toggle {
-            min-height: 38px;
-            min-width: 116px;
-            padding: 8px 10px;
-        }
-
-        body.device-phone .tablet-map-preset-grid {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 7px;
-        }
-
-        body.device-phone .tablet-map-preset-grid .map-preset {
-            min-height: 52px;
-            padding: 8px;
-        }
-
-        body.device-phone .tablet-map-preset-grid .map-preset span {
-            display: none;
-        }
-
         body.device-phone #map {
-            grid-area: map;
-            min-height: 56vh;
-            height: min(62vh, 620px);
+            display: block;
+            min-height: calc(var(--app-height) - 212px);
+            height: calc(var(--app-height) - 212px);
+            border-radius: 24px;
         }
 
         body.device-phone .floating-top-left,
@@ -1934,75 +1853,174 @@ public static class HtmlAtlasExporter
         }
 
         body.device-phone .floating-top-right {
-            grid-area: selection;
-            max-height: none;
-            overflow: visible;
-            padding: 13px;
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            left: auto;
+            width: min(220px, 62%);
+            max-height: 136px;
+            overflow: auto;
+            padding: 8px 9px;
+            border-radius: 18px;
+            background: linear-gradient(180deg, rgba(12, 24, 38, 0.86), rgba(7, 15, 26, 0.94));
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 12px 30px rgba(0,0,0,0.18);
         }
 
         body.device-phone .floating-top-right.passive {
             display: none;
         }
 
+        body.device-phone .topbar {
+            position: sticky;
+            top: max(8px, env(safe-area-inset-top));
+            z-index: 82;
+            padding: 10px 10px 8px;
+            gap: 8px;
+            border-radius: 20px;
+            grid-template-columns: minmax(0, 1fr) 168px;
+            grid-template-areas:
+                "brand actions"
+                "routes routes";
+            backdrop-filter: blur(18px) saturate(1.02);
+        }
+
+        body.device-phone .brand h1 {
+            font-size: clamp(18px, 5.8vw, 24px);
+            line-height: 1.05;
+        }
+
+        body.device-phone .brand .helper {
+            display: none;
+        }
+
+        body.device-phone .eyebrow {
+            font-size: 9px;
+            letter-spacing: .14em;
+        }
+
+        body.device-phone .route-pills {
+            gap: 6px;
+            padding: 4px;
+            border-radius: 18px;
+        }
+
+        body.device-phone .route-pill {
+            min-width: 96px;
+            min-height: 40px;
+            padding: 7px 8px;
+        }
+
+        body.device-phone .route-pill .label {
+            font-size: 10px;
+        }
+
+        body.device-phone .route-pill .meta,
+        body.device-phone .route-pill .code {
+            font-size: 7px;
+        }
+
+        body.device-phone .top-actions {
+            grid-template-columns: 98px minmax(0, 1fr);
+            gap: 8px;
+            padding: 8px;
+            min-height: auto;
+            border-radius: 16px;
+        }
+
+        body.device-phone .top-actions .tabs {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 6px;
+        }
+
+        body.device-phone .top-actions .tab {
+            min-width: 0;
+            min-height: 34px;
+            font-size: 11px;
+        }
+
+        body.device-phone .top-actions .select {
+            min-height: 34px;
+            padding: 7px 28px 7px 10px;
+            font-size: 11px;
+        }
+
         body.device-phone .sidebar {
-            padding: 0;
-            gap: 12px;
-            background: transparent;
-            border: 0;
-            box-shadow: none;
-            backdrop-filter: none;
+            display: grid;
+            position: fixed;
+            left: max(10px, env(safe-area-inset-left));
+            right: max(10px, env(safe-area-inset-right));
+            bottom: calc(max(10px, env(safe-area-inset-bottom)) + 82px);
+            z-index: 78;
+            max-height: min(40vh, 352px);
+            overflow: auto;
+            padding: 10px;
+            gap: 10px;
+            background: linear-gradient(180deg, rgba(12, 25, 39, 0.94), rgba(7, 16, 27, 0.98));
+            border: 1px solid rgba(138, 176, 216, 0.18);
+            box-shadow: 0 22px 54px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05);
+            backdrop-filter: blur(18px) saturate(1.04);
+            border-radius: 24px;
+        }
+
+        body.device-phone .sidebar::before {
+            content: "";
+            position: sticky;
+            top: 0;
+            display: block;
+            width: 42px;
+            height: 4px;
+            margin: 0 auto 10px;
+            border-radius: 999px;
+            background: rgba(197, 214, 236, 0.35);
+            z-index: 2;
         }
 
         body.device-phone .sidebar-scroll {
-            gap: 12px;
+            gap: 10px;
         }
 
         body.device-phone .tablet-info-tabs {
             display: grid;
+            position: sticky;
+            top: 0;
+            z-index: 2;
+            padding: 0 0 8px;
+            background: linear-gradient(180deg, rgba(12, 25, 39, 0.98), rgba(12, 25, 39, 0.72));
         }
 
-        body.device-phone #summary-panel,
-        body.device-phone #filters-panel,
-        body.device-phone .headline-strip {
-            display: none;
-        }
-
-        body.device-phone .topbar {
+        body.device-phone .summary-card,
+        body.device-phone .panel {
             padding: 12px;
+            border-radius: 16px;
+        }
+
+        body.device-phone .summary-main strong {
+            font-size: 28px;
+        }
+
+        body.device-phone #filters-panel {
+            display: grid;
+        }
+
+        body.device-phone .filter-stack {
             gap: 10px;
-            border-radius: 20px;
         }
 
-        @media (pointer: coarse) {
-            .topbar,
-            .sidebar,
-            .map-stage,
-            .panel,
-            .floating-card,
-            .kpi,
-            .route-card,
-            .lot-card {
-                backdrop-filter: blur(10px);
-            }
-
-            .route-pill::after {
-                display: none;
-            }
+        body.device-phone .filter-row {
+            gap: 6px;
         }
 
-        body.device-phone .brand h1 {
-            font-size: clamp(22px, 7vw, 28px);
+        body.device-phone .toggle.stage-toggle,
+        body.device-phone .toggle,
+        body.device-phone .chip {
+            min-height: 36px;
+            padding: 6px 9px;
         }
 
-        body.device-phone .route-pills {
-            gap: 8px;
-            padding: 7px;
-        }
-
-        body.device-phone .route-pill {
-            min-width: 124px;
-            min-height: 52px;
-            padding: 10px 11px;
+        body.device-phone .map-tools,
+        body.device-phone .desktop-map-dock {
+            display: none;
         }
 
         .phone-action-dock {
@@ -2016,14 +2034,14 @@ public static class HtmlAtlasExporter
             right: max(10px, env(safe-area-inset-right));
             bottom: max(10px, env(safe-area-inset-bottom));
             grid-template-columns: repeat(5, minmax(0, 1fr));
-            gap: 8px;
+            gap: 6px;
             z-index: 80;
-            padding: 10px;
-            border-radius: 22px;
+            padding: 8px;
+            border-radius: 20px;
             border: 1px solid rgba(138, 176, 216, 0.22);
             background: linear-gradient(180deg, rgba(15, 31, 47, 0.92), rgba(8, 19, 30, 0.96));
             box-shadow: 0 22px 60px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.08);
-            backdrop-filter: blur(24px) saturate(1.08);
+            backdrop-filter: blur(18px) saturate(1.05);
         }
 
         .phone-action {
@@ -2031,9 +2049,9 @@ public static class HtmlAtlasExporter
             display: grid;
             justify-items: center;
             gap: 4px;
-            min-height: 54px;
-            padding: 8px 6px;
-            border-radius: 16px;
+            min-height: 48px;
+            padding: 7px 5px;
+            border-radius: 14px;
             border: 1px solid rgba(138, 176, 216, 0.16);
             background: rgba(255,255,255,0.05);
             color: #f4f9ff;
@@ -2049,21 +2067,21 @@ public static class HtmlAtlasExporter
         }
 
         .phone-action-key {
-            font-size: 10px;
+            font-size: 9px;
             font-weight: 800;
             letter-spacing: .12em;
             text-transform: uppercase;
         }
 
         .phone-action-value {
-            font-size: 11px;
+            font-size: 10px;
             color: var(--muted);
             text-align: center;
             line-height: 1.15;
         }
 
         body.device-phone .legal-strip {
-            margin-bottom: 94px;
+            display: none;
         }
 
         @media (prefers-reduced-motion: reduce) {
@@ -3807,6 +3825,7 @@ public static class HtmlAtlasExporter
         function renderPhoneActionDock() {
             const metrics = computeMetrics();
             const isPhone = getDeviceProfile() === 'phone';
+            const sidebar = document.querySelector('.sidebar');
             const tabs = [
                 { button: el.phoneActionFacts, label: el.phoneActionFactsLabel, value: el.phoneActionFactsValue, key: 'facts', title: t('phoneFacts'), metric: `${metrics.segmentCount}` },
                 { button: el.phoneActionNotes, label: el.phoneActionNotesLabel, value: el.phoneActionNotesValue, key: 'notes', title: t('phoneNotes'), metric: `${atlas.summary.officialReferencePercent.toFixed(0)}%` },
@@ -3821,6 +3840,7 @@ public static class HtmlAtlasExporter
                 item.button.classList.toggle('active', isPhone && state.tabletInfoTab === item.key);
                 item.button.onclick = () => {
                     state.tabletInfoTab = item.key;
+                    if (isPhone && sidebar) sidebar.scrollTo({ top: 0, behavior: 'smooth' });
                     render();
                 };
             });
