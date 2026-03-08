@@ -61,8 +61,8 @@ public sealed class ExporterSmokeTests
         Assert.Contains("tablet-info-tab", html, StringComparison.Ordinal);
         Assert.Contains("tablet-playback-button", html, StringComparison.Ordinal);
         Assert.Contains("tablet-map-presets", html, StringComparison.Ordinal);
-        Assert.Contains("\"surface map\"", html, StringComparison.Ordinal);
-        Assert.Contains("grid-area: selection", html, StringComparison.Ordinal);
+        Assert.Contains("top: 76px;", html, StringComparison.Ordinal);
+        Assert.Contains("phone-drawer-open", html, StringComparison.Ordinal);
         Assert.Contains("stage-quick-presets", html, StringComparison.Ordinal);
         Assert.Contains("map-stage-quickbar", html, StringComparison.Ordinal);
         Assert.Contains("text-wrap: balance", html, StringComparison.Ordinal);

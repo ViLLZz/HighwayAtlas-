@@ -1530,23 +1530,25 @@ public static class HtmlAtlasExporter
         }
 
         body.device-tablet .map-stage {
-            grid-template-columns: minmax(156px, 172px) minmax(0, 1fr);
-            grid-template-areas:
-                "quick quick"
-                "surface map"
-                "surface map";
-            align-items: start;
-            gap: 6px;
-            padding: 8px;
+            position: relative;
+            display: block;
+            gap: 0;
+            padding: 0;
             min-height: min(980px, calc(var(--app-height) - 104px));
         }
 
         body.device-tablet .map-stage-quickbar {
-            grid-area: quick;
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            right: 8px;
+            z-index: 5;
             margin-bottom: 0;
             padding: 8px 10px;
             border-radius: 16px;
             gap: 6px;
+            background: linear-gradient(180deg, rgba(10, 20, 34, 0.82), rgba(7, 14, 26, 0.9));
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 14px 30px rgba(0,0,0,0.18);
         }
 
         body.device-tablet .profile-banner {
@@ -1561,9 +1563,14 @@ public static class HtmlAtlasExporter
 
         body.device-tablet .tablet-control-surface {
             display: grid;
-            grid-area: surface;
+            position: absolute;
+            top: 76px;
+            left: 8px;
+            bottom: 8px;
+            width: 134px;
+            z-index: 5;
             gap: 5px;
-            overflow: visible;
+            overflow: auto;
             max-height: none;
             padding-bottom: 0;
         }
@@ -1577,6 +1584,7 @@ public static class HtmlAtlasExporter
         body.device-tablet .tablet-playback-card {
             padding: 6px 7px;
             border-radius: 10px;
+            background: linear-gradient(180deg, rgba(8, 18, 31, 0.92), rgba(6, 12, 23, 0.96));
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 10px 24px rgba(0,0,0,0.14);
         }
 
@@ -1600,17 +1608,17 @@ public static class HtmlAtlasExporter
         }
 
         body.device-tablet .tablet-kpi-chip {
-            min-height: 56px;
-            padding: 8px 9px;
+            min-height: 48px;
+            padding: 6px 7px;
         }
 
         body.device-tablet .tablet-kpi-chip .value {
-            font-size: 15px;
+            font-size: 13px;
         }
 
         body.device-tablet .tablet-control-cluster {
             grid-template-columns: 1fr;
-            gap: 6px;
+            gap: 5px;
         }
 
         body.device-tablet .tablet-control-card .filter-row {
@@ -1676,9 +1684,8 @@ public static class HtmlAtlasExporter
         }
 
         body.device-tablet .floating-top-right {
-            grid-area: selection;
             position: absolute;
-            top: 8px;
+            top: 74px;
             right: 8px;
             width: min(198px, 27%);
             z-index: 4;
@@ -1693,8 +1700,6 @@ public static class HtmlAtlasExporter
         }
 
         body.device-tablet #map {
-            grid-area: map;
-            order: initial;
             height: 100%;
             min-height: 930px;
         }
@@ -1898,8 +1903,7 @@ public static class HtmlAtlasExporter
             border-radius: 20px;
             grid-template-columns: minmax(0, 1fr) 146px;
             grid-template-areas:
-                "brand actions"
-                "routes routes";
+                "brand actions";
             backdrop-filter: blur(18px) saturate(1.02);
         }
 
@@ -1918,11 +1922,7 @@ public static class HtmlAtlasExporter
         }
 
         body.device-phone .route-pills {
-            gap: 6px;
-            padding: 4px;
-            border-radius: 18px;
-            overflow-x: auto;
-            grid-auto-columns: minmax(102px, max-content);
+            display: none;
         }
 
         body.device-phone .route-pill {
@@ -1941,9 +1941,9 @@ public static class HtmlAtlasExporter
         }
 
         body.device-phone .top-actions {
-            grid-template-columns: 98px minmax(0, 1fr);
-            gap: 8px;
-            padding: 8px;
+            grid-template-columns: 90px minmax(0, 1fr);
+            gap: 6px;
+            padding: 6px;
             min-height: auto;
             border-radius: 16px;
         }
@@ -1973,8 +1973,8 @@ public static class HtmlAtlasExporter
             right: max(10px, env(safe-area-inset-right));
             bottom: calc(max(10px, env(safe-area-inset-bottom)) + 82px);
             z-index: 78;
-            max-height: min(30vh, 268px);
-            overflow: auto;
+            max-height: min(26vh, 220px);
+            overflow: hidden;
             padding: 8px;
             gap: 8px;
             background: linear-gradient(180deg, rgba(12, 25, 39, 0.94), rgba(7, 16, 27, 0.98));
@@ -1982,6 +1982,14 @@ public static class HtmlAtlasExporter
             box-shadow: 0 22px 54px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05);
             backdrop-filter: blur(18px) saturate(1.04);
             border-radius: 24px;
+            transform: translateY(calc(100% - 28px));
+            transition: transform .28s ease, max-height .28s ease;
+        }
+
+        body.device-phone .sidebar.phone-drawer-open {
+            transform: translateY(0);
+            overflow: auto;
+            max-height: min(34vh, 288px);
         }
 
         body.device-phone .sidebar::before {
@@ -2012,7 +2020,7 @@ public static class HtmlAtlasExporter
         }
 
         body.device-phone .summary-main strong {
-            font-size: 28px;
+            font-size: 22px;
         }
 
         body.device-phone #summary-panel,
@@ -3554,6 +3562,7 @@ public static class HtmlAtlasExporter
             selectedLotKey: null,
             commandCenterMode: false,
             tabletInfoTab: 'facts',
+            phoneDrawerOpen: false,
             playbackYear: new Date(atlas.generatedAtUtc).getFullYear(),
             playbackPlaying: false
         };
@@ -3575,6 +3584,7 @@ public static class HtmlAtlasExporter
             lotsEyebrow: $('lots-eyebrow'), lotsTitle: $('lots-title'), lotsCount: $('lots-count'), lotList: $('lot-list'),
             tabletTabsEyebrow: $('tablet-tabs-eyebrow'), tabletTabFacts: $('tablet-tab-facts'), tabletTabNotes: $('tablet-tab-notes'), tabletTabRoutes: $('tablet-tab-routes'), tabletTabLots: $('tablet-tab-lots'),
             tabletControlSurface: document.querySelector('.tablet-control-surface'), tabletScrollCue: $('tablet-scroll-cue'), tabletScrollHint: $('tablet-scroll-hint'),
+            sidebar: document.querySelector('.sidebar'),
             summaryPanel: $('summary-panel'), filtersPanel: $('filters-panel'), networkPanel: $('network-panel'), notesPanel: $('notes-panel'), routesPanel: $('routes-panel'), lotsPanel: $('lots-panel'),
             heroEyebrow: $('hero-eyebrow'), heroTitle: $('hero-title'), heroSubtitle: $('hero-subtitle'), heroFocus: $('hero-focus'), heroStats: $('hero-stats'), mapStage: document.querySelector('.map-stage'), selectionPanel: $('selection-panel'),
             selectionEyebrow: $('selection-eyebrow'), selectionTitle: $('selection-title'), selectionSubtitle: $('selection-subtitle'), selectionClear: $('selection-clear'), selectionStatus: $('selection-status'), selectionPills: $('selection-pills'), selectionFacts: $('selection-facts'), selectionNote: $('selection-note'),
@@ -3842,7 +3852,7 @@ public static class HtmlAtlasExporter
         function renderPhoneActionDock() {
             const metrics = computeMetrics();
             const isPhone = getDeviceProfile() === 'phone';
-            const sidebar = document.querySelector('.sidebar');
+            const sidebar = el.sidebar;
             const tabs = [
                 { button: el.phoneActionFacts, label: el.phoneActionFactsLabel, value: el.phoneActionFactsValue, key: 'facts', title: t('phoneFacts'), metric: `${metrics.segmentCount}` },
                 { button: el.phoneActionNotes, label: el.phoneActionNotesLabel, value: el.phoneActionNotesValue, key: 'notes', title: t('phoneNotes'), metric: `${atlas.summary.officialReferencePercent.toFixed(0)}%` },
@@ -3854,9 +3864,15 @@ public static class HtmlAtlasExporter
                 if (!item.button) return;
                 if (item.label) item.label.textContent = item.title;
                 if (item.value) item.value.textContent = item.metric;
-                item.button.classList.toggle('active', isPhone && state.tabletInfoTab === item.key);
+                item.button.classList.toggle('active', isPhone && state.tabletInfoTab === item.key && state.phoneDrawerOpen);
                 item.button.onclick = () => {
+                    if (isPhone && state.tabletInfoTab === item.key && state.phoneDrawerOpen) {
+                        state.phoneDrawerOpen = false;
+                        render();
+                        return;
+                    }
                     state.tabletInfoTab = item.key;
+                    state.phoneDrawerOpen = isPhone;
                     if (isPhone && sidebar) sidebar.scrollTo({ top: 0, behavior: 'smooth' });
                     render();
                 };
@@ -3865,7 +3881,10 @@ public static class HtmlAtlasExporter
             if (el.phoneActionReset && el.phoneActionResetLabel && el.phoneActionResetValue) {
                 el.phoneActionResetLabel.textContent = t('phoneReset');
                 el.phoneActionResetValue.textContent = t('phoneResetHint');
-                el.phoneActionReset.onclick = () => clearInteractiveContext();
+                el.phoneActionReset.onclick = () => {
+                    state.phoneDrawerOpen = false;
+                    clearInteractiveContext();
+                };
             }
         }
 
@@ -4462,10 +4481,15 @@ public static class HtmlAtlasExporter
         function renderSidebar() {
             const generated = new Date(atlas.generatedAtUtc);
             const metrics = computeMetrics();
+            const isPhone = getDeviceProfile() === 'phone';
             const selectedRoute = atlas.routes.find(route => route.routeCode === state.activeRoute) || null;
             const baseSegments = atlas.segments.filter(segment => (state.activeRoute === 'ALL' || segment.routeCode === state.activeRoute) && passesPlaybackFilter(segment));
             const scopedSegments = baseSegments.filter(segment => passesRegionFilter(segment));
             const officialUpdates = getOfficialUpdates();
+
+            if (el.sidebar) {
+                el.sidebar.classList.toggle('phone-drawer-open', isPhone && state.phoneDrawerOpen);
+            }
 
             el.summaryEyebrow.textContent = t('summaryEyebrow');
             el.summaryTitle.textContent = selectedRoute ? `${selectedRoute.routeCode} · ${pick(selectedRoute.title)}` : pick(atlas.network.title);
@@ -4787,6 +4811,7 @@ public static class HtmlAtlasExporter
                     item.button.classList.toggle('active', state.tabletInfoTab === item.key);
                     item.button.onclick = () => {
                         state.tabletInfoTab = item.key;
+                        if (isPhone) state.phoneDrawerOpen = true;
                         render();
                     };
                 }
