@@ -188,6 +188,65 @@ public static class HtmlAtlasExporter
             overflow: hidden;
         }
 
+        .headline-card::after {
+            content: "";
+            position: absolute;
+            inset: auto -18% -42% auto;
+            width: 140px;
+            height: 140px;
+            border-radius: 999px;
+            background: radial-gradient(circle, rgba(255,255,255,0.12), rgba(255,255,255,0));
+            opacity: .42;
+            pointer-events: none;
+        }
+
+        .headline-card:nth-child(2)::before {
+            background: linear-gradient(180deg, rgba(255,211,138,0.95), rgba(62,162,255,0.78), rgba(143,116,255,0.58));
+        }
+
+        .headline-card:nth-child(3)::before {
+            background: linear-gradient(180deg, rgba(143,116,255,0.92), rgba(62,162,255,0.78), rgba(46,230,192,0.6));
+        }
+
+        @keyframes shell-rise {
+            from {
+                opacity: 0;
+                transform: translateY(18px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        body:not(.is-ready) .topbar,
+        body:not(.is-ready) .workspace,
+        body:not(.is-ready) .headline-strip,
+        body:not(.is-ready) .legal-strip {
+            opacity: 0;
+            transform: translateY(18px);
+        }
+
+        body.is-ready .topbar,
+        body.is-ready .workspace,
+        body.is-ready .headline-strip,
+        body.is-ready .legal-strip {
+            animation: shell-rise .56s cubic-bezier(0.22, 1, 0.36, 1) both;
+        }
+
+        body.is-ready .workspace {
+            animation-delay: .06s;
+        }
+
+        body.is-ready .headline-strip {
+            animation-delay: .12s;
+        }
+
+        body.is-ready .legal-strip {
+            animation-delay: .18s;
+        }
+
         .headline-card::before {
             content: "";
             position: absolute;
@@ -639,12 +698,48 @@ public static class HtmlAtlasExporter
             scroll-snap-align: start;
             background: linear-gradient(180deg, rgba(255,255,255,0.14), rgba(255,255,255,0.04));
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 12px 24px rgba(6, 12, 22, 0.16);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .route-pill::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(120deg, rgba(255,255,255,0), rgba(255,255,255,0.08), rgba(255,255,255,0));
+            opacity: 0;
+            transform: translateX(-120%);
+            transition: transform .5s ease, opacity .22s ease;
+            pointer-events: none;
+        }
+
+        .route-pill:hover::after,
+        .route-pill.active::after {
+            opacity: 1;
+            transform: translateX(120%);
         }
 
         .route-pill .meta {
             font-size: 10px;
             letter-spacing: .04em;
             color: rgba(193, 210, 235, 0.74);
+        }
+
+        .route-pill-progress {
+            width: 100%;
+            height: 4px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.08);
+            overflow: hidden;
+            margin-top: 2px;
+        }
+
+        .route-pill-progress > span {
+            display: block;
+            height: 100%;
+            border-radius: inherit;
+            background: linear-gradient(90deg, var(--accent), var(--accent-3));
+            box-shadow: 0 0 12px rgba(62, 162, 255, 0.3);
         }
 
         .route-pill.active .meta {
@@ -1201,6 +1296,19 @@ public static class HtmlAtlasExporter
 
         .map-stage.command-center #map {
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 28px 72px rgba(0, 0, 0, 0.32);
+        }
+
+        body.device-desktop:not(.viewport-short).command-center-mode .headline-strip {
+            display: none;
+        }
+
+        body.device-desktop:not(.viewport-short).command-center-mode .sidebar {
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 18px 42px rgba(0, 0, 0, 0.2);
+            border-color: rgba(120, 154, 211, 0.12);
+        }
+
+        body.device-desktop:not(.viewport-short).command-center-mode .map-stage {
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 32px 82px rgba(0,0,0,0.28);
         }
 
         .hero-kpis {
@@ -2748,6 +2856,7 @@ public static class HtmlAtlasExporter
         function syncMapStageMode() {
             if (!el.mapStage) return;
             el.mapStage.classList.toggle('command-center', state.commandCenterMode);
+            document.body.classList.toggle('command-center-mode', state.commandCenterMode);
             el.heroFocus.classList.toggle('active', state.commandCenterMode);
             el.heroFocus.setAttribute('aria-pressed', state.commandCenterMode ? 'true' : 'false');
             el.heroFocus.title = state.commandCenterMode ? t('commandCenterShow') : t('commandCenterHide');
@@ -3040,7 +3149,7 @@ public static class HtmlAtlasExporter
             el.routePills.innerHTML = '';
             const allRoutes = document.createElement('button');
             allRoutes.className = `route-pill ${state.activeRoute === 'ALL' ? 'active' : ''}`;
-            allRoutes.innerHTML = `<span class="code">GRID</span><span class="label">${t('allRoutes')}</span><span class="meta">${atlas.summary.routeCount} ${t('routeCount')}</span>`;
+            allRoutes.innerHTML = `<span class="code">GRID</span><span class="label">${t('allRoutes')}</span><span class="meta">${atlas.summary.routeCount} ${t('routeCount')} · ${formatPercent(atlas.summary.completionPercent)}</span><span class="route-pill-progress"><span style="width:${Math.max(4, Math.min(100, atlas.summary.completionPercent))}%"></span></span>`;
             allRoutes.addEventListener('click', () => {
                 stopPlayback();
                 state.activeRoute = 'ALL';
@@ -3053,7 +3162,7 @@ public static class HtmlAtlasExporter
             atlas.routes.forEach(route => {
                 const button = document.createElement('button');
                 button.className = `route-pill ${state.activeRoute === route.routeCode ? 'active' : ''}`;
-                button.innerHTML = `<span class="code">${route.routeCode}</span><span class="label">${shortRouteName(route)}</span><span class="meta">${formatKm(route.totalKm)} · ${formatPercent(route.completionPercent)}</span>`;
+                button.innerHTML = `<span class="code">${route.routeCode}</span><span class="label">${shortRouteName(route)}</span><span class="meta">${formatKm(route.totalKm)} · ${formatPercent(route.completionPercent)}</span><span class="route-pill-progress"><span style="width:${Math.max(4, Math.min(100, route.completionPercent))}%"></span></span>`;
                 button.addEventListener('click', () => {
                     stopPlayback();
                     state.activeRoute = state.activeRoute === route.routeCode ? 'ALL' : route.routeCode;
@@ -3784,6 +3893,7 @@ public static class HtmlAtlasExporter
             }
         });
         renderNow();
+        window.requestAnimationFrame(() => document.body.classList.add('is-ready'));
     </script>
 </body>
 </html>
