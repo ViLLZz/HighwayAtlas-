@@ -412,9 +412,43 @@ public static class HtmlAtlasExporter
             background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
             border: 1px solid rgba(142, 178, 232, 0.12);
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), var(--glow);
+            will-change: transform;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-tap-highlight-color: transparent;
+
+        .phone-action:hover,
+        .phone-action.active {
+            transform: translateY(-1px);
+            border-color: rgba(92, 169, 255, 0.36);
+            background: linear-gradient(180deg, rgba(92, 169, 255, 0.16), rgba(69, 214, 189, 0.1));
         }
 
-        .toolbar-block {
+        .phone-action:active {
+            transform: translateY(0) scale(0.96);
+            transition-duration: .08s;
+        }
+
+        .phone-action:focus-visible {
+            outline: 2px solid var(--accent);
+            outline-offset: 2px;
+        }
+
+        .phone-action:hover,
+        .phone-action.active {
+            transform: translateY(-1px);
+            border-color: rgba(92, 169, 255, 0.36);
+            background: linear-gradient(180deg, rgba(92, 169, 255, 0.16), rgba(69, 214, 189, 0.1));
+        }
+
+        .phone-action:active {
+            transform: translateY(0) scale(0.96);
+            transition-duration: .08s;
+        }
+
+        .phone-action:focus-visible {
+            outline: 2px solid var(--accent);
+            outline-offset: 2px;
+        }
             display: grid;
             gap: 6px;
             min-width: 0;
@@ -1827,15 +1861,21 @@ public static class HtmlAtlasExporter
         body.device-tablet .tablet-control-surface {
             display: grid;
             position: absolute;
-            top: 76px;
-            left: 8px;
-            bottom: 8px;
-            width: 134px;
+            top: 82px;
+            left: 10px;
+            bottom: 10px;
+            width: clamp(146px, 19vw, 204px);
             z-index: 5;
-            gap: 5px;
-            overflow: auto;
+            gap: 6px;
+            overflow-y: auto;
+            overflow-x: hidden;
             max-height: none;
-            padding-bottom: 0;
+            padding: 8px;
+            border-radius: 18px;
+            border: 1px solid rgba(140, 179, 233, 0.14);
+            background: linear-gradient(180deg, rgba(8, 18, 31, 0.9), rgba(6, 12, 23, 0.94));
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 16px 34px rgba(0,0,0,0.2);
+            -webkit-overflow-scrolling: touch;
         }
 
         body.device-tablet .tablet-scroll-cue {
@@ -1845,14 +1885,16 @@ public static class HtmlAtlasExporter
         body.device-tablet .tablet-surface-summary,
         body.device-tablet .tablet-control-card,
         body.device-tablet .tablet-playback-card {
-            padding: 6px 7px;
-            border-radius: 10px;
-            background: linear-gradient(180deg, rgba(8, 18, 31, 0.92), rgba(6, 12, 23, 0.96));
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 10px 24px rgba(0,0,0,0.14);
+            padding: 7px 8px;
+            border-radius: 12px;
+            background: linear-gradient(180deg, rgba(11, 23, 38, 0.84), rgba(7, 14, 25, 0.9));
+            border: 1px solid rgba(136, 176, 231, 0.1);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 8px 18px rgba(0,0,0,0.13);
         }
 
         body.device-tablet .tablet-surface-heading h3 {
-            font-size: 14px;
+            font-size: 13px;
+            line-height: 1.15;
         }
 
         /* v4.3: Ultra-compact tablet summary */
@@ -1897,7 +1939,15 @@ public static class HtmlAtlasExporter
 
         /* v4.3: Horizontal scrolling filter row with minimal spacing */
         body.device-tablet .tablet-control-card .filter-row {
-            display: grid;\n            grid-auto-flow: column;\n            grid-auto-columns: max-content;\n            overflow-x: auto;\n            overscroll-behavior-x: contain;\n            scrollbar-width: none;\n            gap: 4px;\n            padding: 0 2px;\n        }
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            overflow-x: hidden;
+            overscroll-behavior-x: contain;
+            scrollbar-width: none;
+            gap: 4px;
+            padding: 0;
+        }
 
         body.device-tablet .tablet-control-card .filter-row::-webkit-scrollbar {
             display: none;
@@ -1905,7 +1955,11 @@ public static class HtmlAtlasExporter
 
         /* v4.3: Ultra-compact stage toggle */
         body.device-tablet .tablet-control-card .toggle.stage-toggle {
-            min-height: 28px;\n            min-width: 72px;\n            padding: 3px 4px;\n            border-radius: 8px;\n            font-size: 10px;
+            min-height: 28px;
+            min-width: 68px;
+            padding: 3px 5px;
+            border-radius: 8px;
+            font-size: 10px;
         }
 
         body.device-tablet .tablet-control-card .toggle.stage-toggle .label-stack strong {
@@ -1920,11 +1974,11 @@ public static class HtmlAtlasExporter
         body.device-tablet .tablet-surface-lower,
         body.device-tablet .tablet-surface-tools {
             grid-template-columns: 1fr;
-            gap: 6px;
+            gap: 5px;
         }
 
         body.device-tablet .tablet-playback-card {
-            padding-bottom: 6px;
+            padding-bottom: 7px;
         }
 
         body.device-tablet .tablet-playback-card .card-head,
@@ -1933,12 +1987,12 @@ public static class HtmlAtlasExporter
         }
 
         body.device-tablet .tablet-playback-card .playback-km-wrap {
-            margin-top: 6px;
-            height: 16px;
+            margin-top: 5px;
+            height: 14px;
         }
 
         body.device-tablet .tablet-playback-card .playback-km-label {
-            font-size: 10px;
+            font-size: 9px;
         }
 
         body.device-tablet .tablet-surface-tools {
@@ -2504,8 +2558,26 @@ public static class HtmlAtlasExporter
             color: #f4f9ff;
             cursor: pointer;
             transition: transform .18s ease, border-color .18s ease, background .18s ease;
-            will-change: transform;\n            -webkit-tap-highlight-color: transparent;
-        }\n\n        .phone-action:hover,\n        .phone-action.active {\n            transform: translateY(-1px);\n            border-color: rgba(92, 169, 255, 0.36);\n            background: linear-gradient(180deg, rgba(92, 169, 255, 0.16), rgba(69, 214, 189, 0.1));\n        }\n        \n        .phone-action:active {\n            transform: translateY(0) scale(0.96);\n            transition-duration: .08s;\n        }\n        \n        .phone-action:focus-visible {\n            outline: 2px solid var(--accent);\n            outline-offset: 2px;\n        }
+            will-change: transform;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .phone-action:hover,
+        .phone-action.active {
+            transform: translateY(-1px);
+            border-color: rgba(92, 169, 255, 0.36);
+            background: linear-gradient(180deg, rgba(92, 169, 255, 0.16), rgba(69, 214, 189, 0.1));
+        }
+
+        .phone-action:active {
+            transform: translateY(0) scale(0.96);
+            transition-duration: .08s;
+        }
+
+        .phone-action:focus-visible {
+            outline: 2px solid var(--accent);
+            outline-offset: 2px;
+        }
 
         .phone-action-key {
             font-size: 9px;
@@ -2580,7 +2652,22 @@ public static class HtmlAtlasExporter
                 transition-duration: 0.01ms !important;
                 scroll-behavior: auto !important;
             }
-            \n            .floating-card,\n            .route-pill,\n            .tab,\n            .chip,\n            .toggle,\n            .phone-action,\n            .tablet-info-tab {\n                will-change: auto !important;\n            }\n        }\n        \n        @media (prefers-color-scheme: light) {\n            :root {\n                color-scheme: dark;\n            }\n        }
+            .floating-card,
+            .route-pill,
+            .tab,
+            .chip,
+            .toggle,
+            .phone-action,
+            .tablet-info-tab {
+                will-change: auto !important;
+            }
+        }
+
+        @media (prefers-color-scheme: light) {
+            :root {
+                color-scheme: dark;
+            }
+        }
 
         body.device-tablet .sidebar {
             padding: 0;
