@@ -173,7 +173,7 @@ new5 = '                <div id="map"></div>\n                <div class="year-o
 changes.append(('Add year-overlay div to map DOM', old5, new5))
 
 # ── CHANGE 6: Add el references for year overlay and km badge ────────────────
-old6 = '            el.playbackRange = $('playback-range'),'
+old6 = "            el.playbackRange = $('playback-range'),"
 new6 = "            el.playbackRange = $('playback-range'), el.yearOverlay = $('year-overlay'), el.yearOverlayYear = $('year-overlay-year'), el.yearOverlayKm = $('year-overlay-km'),"
 changes.append(('Add year-overlay el references', old6, new6))
 

@@ -1435,7 +1435,16 @@ public static class HtmlAtlasExporter
             isolation: isolate;
             touch-action: none;
             -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
             user-select: none;
+            /* BROWSER FIX: Ensure map is focusable for accessibility */
+            outline: 2px solid transparent;
+            outline-offset: -2px;
+        }
+        
+        #map:focus-visible {
+            outline: 2px solid rgba(62, 162, 255, 0.6);
         }
 
         .floating-card {
@@ -1445,6 +1454,7 @@ public static class HtmlAtlasExporter
             padding: 16px;
             border-color: rgba(132, 169, 227, 0.2);
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), var(--shadow), var(--glow);
+            -webkit-backdrop-filter: blur(26px) saturate(1.1);
             backdrop-filter: blur(26px) saturate(1.1);
             transition: opacity .2s ease, transform .24s cubic-bezier(.4, 0, .2, 1), width .24s ease, max-height .3s ease;
             will-change: transform, opacity;
@@ -1452,9 +1462,17 @@ public static class HtmlAtlasExporter
             border-radius: calc(var(--radius-xl));
         }
         
+        /* FALLBACK: For browsers without backdrop-filter support */
+        @supports not (backdrop-filter: blur(26px)) {
+            .floating-card {
+                background: rgba(11, 24, 40, 0.96);
+            }
+        }
+        
         /* v4.2: Improved glassmorphism for floating cards - all devices */
         .floating-card.glass-enhanced {
             background: linear-gradient(135deg, rgba(11, 24, 40, 0.88), rgba(8, 17, 30, 0.92));
+            -webkit-backdrop-filter: blur(32px) saturate(1.25) brightness(1.12);
             backdrop-filter: blur(32px) saturate(1.25) brightness(1.12);
             border: 1px solid rgba(255,255,255,0.12);
             box-shadow: 
@@ -1467,6 +1485,7 @@ public static class HtmlAtlasExporter
         /* v4.2: Enhanced glassmorphism for map controls */
         .map-stage-quickbar.glass-enhanced {
             background: linear-gradient(135deg, rgba(10, 20, 34, 0.8), rgba(7, 14, 26, 0.88));
+            -webkit-backdrop-filter: blur(36px) saturate(1.3) brightness(1.1);
             backdrop-filter: blur(36px) saturate(1.3) brightness(1.1);
             border: 1px solid rgba(255,255,255,0.14);
             box-shadow: 
@@ -2645,6 +2664,19 @@ public static class HtmlAtlasExporter
             }
         }
 
+        /* ACCESSIBILITY: Enhanced focus visible styles for interactive elements */
+        .route-card:focus-visible,
+        .lot-card:focus-visible,
+        .kpi:focus-visible,
+        .preset-button:focus-visible,
+        .map-preset:focus-visible,
+        .phone-action:focus-visible,
+        button:focus-visible {
+            outline: 2px solid rgba(62, 162, 255, 0.9);
+            outline-offset: 2px;
+            box-shadow: 0 0 0 4px rgba(62, 162, 255, 0.25), inset 0 0 0 1px rgba(62, 162, 255, 0.3);
+        }
+
         @media (prefers-reduced-motion: reduce) {
             *, *::before, *::after {
                 animation-duration: 0.01ms !important;
@@ -3737,27 +3769,27 @@ public static class HtmlAtlasExporter
         </footer>
 
         <nav class="phone-action-dock" aria-label="Phone action dock">
-            <button type="button" class="phone-action" id="phone-action-facts">
+            <button type="button" class="phone-action" id="phone-action-facts" aria-label="View network facts">
                 <span class="phone-action-key" id="phone-action-facts-label"></span>
                 <span class="phone-action-value" id="phone-action-facts-value"></span>
             </button>
-            <button type="button" class="phone-action" id="phone-action-notes">
+            <button type="button" class="phone-action" id="phone-action-notes" aria-label="View notes and sources">
                 <span class="phone-action-key" id="phone-action-notes-label"></span>
                 <span class="phone-action-value" id="phone-action-notes-value"></span>
             </button>
-            <button type="button" class="phone-action" id="phone-action-routes">
+            <button type="button" class="phone-action" id="phone-action-routes" aria-label="Browse routes">
                 <span class="phone-action-key" id="phone-action-routes-label"></span>
                 <span class="phone-action-value" id="phone-action-routes-value"></span>
             </button>
-            <button type="button" class="phone-action" id="phone-action-lots">
+            <button type="button" class="phone-action" id="phone-action-lots" aria-label="View construction lots">
                 <span class="phone-action-key" id="phone-action-lots-label"></span>
                 <span class="phone-action-value" id="phone-action-lots-value"></span>
             </button>
-            <button type="button" class="phone-action" id="phone-action-reset">
+            <button type="button" class="phone-action" id="phone-action-reset" aria-label="Reset all filters">
                 <span class="phone-action-key" id="phone-action-reset-label"></span>
                 <span class="phone-action-value" id="phone-action-reset-value"></span>
             </button>
-            <button type="button" class="phone-action" id="phone-action-timeline">
+            <button type="button" class="phone-action" id="phone-action-timeline" aria-label="View construction timeline">
                 <span class="phone-action-key" id="phone-action-timeline-label"></span>
                 <span class="phone-action-value" id="phone-action-timeline-value"></span>
             </button>
@@ -4167,7 +4199,15 @@ public static class HtmlAtlasExporter
             playbackPlaying: false
         };
 
-        const $ = id => document.getElementById(id);
+        // IMPROVEMENT: Add error handling wrapper for DOM queries
+        const $ = id => {
+            try {
+                return document.getElementById(id);
+            } catch (error) {
+                console.error(`Failed to find element with id: ${id}`, error);
+                return null;
+            }
+        };
         const el = {
             brandEyebrow: $('brand-eyebrow'), brandTitle: $('brand-title'), brandSubtitle: $('brand-subtitle'),
             headlinePrimaryEyebrow: $('headline-primary-eyebrow'), headlinePrimaryTitle: $('headline-primary-title'), headlinePrimaryCopy: $('headline-primary-copy'),
@@ -4979,21 +5019,27 @@ public static class HtmlAtlasExporter
             };
         }
 
-        /* v4.1: Dynamic Island notification system for Mac */
+        /* v4.1+: Dynamic Island notification system with error handling */
         function showDynamicIsland(text, icon = '✓', duration = 2800) {
             if (getDeviceProfile() !== 'desktop') return;
-            const island = document.getElementById('dynamic-island');
-            const islandText = document.getElementById('dynamic-island-text');
-            const islandIcon = document.getElementById('dynamic-island-icon');
-            if (!island || !islandText || !islandIcon) return;
-            
-            islandIcon.textContent = icon;
-            islandText.textContent = text;
-            island.classList.add('visible');
-            
-            setTimeout(() => {
-                island.classList.remove('visible');
-            }, duration);
+            try {
+                const island = document.getElementById('dynamic-island');
+                const islandText = document.getElementById('dynamic-island-text');
+                const islandIcon = document.getElementById('dynamic-island-icon');
+                if (!island || !islandText || !islandIcon) return;
+                
+                islandIcon.textContent = icon;
+                islandText.textContent = text;
+                island.classList.add('visible');
+                island.setAttribute('role', 'status');
+                island.setAttribute('aria-live', 'polite');
+                
+                setTimeout(() => {
+                    island.classList.remove('visible');
+                }, duration);
+            } catch (error) {
+                console.error('Dynamic Island error:', error);
+            }
         }
         
         /* v4.1: Haptic feedback vibration simulation for iPhone */
@@ -5116,7 +5162,9 @@ public static class HtmlAtlasExporter
 
         function renderMapPresets() {
             const featuredMaps = Object.entries(basemaps).filter(([, config]) => config.featured);
-            const presetMarkup = featuredMaps.map(([key, config]) => `<button type="button" class="map-preset ${state.basemap === key ? 'active' : ''}" data-map-preset="${key}"><strong>${pick(config.name)}</strong><span>${pick(config.tone)}</span></button>`).join('');
+            const presetMarkup = featuredMaps.map(([key, config]) => 
+                `<button type="button" class="map-preset ${state.basemap === key ? 'active' : ''}" data-map-preset="${key}" aria-label="Switch to ${pick(config.name)} basemap" aria-pressed="${state.basemap === key}"><strong>${pick(config.name)}</strong><span>${pick(config.tone)}</span></button>`
+            ).join('');
             const bindPresetClicks = container => {
                 if (!container) return;
                 container.querySelectorAll('[data-map-preset]').forEach(node => node.addEventListener('click', () => {
@@ -5125,6 +5173,7 @@ public static class HtmlAtlasExporter
                     state.basemap = presetKey;
                     setBasemap();
                     renderToolbar();
+                    showDynamicIsland(`Basemap: ${pick(basemaps[presetKey]?.name || 'Changed')}`, '🗺️');
                 }));
             };
 
@@ -5213,20 +5262,23 @@ public static class HtmlAtlasExporter
         });
 
         window.addEventListener('keydown', event => {
-            // v4.1: Enhanced keyboard shortcuts
+            // v4.1+: Enhanced keyboard shortcuts with bug fixes
             if (event.key === 'Escape') {
                 if (state.selectedLotKey || state.selectedSegmentId || !hasDefaultScope()) {
                     clearInteractiveContext();
                     showDynamicIsland('Selection cleared', '↺');
                 }
-            } else if (event.key === 'z' && state.selectedLotKey || state.selectedSegmentId) {
-                zoomToSelection(); // v4.1: Z key to zoom to selection
-            } else if (event.key === 'l') {
-                state.lang = state.lang === 'bg' ? 'en' : 'bg'; // v4.1: L key to toggle language
+            } else if (event.key === 'z' && (state.selectedLotKey || state.selectedSegmentId)) {
+                // BUG FIX: Added parentheses to fix operator precedence
+                zoomToSelection();
+                showDynamicIsland('Zoomed to selection', '🎯');
+            } else if (event.key === 'l' && !event.ctrlKey && !event.metaKey) {
+                // BUG FIX: Prevent conflict with browser Cmd+L (address bar)
+                state.lang = state.lang === 'bg' ? 'en' : 'bg';
                 render();
                 showDynamicIsland(`Language: ${state.lang.toUpperCase()}`, '🌐');
             } else if (event.key === 'p' && event.metaKey && getDeviceProfile() === 'desktop') {
-                event.preventDefault(); // v4.1: Prepare for future export functionality
+                event.preventDefault();
                 showDynamicIsland('Export feature coming soon', '📸');
             }
         });
@@ -5237,8 +5289,13 @@ public static class HtmlAtlasExporter
             }, { passive: true });
         }
 
+        // PERFORMANCE: Debounced resize handler to prevent excessive reflows
+        let resizeTimeout;
         window.addEventListener('resize', () => {
-            scheduleViewportSync('resize', 120);
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                scheduleViewportSync('resize', 120);
+            }, 150);
         });
 
         window.addEventListener('orientationchange', () => {
@@ -5453,15 +5510,18 @@ public static class HtmlAtlasExporter
                 if (state.playbackPlaying) {
                     stopPlayback();
                     render();
+                    showDynamicIsland('Playback stopped', '⏸️');
                     return;
                 }
 
                 state.playbackPlaying = true;
+                showDynamicIsland('Playback started', '▶️');
                 playbackTimer = setInterval(() => {
                     const maxYear = generated.getFullYear();
                     if (state.playbackYear >= maxYear) {
                         stopPlayback();
                         render();
+                        showDynamicIsland('Playback complete', '✓');
                         return;
                     }
 
@@ -5548,15 +5608,26 @@ public static class HtmlAtlasExporter
             const routes = getVisibleRoutes();
             el.routesCount.textContent = `${routes.length} ${t('routeCount')}`;
             el.routeList.innerHTML = routes.length
-                ? routes.map(route => `<article class="route-card ${state.activeRoute === route.routeCode ? 'active' : ''}" data-route="${route.routeCode}"><div class="card-head"><div><strong>${shortRouteName(route)}</strong><div class="tiny" style="margin-top:6px">${route.routeCode} · ${pick(route.sectionLabel)}</div></div><span class="status-pill"><span class="dot" style="background:var(--accent)"></span>${formatPercent(route.completionPercent)}</span></div><div class="selection-meta" style="margin-top:10px"><span class="micro">${formatKm(route.totalKm)}</span><span class="micro">${route.lotCount} ${t('lotCount')}</span><span class="micro">${route.storyYears} ${t('years')}</span></div><div class="tiny" style="margin-top:10px">${pick(route.highlight)}</div></article>`).join('')
+                ? routes.map(route => `<article class="route-card ${state.activeRoute === route.routeCode ? 'active' : ''}" data-route="${route.routeCode}" role="button" tabindex="0" aria-label="Select route ${route.routeCode}"><div class="card-head"><div><strong>${shortRouteName(route)}</strong><div class="tiny" style="margin-top:6px">${route.routeCode} · ${pick(route.sectionLabel)}</div></div><span class="status-pill"><span class="dot" style="background:var(--accent)"></span>${formatPercent(route.completionPercent)}</span></div><div class="selection-meta" style="margin-top:10px"><span class="micro">${formatKm(route.totalKm)}</span><span class="micro">${route.lotCount} ${t('lotCount')}</span><span class="micro">${route.storyYears} ${t('years')}</span></div><div class="tiny" style="margin-top:10px">${pick(route.highlight)}</div></article>`).join('')
                 : `<div class="tiny">${t('noRoutes')}</div>`;
-            el.routeList.querySelectorAll('[data-route]').forEach(node => node.addEventListener('click', () => {
-                stopPlayback();
-                state.activeRoute = state.activeRoute === node.dataset.route ? 'ALL' : node.dataset.route;
-                state.selectedSegmentId = null;
-                state.selectedLotKey = null;
-                render();
-            }));
+            el.routeList.querySelectorAll('[data-route]').forEach(node => {
+                const clickHandler = () => {
+                    stopPlayback();
+                    state.activeRoute = state.activeRoute === node.dataset.route ? 'ALL' : node.dataset.route;
+                    state.selectedSegmentId = null;
+                    state.selectedLotKey = null;
+                    render();
+                    showDynamicIsland(`Route: ${node.dataset.route}`, '🛫');
+                };
+                node.addEventListener('click', clickHandler);
+                // ACCESSIBILITY: Add keyboard support for route cards
+                node.addEventListener('keydown', event => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        clickHandler();
+                    }
+                });
+            });
 
             const lots = getVisibleLots();
             el.lotsCount.textContent = `${lots.length} ${t('lotCount')}`;
