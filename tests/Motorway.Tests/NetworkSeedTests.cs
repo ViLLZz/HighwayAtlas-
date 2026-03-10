@@ -14,13 +14,13 @@ public sealed class NetworkSeedTests
         var engine = new RouteEngine();
         var stats = engine.CalculateStats(network);
 
-        Assert.Equal(20, stats.SegmentCount);
+        Assert.Equal(21, stats.SegmentCount);
         Assert.Equal(9, stats.RouteCount);
         Assert.Equal(1506, Math.Round(stats.TotalKm, 0));
-        Assert.Equal(991, Math.Round(stats.OpenKm, 0));
+        Assert.Equal(1002, Math.Round(stats.OpenKm, 0));
         Assert.Equal(250, Math.Round(stats.ConstructionKm, 0));
-        Assert.Equal(265, Math.Round(stats.PlannedKm, 0));
-        Assert.InRange(stats.CompletionPercent, 65.7, 65.9);
+        Assert.Equal(254, Math.Round(stats.PlannedKm, 0));
+        Assert.InRange(stats.CompletionPercent, 66.4, 66.6);
     }
 
     [Fact]

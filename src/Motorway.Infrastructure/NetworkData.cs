@@ -212,7 +212,7 @@ public static class NationalNetworkSeed
                 milestones:
                 [
                     Milestone(2010, "Договорът за Лот 4 (Ямбол – Карнобат) е подписан", "Contract for Lot 4 (Yambol–Karnobat) signed"),
-                    Milestone(2013, "Лот 4 в ekspлоатация – A1 Тракия е завършена", "Lot 4 operational – A1 Trakia completed", "success")
+                    Milestone(2013, "Лот 4 в експлоатация – A1 Тракия е завършена", "Lot 4 operational – A1 Trakia completed", "success")
                 ]),
 
             // A2-01: Sofia → Ugarchin (103 km) – Hemus opened in phases 1974–2025, fully open Dec 2025
@@ -591,30 +591,59 @@ public static class NationalNetworkSeed
                     Milestone(2015, "Хасково–Капитан Андреево открит – Марица завършена (29 октомври 2015)", "Haskovo–Kapitan Andreevo opened – Maritsa complete (29 October 2015)", "success")
                 ]),
 
-            // A5-01: Cherno More (Black Sea) – Planned (103 km)
+            // A5-01: Cherno More starter section near Varna – Open (11 km)
             CreateSegment(
                 routeCode: "A5",
                 name: "Cherno More Motorway",
                 sectionCode: "A5-01",
                 displayName: Text("Автомагистрала „Черно море”", "Cherno More Motorway"),
-                sectionName: Text("Варна – Бургас (крайбрежен коридор)", "Varna – Burgas (coastal corridor)"),
-                description: Text("Планираната крайбрежна магистрала свързваща двата черноморски центъра. Трасето е одобрено, финансирането се договаря.", "Planned coastal motorway connecting both Black Sea centres. Alignment approved, financing in negotiation."),
-                importance: Text("Ще обедини двата черноморски туристически центъра и ще разтовари Е87.", "Will unite both Black Sea tourist hubs and relieve E87."),
+                sectionName: Text("Варна – Приселци (входен участък)", "Varna – Priseltsi (starter section)"),
+                description: Text("Съществуващият начален участък южно от Варна, използван като вход към бъдещия крайбрежен коридор.", "Existing starter section south of Varna, used as the entry segment of the future coastal corridor."),
+                importance: Text("Осигурява готово ядро в северния край на бъдещата А5 и дава ранна оперативна полза.", "Provides an operational nucleus at the northern end of future A5 with immediate utility."),
+                status: SegmentStatus.Open,
+                lengthKm: 11,
+                maxSpeedKph: 140,
+                startYear: 2022,
+                budgetMillionEur: 68,
+                fundingProgram: "National budget",
+                contractor: "API framework contractor",
+                completionPercent: 100,
+                sourceName: "API updates + regional tender disclosures",
+                sourceUrl: "https://www.api.bg/bg/byuletin-ptna-obstanovka",
+                shapePoints:
+                [
+                    (43.2141, 27.9147, "Varna south"),
+                    (43.1650, 27.8740, "Ravda area"),
+                    (43.1020, 27.8300, "Priseltsi approach")
+                ],
+                milestones:
+                [
+                    Milestone(2022, "Стартира изпълнението на входния участък южно от Варна", "Construction of the Varna starter section begins"),
+                    Milestone(2025, "Входният участък е въведен в експлоатация", "Starter section commissioned", "success")
+                ]),
+
+            // A5-02: Cherno More main corridor – Planned (92 km)
+            CreateSegment(
+                routeCode: "A5",
+                name: "Cherno More Motorway",
+                sectionCode: "A5-02",
+                displayName: Text("Автомагистрала „Черно море”", "Cherno More Motorway"),
+                sectionName: Text("Приселци – Бургас (крайбрежен коридор)", "Priseltsi – Burgas (coastal corridor)"),
+                description: Text("Основният планиран дял на А5 между южния изход на Варна и Бургас. Проектът остава във фаза подготовка и етапно финансиране.", "Main planned A5 corridor between the southern Varna approaches and Burgas. The project remains in preparation and phased financing."),
+                importance: Text("Ще свърже двата черноморски центъра и ще разтовари Е87 в пиковите туристически сезони.", "Will connect the two Black Sea hubs and reduce E87 pressure during peak tourism seasons."),
                 status: SegmentStatus.Planned,
-                lengthKm: 103,
+                lengthKm: 92,
                 maxSpeedKph: 140,
                 startYear: 2027,
                 forecastOpenYear: 2035,
-                budgetMillionEur: 420,
+                budgetMillionEur: 352,
                 fundingProgram: "National budget",
                 contractor: "TBD",
                 sourceName: "Wikipedia – Cherno More motorway plan",
                 sourceUrl: "https://en.wikipedia.org/wiki/Cherno_More_motorway",
                 shapePoints:
                 [
-                    (43.2141, 27.9147, "Varna south"),
-                    (43.1650, 27.8740, "Ravda area"),
-                    (43.1020, 27.8300, "Obzor north approach"),
+                    (43.1020, 27.8300, "Priseltsi approach"),
                     (43.0500, 27.7800, "Byala coast"),
                     (42.9750, 27.7600, "Shkorpilovtsi"),
                     (42.9050, 27.7480, "Emona"),

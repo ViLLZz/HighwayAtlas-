@@ -201,13 +201,13 @@ public static class HtmlAtlasExporter
         .kpi { border-radius: var(--radius-lg); }
 
         .topbar {
-            padding: 18px 20px;
+            padding: 14px 16px;
             display: grid;
             grid-template-columns: minmax(0, 1fr) auto;
             grid-template-areas:
                 "brand actions"
                 "routes routes";
-            gap: 16px 18px;
+            gap: 10px 12px;
             align-items: start;
             position: sticky;
             top: 22px;
@@ -344,12 +344,12 @@ public static class HtmlAtlasExporter
             justify-self: stretch;
             width: 100%;
             max-width: 100%;
-            padding: 9px;
-            gap: 11px;
+            padding: 6px;
+            gap: 7px;
             overflow-x: auto;
             overscroll-behavior-x: contain;
             scroll-snap-type: x proximity;
-            border-radius: calc(var(--radius-xl) - 4px);
+            border-radius: calc(var(--radius-xl) - 8px);
             background: linear-gradient(180deg, rgba(255,255,255,0.07), rgba(255,255,255,0.025));
             border: 1px solid rgba(142, 178, 232, 0.16);
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.09), 0 14px 28px rgba(3, 8, 16, 0.14);
@@ -361,7 +361,7 @@ public static class HtmlAtlasExporter
         .brand {
             grid-area: brand;
             display: grid;
-            gap: 4px;
+            gap: 2px;
         }
 
         .eyebrow {
@@ -374,9 +374,16 @@ public static class HtmlAtlasExporter
         h1,h2,h3,p { margin: 0; }
         .brand h1 {
             font-family: var(--accent-font);
-            font-size: clamp(26px, 2.2vw, 34px);
+            font-size: clamp(22px, 2.05vw, 30px);
             letter-spacing: -.03em;
-            line-height: 1.02;
+            line-height: 1.04;
+            max-width: 26ch;
+        }
+        .brand .helper {
+            max-width: 70ch;
+            line-height: 1.32;
+            font-size: 13px;
+            opacity: .9;
         }
         .helper, .tiny, .muted { color: var(--muted); }
 
@@ -402,13 +409,13 @@ public static class HtmlAtlasExporter
         .top-actions {
             grid-area: actions;
             display: grid;
-            grid-template-columns: minmax(0, auto) minmax(240px, 1fr);
+            grid-template-columns: minmax(0, auto) minmax(220px, 1fr);
             justify-content: end;
             align-items: end;
-            gap: 10px;
-            padding: 13px 15px;
-            min-height: 70px;
-            border-radius: 22px;
+            gap: 6px;
+            padding: 9px 11px;
+            min-height: 56px;
+            border-radius: 16px;
             background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
             border: 1px solid rgba(142, 178, 232, 0.12);
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), var(--glow);
@@ -422,16 +429,16 @@ public static class HtmlAtlasExporter
 
         .control-label {
             color: rgba(192, 208, 233, 0.78);
-            font-size: 10.5px;
+            font-size: 9.5px;
             font-weight: 700;
-            letter-spacing: .14em;
+            letter-spacing: .12em;
             text-transform: uppercase;
             padding-left: 4px;
         }
 
         .top-actions .tabs {
-            padding: 4px;
-            border-radius: 16px;
+            padding: 3px;
+            border-radius: 12px;
             background: linear-gradient(180deg, rgba(6, 14, 24, 0.72), rgba(11, 21, 35, 0.52));
             border: 1px solid rgba(136, 172, 229, 0.14);
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
@@ -1136,11 +1143,11 @@ public static class HtmlAtlasExporter
 
         .route-pill {
             min-width: 0;
-            min-width: 152px;
-            min-height: 64px;
-            padding: 13px 15px;
+            min-width: 138px;
+            min-height: 58px;
+            padding: 10px 12px;
             display: grid;
-            gap: 4px;
+            gap: 3px;
             align-content: center;
             text-align: left;
             scroll-snap-align: start;
@@ -1195,13 +1202,15 @@ public static class HtmlAtlasExporter
         }
 
         .tab {
-            min-width: 58px;
+            min-width: 52px;
             justify-content: center;
             font-weight: 800;
             letter-spacing: .08em;
             text-transform: uppercase;
             background: transparent;
             box-shadow: none;
+            padding: 7px 10px;
+            font-size: 11px;
         }
 
         .top-actions .tab.active {
@@ -1211,8 +1220,9 @@ public static class HtmlAtlasExporter
 
         .top-actions .select {
             width: 100%;
-            min-height: 44px;
-            padding-right: 34px;
+            min-height: 38px;
+            padding: 7px 30px 7px 11px;
+            font-size: 12px;
         }
 
         .toggle {
@@ -2099,16 +2109,16 @@ public static class HtmlAtlasExporter
         }
 
         body.device-tablet .brand h1 {
-            font-size: clamp(22px, 3vw, 28px);
+            font-size: clamp(20px, 2.6vw, 25px);
             line-height: 1.1;
             font-weight: 600;
             letter-spacing: -0.3px;
         }
 
         body.device-tablet .brand .helper {
-            font-size: 13px;
-            line-height: 1.35;
-            max-width: 85%;
+            font-size: 12px;
+            line-height: 1.28;
+            max-width: 72%;
             opacity: 0.8;
         }
 
