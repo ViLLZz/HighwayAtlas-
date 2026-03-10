@@ -2306,7 +2306,6 @@ public static class HtmlAtlasExporter
         }
 
         body.device-phone .profile-banner,
-        body.device-phone .map-stage-quickbar,
         body.device-phone .tablet-control-surface,
         body.device-phone .desktop-map-dock,
         body.device-phone .map-tools,
@@ -2315,10 +2314,47 @@ public static class HtmlAtlasExporter
             display: none !important;
         }
 
+        body.device-phone .map-stage-quickbar {
+            display: flex !important;
+            position: static;
+            flex-direction: row;
+            gap: 6px;
+            padding: 6px 8px;
+            margin: 0;
+            border-radius: 16px;
+            background: linear-gradient(180deg, rgba(15,31,47,0.88), rgba(8,19,30,0.92));
+            border: 1px solid rgba(138,176,216,0.18);
+            backdrop-filter: blur(14px);
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+        body.device-phone .map-stage-quickbar::-webkit-scrollbar { display: none; }
+        body.device-phone .map-stage-quickbar .toggle-group-label { display: none; }
+        body.device-phone .map-stage-quickbar .map-stage-quick-presets {
+            display: flex;
+            gap: 5px;
+            width: 100%;
+        }
+        body.device-phone .map-stage-quickbar .toggle.stage-toggle {
+            flex: 1 1 0;
+            min-width: 0;
+            min-height: 36px;
+            padding: 5px 6px;
+            border-radius: 10px;
+            font-size: 11px;
+        }
+        body.device-phone .map-stage-quickbar .toggle.stage-toggle .label-stack strong {
+            font-size: 10px;
+        }
+        body.device-phone .map-stage-quickbar .toggle.stage-toggle .label-stack span {
+            display: none;
+        }
+
         body.device-phone #map {
             display: block;
-            min-height: calc(var(--app-height) - 212px);
-            height: calc(var(--app-height) - 212px);
+            min-height: calc(var(--app-height) - 296px);
+            height: calc(var(--app-height) - 296px);
             border-radius: 24px;
         }
 
@@ -2370,22 +2406,42 @@ public static class HtmlAtlasExporter
         }
 
         body.device-phone .route-pills {
-            display: none;
+            display: flex !important;
+            gap: 5px;
+            padding: 4px 0;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            flex-wrap: nowrap;
         }
+        body.device-phone .route-pills::-webkit-scrollbar { display: none; }
 
         body.device-phone .route-pill {
-            min-width: 96px;
-            min-height: 40px;
-            padding: 7px 8px;
+            min-width: 72px;
+            max-width: 88px;
+            min-height: 36px;
+            padding: 5px 6px;
+            flex-shrink: 0;
+            border-radius: 10px;
         }
 
         body.device-phone .route-pill .label {
-            font-size: 10px;
+            font-size: 9px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
-        body.device-phone .route-pill .meta,
+        body.device-phone .route-pill .meta {
+            display: none;
+        }
+
         body.device-phone .route-pill .code {
-            font-size: 7px;
+            font-size: 8px;
+        }
+
+        body.device-phone .route-pill .route-pill-progress {
+            display: none;
         }
 
         body.device-phone .top-actions {
@@ -2531,8 +2587,8 @@ public static class HtmlAtlasExporter
 
             body.device-phone #map {
                 border-radius: 18px;
-                min-height: calc(var(--app-height) - 196px);
-                height: calc(var(--app-height) - 196px);
+                min-height: calc(var(--app-height) - 280px);
+                height: calc(var(--app-height) - 280px);
             }
         }
 
@@ -2552,6 +2608,12 @@ public static class HtmlAtlasExporter
                 font-size: clamp(13px, 2.6vw, 17px);
             }
 
+            body.device-phone .route-pills {
+                display: none !important;
+            }
+            body.device-phone .map-stage-quickbar {
+                display: none !important;
+            }
             body.device-phone #map {
                 min-height: calc(var(--app-height) - 132px);
                 height: calc(var(--app-height) - 132px);
@@ -4352,6 +4414,7 @@ public static class HtmlAtlasExporter
         map.setMaxBounds([[40.55, 21.45], [44.85, 29.65]]);
 
         let basemapLayer = null;
+        const borderLayer = L.layerGroup().addTo(map);
     const contextLayer = L.layerGroup().addTo(map);
         const segmentLayer = L.layerGroup().addTo(map);
         const lotLineLayer = L.layerGroup().addTo(map);
@@ -5258,7 +5321,60 @@ public static class HtmlAtlasExporter
             if (basemapLayer) map.removeLayer(basemapLayer);
             const config = basemaps[state.basemap];
             basemapLayer = L.tileLayer(config.url, config.options).addTo(map);
+            basemapLayer.bringToBack();
         }
+
+        (function renderBulgariaBorder() {
+            const bg = [
+                [44.21,22.37],[44.22,22.54],[44.17,22.68],[44.12,22.83],[44.09,22.95],[43.82,22.99],[43.77,23.01],
+                [43.63,22.68],[43.55,22.60],[43.53,22.54],[43.44,22.56],[43.39,22.58],[43.33,22.58],[43.21,22.67],
+                [43.16,22.74],[43.10,22.79],[42.99,22.82],[42.89,22.79],[42.83,22.62],[42.77,22.53],[42.70,22.47],
+                [42.63,22.44],[42.56,22.44],[42.49,22.46],[42.43,22.47],[42.35,22.47],[42.32,22.50],[42.28,22.53],
+                [42.22,22.58],[42.17,22.60],[42.13,22.57],[42.10,22.51],[42.04,22.47],[41.98,22.46],[41.93,22.47],
+                [41.87,22.48],[41.82,22.50],[41.77,22.52],[41.73,22.57],[41.70,22.60],[41.64,22.60],[41.57,22.60],
+                [41.53,22.60],[41.47,22.62],[41.42,22.68],[41.38,22.75],[41.35,22.84],[41.31,22.93],[41.27,23.01],
+                [41.24,23.10],[41.24,23.22],[41.26,23.34],[41.27,23.46],[41.28,23.57],[41.26,23.69],[41.25,23.82],
+                [41.26,23.92],[41.29,24.02],[41.34,24.10],[41.40,24.18],[41.44,24.27],[41.44,24.40],[41.43,24.54],
+                [41.41,24.66],[41.38,24.79],[41.37,24.91],[41.37,25.04],[41.37,25.18],[41.39,25.28],[41.42,25.42],
+                [41.41,25.56],[41.39,25.69],[41.38,25.82],[41.38,25.95],[41.40,26.07],[41.42,26.16],[41.38,26.31],
+                [41.35,26.37],[41.33,26.46],[41.33,26.55],[41.35,26.61],[41.71,26.56],[41.75,26.52],[41.80,26.38],
+                [41.82,26.33],[41.94,26.07],[42.00,26.03],[42.05,26.08],[42.09,26.17],[42.12,26.26],[42.14,26.36],
+                [42.14,26.47],[42.11,26.57],[42.06,26.66],[42.02,26.80],[42.02,26.94],[42.02,27.07],[42.03,27.19],
+                [42.04,27.30],[42.06,27.44],[42.06,27.55],[42.02,27.66],[41.98,27.79],[41.96,27.88],[41.98,27.98],
+                [42.02,28.03],[42.09,28.10],[42.06,28.22],[42.09,28.39],[42.19,28.01],[42.29,27.93],[42.45,27.92],
+                [42.48,27.97],[42.46,28.02],[42.41,28.15],[42.46,28.23],[42.57,28.05],[42.67,27.94],[42.75,27.90],
+                [42.77,28.02],[42.74,28.21],[42.68,28.40],[42.57,28.58],[42.65,28.60],[42.72,28.56],[42.78,28.40],
+                [42.85,28.28],[42.94,28.23],[43.02,28.25],[43.06,28.27],[43.19,28.29],[43.23,28.30],[43.27,28.37],
+                [43.32,28.42],[43.38,28.46],[43.39,28.56],[43.40,28.58],[43.44,28.61],[43.51,28.53],[43.56,28.53],
+                [43.61,28.58],[43.64,28.57],[43.72,28.56],[43.74,28.58],[43.81,28.58],[43.84,28.57],[43.98,28.60],
+                [44.01,28.59],[44.05,28.57],[44.07,28.68],[44.09,28.78],[44.14,28.72],[44.15,28.59],[44.23,28.67],
+                [44.12,28.89],[44.12,29.00],[43.97,28.88],[43.83,28.62],[43.75,28.59],[43.73,28.56],[43.73,28.58],
+                [43.75,28.63],[43.80,28.63],[43.83,28.67],[43.97,28.92],[43.99,28.99],[44.07,29.00],[44.13,29.04],
+                [44.15,28.96],[44.15,28.83],[44.23,28.73],[44.22,28.58],[44.06,28.55],[44.05,28.60],[44.03,28.60],
+                [43.98,28.57],[43.85,28.56],[43.81,28.56],[43.74,28.56],[43.73,28.54],[43.64,28.55],[43.56,28.50],
+                [43.50,28.50],[43.45,28.58],[43.39,28.65],[43.35,28.77],[43.28,28.87],[43.21,28.79],[43.19,28.60],
+                [43.23,28.49],[43.17,28.43],[42.95,28.50],[42.82,28.55],[42.74,28.56],[42.69,28.55],[42.66,28.59],
+                [42.62,28.62],[42.57,28.63],[42.51,28.60],[42.43,28.45],[42.44,28.27],[42.46,28.16],[42.49,28.06],
+                [42.50,27.98],[42.48,27.90],[42.46,27.84],[42.60,27.62],[42.77,27.65],[42.92,27.57],[43.01,27.40],
+                [43.11,27.17],[43.25,27.10],[43.40,27.24],[43.48,27.31],[43.60,27.14],[43.62,27.02],[43.65,26.90],
+                [43.68,26.79],[43.72,26.61],[43.78,26.46],[43.85,26.32],[43.87,26.17],[43.86,25.96],[43.84,25.82],
+                [43.75,25.77],[43.69,25.72],[43.66,25.64],[43.69,25.51],[43.65,25.25],[43.68,25.17],[43.71,25.13],
+                [43.73,25.07],[43.74,24.96],[43.73,24.84],[43.68,24.73],[43.63,24.66],[43.62,24.55],[43.64,24.40],
+                [43.67,24.30],[43.69,24.16],[43.69,24.06],[43.70,23.96],[43.72,23.85],[43.73,23.73],[43.82,23.62],
+                [43.86,23.51],[43.90,23.40],[43.93,23.33],[43.99,23.32],[44.02,23.29],[44.03,23.22],[44.03,23.15],
+                [44.05,23.04],[44.01,22.93],[43.98,22.82],[43.93,22.75],[43.88,22.68],[43.84,22.63],[43.80,22.62],
+                [43.76,22.66],[43.74,22.61],[43.73,22.53],[43.75,22.45],[43.78,22.39],[43.82,22.35],
+                [43.97,22.37],[44.03,22.38],[44.08,22.39],[44.11,22.38],[44.16,22.35],[44.21,22.37]
+            ];
+            L.polygon(bg, {
+                color: 'rgba(100, 180, 255, 0.35)',
+                weight: 1.8,
+                fillColor: 'transparent',
+                fillOpacity: 0,
+                interactive: false,
+                smoothFactor: 1.0
+            }).addTo(borderLayer);
+        })();
 
         function renderMapPresets() {
             const featuredMaps = Object.entries(basemaps).filter(([, config]) => config.featured);
@@ -5977,7 +6093,9 @@ public static class HtmlAtlasExporter
             if (!segments.length) return focusDefault();
             const bounds = segments.flatMap(segment => segment.shape.map(point => [point.lat, point.lon]));
             const key = `route:${state.activeRoute}:${state.regionFilter}:${state.playbackYear}:${Array.from(state.activeStatuses).sort().join(',')}`;
-            updateViewport(key, () => map.fitBounds(bounds, { ...getViewportFitOptions('route'), animate: true, duration: 0.75 }));
+            const profile = getDeviceProfile();
+            const maxZoom = profile === 'phone' ? 9.0 : profile === 'tablet' ? 9.2 : 9.5;
+            updateViewport(key, () => map.fitBounds(bounds, { ...getViewportFitOptions('route'), animate: true, duration: 0.75, maxZoom }));
         }
 
         function focusLot() {
@@ -6219,7 +6337,7 @@ public static class HtmlAtlasExporter
             else if (state.selectedSegmentId) {
                 const segment = getSelectedSegment();
                 if (segment) {
-                    updateViewport(`segment:${segment.id}`, () => map.fitBounds(segment.shape.map(point => [point.lat, point.lon]), { ...getViewportFitOptions('segment'), animate: true, duration: 0.8 }));
+                    updateViewport(`segment:${segment.id}`, () => map.fitBounds(segment.shape.map(point => [point.lat, point.lon]), { ...getViewportFitOptions('segment'), animate: true, duration: 0.8, maxZoom: 10.5 }));
                     openSegmentPopup(segment);
                 }
             }
