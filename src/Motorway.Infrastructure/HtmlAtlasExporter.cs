@@ -414,44 +414,6 @@ public static class HtmlAtlasExporter
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), var(--glow);
             will-change: transform;
             -webkit-tap-highlight-color: transparent;
-            -webkit-tap-highlight-color: transparent;
-
-        .phone-action:hover,
-        .phone-action.active {
-            transform: translateY(-1px);
-            border-color: rgba(92, 169, 255, 0.36);
-            background: linear-gradient(180deg, rgba(92, 169, 255, 0.16), rgba(69, 214, 189, 0.1));
-        }
-
-        .phone-action:active {
-            transform: translateY(0) scale(0.96);
-            transition-duration: .08s;
-        }
-
-        .phone-action:focus-visible {
-            outline: 2px solid var(--accent);
-            outline-offset: 2px;
-        }
-
-        .phone-action:hover,
-        .phone-action.active {
-            transform: translateY(-1px);
-            border-color: rgba(92, 169, 255, 0.36);
-            background: linear-gradient(180deg, rgba(92, 169, 255, 0.16), rgba(69, 214, 189, 0.1));
-        }
-
-        .phone-action:active {
-            transform: translateY(0) scale(0.96);
-            transition-duration: .08s;
-        }
-
-        .phone-action:focus-visible {
-            outline: 2px solid var(--accent);
-            outline-offset: 2px;
-        }
-            display: grid;
-            gap: 6px;
-            min-width: 0;
         }
 
         .toolbar-select-block {
@@ -2357,60 +2319,34 @@ public static class HtmlAtlasExporter
         }
 
         body.device-phone .floating-top-right {
-            position: fixed;
-            top: max(12px, env(safe-area-inset-top));
-            right: max(10px, env(safe-area-inset-right));
-            left: auto;
-            bottom: auto;
-            width: clamp(200px, 70vw, 300px);
-            z-index: 104;
-            max-height: calc(80vh - max(80px, env(safe-area-inset-top)));
-            min-height: 48px;
-            overflow: hidden;
-            padding: 10px;
-            border-radius: 18px;
-            background: linear-gradient(180deg, rgba(12, 24, 38, 0.9), rgba(8, 16, 28, 0.96));
-            backdrop-filter: blur(28px) saturate(1.15);
-            border: 1px solid rgba(255,255,255,0.08);
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 16px 40px rgba(0,0,0,0.26);
-            transition: max-height .3s ease;
-            display: flex;
-            flex-direction: column;
-        }
-
-        body.device-phone .floating-top-right:not(.passive) {
-            max-height: calc(75vh - max(80px, env(safe-area-inset-top)));
-            overflow-y: auto;
-            overflow-x: hidden;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        body.device-phone .floating-top-right.passive {
-            max-height: 44px;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+            display: none !important;
         }
 
         body.device-phone .topbar {
             position: sticky;
             top: max(6px, env(safe-area-inset-top));
             z-index: 82;
-            padding: 10px 10px 8px;
-            gap: 8px;
+            padding: 9px 10px 8px;
+            gap: 7px;
             border-radius: 22px;
-            grid-template-columns: minmax(0, 1fr) auto;
-            grid-template-areas: "brand actions";
+            grid-template-columns: 1fr;
+            grid-template-areas:
+                "brand"
+                "actions";
             backdrop-filter: blur(18px) saturate(1.04);
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 16px 38px rgba(0,0,0,0.2);
-            align-items: center;
+            align-items: stretch;
         }
 
         body.device-phone .brand h1 {
-            font-size: clamp(20px, 6vw, 26px);
-            line-height: 1.05;
+            font-size: clamp(14px, 4.6vw, 20px);
+            line-height: 1.1;
             font-weight: 600;
+            max-width: 22ch;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
 
         body.device-phone .brand .helper {
@@ -2425,7 +2361,6 @@ public static class HtmlAtlasExporter
 
         body.device-phone .route-pills {
             display: none;
-        }
         }
 
         body.device-phone .route-pill {
@@ -2444,11 +2379,12 @@ public static class HtmlAtlasExporter
         }
 
         body.device-phone .top-actions {
-            grid-template-columns: 90px minmax(0, 1fr);
+            grid-template-columns: minmax(0, 92px) minmax(0, 1fr);
             gap: 6px;
             padding: 6px;
             min-height: auto;
             border-radius: 16px;
+            width: 100%;
         }
 
         body.device-phone .top-actions .tabs {
@@ -2476,7 +2412,7 @@ public static class HtmlAtlasExporter
             right: max(10px, env(safe-area-inset-right));
             bottom: calc(max(10px, env(safe-area-inset-bottom)) + 78px);
             z-index: 78;
-            max-height: min(26vh, 220px);
+            max-height: min(20vh, 170px);
             overflow: hidden;
             padding: 8px;
             gap: 8px;
@@ -2485,7 +2421,7 @@ public static class HtmlAtlasExporter
             box-shadow: 0 22px 54px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05);
             backdrop-filter: blur(18px) saturate(1.04);
             border-radius: 24px;
-            transform: translateY(calc(100% - 28px));
+            transform: translateY(calc(100% - 22px));
             transition: transform .28s cubic-bezier(.4, 0, .2, 1), max-height .28s cubic-bezier(.4, 0, .2, 1);
             will-change: transform;
         }
@@ -2493,7 +2429,7 @@ public static class HtmlAtlasExporter
         body.device-phone .sidebar.phone-drawer-open {
             transform: translateY(0);
             overflow: auto;
-            max-height: min(42vh, 360px);
+            max-height: min(38vh, 320px);
         }
 
         body.device-phone .sidebar::before {
@@ -2571,6 +2507,66 @@ public static class HtmlAtlasExporter
             background: linear-gradient(180deg, rgba(15, 31, 47, 0.92), rgba(8, 19, 30, 0.96));
             box-shadow: 0 22px 60px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.08);
             backdrop-filter: blur(18px) saturate(1.05);
+        }
+
+        @media (max-width: 430px) {
+            body.device-phone .topbar {
+                padding: 8px 9px 7px;
+                border-radius: 18px;
+            }
+
+            body.device-phone .brand h1 {
+                font-size: clamp(13px, 4.4vw, 18px);
+            }
+
+            body.device-phone #map {
+                border-radius: 18px;
+                min-height: calc(var(--app-height) - 196px);
+                height: calc(var(--app-height) - 196px);
+            }
+        }
+
+        @media (orientation: landscape) and (max-height: 540px) {
+            body.device-phone .shell {
+                gap: 6px;
+            }
+
+            body.device-phone .topbar {
+                grid-template-columns: minmax(0, 1fr) minmax(240px, 46vw);
+                grid-template-areas: "brand actions";
+                align-items: center;
+            }
+
+            body.device-phone .brand h1 {
+                -webkit-line-clamp: 1;
+                font-size: clamp(13px, 2.6vw, 17px);
+            }
+
+            body.device-phone #map {
+                min-height: calc(var(--app-height) - 132px);
+                height: calc(var(--app-height) - 132px);
+            }
+
+            body.device-phone .sidebar {
+                left: auto;
+                width: min(40vw, 360px);
+                right: max(10px, env(safe-area-inset-right));
+                bottom: calc(max(10px, env(safe-area-inset-bottom)) + 64px);
+                max-height: min(58vh, 260px);
+            }
+
+            body.device-phone .sidebar.phone-drawer-open {
+                max-height: min(72vh, 320px);
+            }
+
+            body.device-phone .phone-action-dock {
+                left: max(10px, env(safe-area-inset-left));
+                right: auto;
+                width: min(56vw, 520px);
+                grid-template-columns: repeat(6, minmax(0, 1fr));
+                gap: 4px;
+                padding: 6px;
+            }
         }
 
         .phone-action {
@@ -4597,7 +4593,7 @@ public static class HtmlAtlasExporter
             const sidebar = el.sidebar;
             const tabs = [
                 { button: el.phoneActionFacts, label: el.phoneActionFactsLabel, value: el.phoneActionFactsValue, key: 'facts', title: t('phoneFacts'), metric: `${metrics.segmentCount}` },
-                { button: el.phoneActionNotes, label: el.phoneActionNotesLabel, value: el.phoneActionNotesValue, key: 'notes', title: t('phoneNotes'), metric: `${atlas.summary.officialReferencePercent.toFixed(0)}%` },
+                { button: el.phoneActionNotes, label: el.phoneActionNotesLabel, value: el.phoneActionNotesValue, key: 'notes', title: t('phoneNotes'), metric: `${atlas.summary.officialReferenceCount}` },
                 { button: el.phoneActionRoutes, label: el.phoneActionRoutesLabel, value: el.phoneActionRoutesValue, key: 'routes', title: t('phoneRoutes'), metric: `${metrics.routeCount}` },
                 { button: el.phoneActionLots, label: el.phoneActionLotsLabel, value: el.phoneActionLotsValue, key: 'lots', title: t('phoneLots'), metric: `${metrics.lotCount}` }
             ];
@@ -5531,7 +5527,7 @@ public static class HtmlAtlasExporter
             el.lotsTitle.textContent = t('lotsTitle');
             if (el.tabletTabsEyebrow) el.tabletTabsEyebrow.textContent = t('infographicTabsEyebrow');
             if (el.tabletTabFacts) el.tabletTabFacts.innerHTML = `<span class="tablet-tab-label">${t('factsTab')}</span><span class="tablet-tab-metric">${formatPercent(metrics.completionPercent || atlas.summary.completionPercent)}</span>`;
-            if (el.tabletTabNotes) el.tabletTabNotes.innerHTML = `<span class="tablet-tab-label">${t('notesTab')}</span><span class="tablet-tab-metric">${atlas.summary.officialReferencePercent.toFixed(0)}%</span>`;
+            if (el.tabletTabNotes) el.tabletTabNotes.innerHTML = `<span class="tablet-tab-label">${t('notesTab')}</span><span class="tablet-tab-metric">${atlas.summary.officialReferenceCount}</span>`;
             if (el.tabletTabRoutes) el.tabletTabRoutes.innerHTML = `<span class="tablet-tab-label">${t('routesTab')}</span><span class="tablet-tab-metric">${metrics.routeCount}</span>`;
             if (el.tabletTabLots) el.tabletTabLots.innerHTML = `<span class="tablet-tab-label">${t('lotsTab')}</span><span class="tablet-tab-metric">${metrics.lotCount}</span>`;
 
