@@ -4183,21 +4183,70 @@ public static class HtmlAtlasExporter
 
         const bulgariaBounds = [[atlas.geo.bounds.south, atlas.geo.bounds.west], [atlas.geo.bounds.north, atlas.geo.bounds.east]];
 
+        const PREFERENCES_KEY = 'motorwayAtlasPrefs.v1';
+        const generatedYear = new Date(atlas.generatedAtUtc).getFullYear();
+        const routeCodes = new Set(['ALL', ...atlas.routes.map(route => route.routeCode)]);
+
+        function loadPreferences() {
+            try {
+                const raw = localStorage.getItem(PREFERENCES_KEY);
+                if (!raw) return {};
+                const parsed = JSON.parse(raw);
+                return parsed && typeof parsed === 'object' ? parsed : {};
+            } catch {
+                return {};
+            }
+        }
+
+        function sanitizeStatuses(statuses) {
+            if (!Array.isArray(statuses)) return new Set(ALL_STATUSES);
+            const valid = statuses.filter(status => ALL_STATUSES.includes(status));
+            return valid.length ? new Set(valid) : new Set(ALL_STATUSES);
+        }
+
+        const storedPrefs = loadPreferences();
+        const initialLang = storedPrefs.lang === 'en' ? 'en' : 'bg';
+        const initialBasemap = (typeof storedPrefs.basemap === 'string' && basemaps[storedPrefs.basemap]) ? storedPrefs.basemap : 'monitor';
+        const initialActiveRoute = (typeof storedPrefs.activeRoute === 'string' && routeCodes.has(storedPrefs.activeRoute)) ? storedPrefs.activeRoute : 'ALL';
+        const initialPlaybackYear = Number.isFinite(Number(storedPrefs.playbackYear))
+            ? Math.max(1970, Math.min(generatedYear, Number(storedPrefs.playbackYear)))
+            : generatedYear;
+        const initialTabletInfoTab = ['facts', 'notes', 'routes', 'lots', 'timeline'].includes(storedPrefs.tabletInfoTab)
+            ? storedPrefs.tabletInfoTab
+            : 'facts';
+
         const state = {
-            lang: 'bg',
-            basemap: 'monitor',
-            activeRoute: 'ALL',
-            regionFilter: 'ALL',
-            sourceScope: 'ALL',
-            activeStatuses: new Set(ALL_STATUSES),
+            lang: initialLang,
+            basemap: initialBasemap,
+            activeRoute: initialActiveRoute,
+            regionFilter: typeof storedPrefs.regionFilter === 'string' ? storedPrefs.regionFilter : 'ALL',
+            sourceScope: typeof storedPrefs.sourceScope === 'string' ? storedPrefs.sourceScope : 'ALL',
+            activeStatuses: sanitizeStatuses(storedPrefs.activeStatuses),
             selectedSegmentId: null,
             selectedLotKey: null,
             commandCenterMode: false,
-            tabletInfoTab: 'facts',
+            tabletInfoTab: initialTabletInfoTab,
             phoneDrawerOpen: false,
-            playbackYear: new Date(atlas.generatedAtUtc).getFullYear(),
+            playbackYear: initialPlaybackYear,
             playbackPlaying: false
         };
+
+        function persistPreferences() {
+            try {
+                localStorage.setItem(PREFERENCES_KEY, JSON.stringify({
+                    lang: state.lang,
+                    basemap: state.basemap,
+                    activeRoute: state.activeRoute,
+                    regionFilter: state.regionFilter,
+                    sourceScope: state.sourceScope,
+                    activeStatuses: Array.from(state.activeStatuses),
+                    tabletInfoTab: state.tabletInfoTab,
+                    playbackYear: state.playbackYear
+                }));
+            } catch {
+                // Ignore storage failures (private mode / quota / disabled storage)
+            }
+        }
 
         // IMPROVEMENT: Add error handling wrapper for DOM queries
         const $ = id => {
@@ -4248,6 +4297,9 @@ public static class HtmlAtlasExporter
         });
 
         const mapContainer = map.getContainer();
+        mapContainer.setAttribute('tabindex', '0');
+        mapContainer.setAttribute('role', 'application');
+        mapContainer.setAttribute('aria-label', 'Interactive motorway map of Bulgaria');
         L.DomEvent.disableClickPropagation(mapContainer);
         L.DomEvent.disableScrollPropagation(mapContainer);
 
@@ -4478,6 +4530,7 @@ public static class HtmlAtlasExporter
             renderMap();
             renderPhoneActionDock();
             updateTabletSurfaceScrollCue();
+            schedulePersistPreferences();
         }
 
         function renderProfileBanner() {
@@ -5154,6 +5207,16 @@ public static class HtmlAtlasExporter
             }
         }
 
+        const schedulePersistPreferences = (() => {
+            let timer = null;
+            return () => {
+                if (timer) clearTimeout(timer);
+                timer = setTimeout(() => {
+                    persistPreferences();
+                }, 140);
+            };
+        })();
+
         function setBasemap() {
             if (basemapLayer) map.removeLayer(basemapLayer);
             const config = basemaps[state.basemap];
@@ -5264,6 +5327,7 @@ public static class HtmlAtlasExporter
         window.addEventListener('keydown', event => {
             // v4.1+: Enhanced keyboard shortcuts with bug fixes
             if (event.key === 'Escape') {
+                hideContextMenu();
                 if (state.selectedLotKey || state.selectedSegmentId || !hasDefaultScope()) {
                     clearInteractiveContext();
                     showDynamicIsland('Selection cleared', '↺');
@@ -5632,21 +5696,30 @@ public static class HtmlAtlasExporter
             const lots = getVisibleLots();
             el.lotsCount.textContent = `${lots.length} ${t('lotCount')}`;
             el.lotList.innerHTML = lots.length
-                ? lots.map(lot => `<article class="lot-card ${lot.isDerived ? 'derived' : ''} ${state.selectedLotKey === lot.key ? 'active' : ''}" data-lot="${lot.key}"><div class="card-head"><div><strong>${lot.lotCode}</strong><div class="tiny" style="margin-top:6px">${pick(lot.title)}</div></div><span class="status-pill"><span class="dot" style="background:${statusMeta[lot.status].color}"></span>${labelForStatus(lot.status)}</span></div><div class="lot-actions" style="margin-top:10px"><span class="micro">${formatKm(lot.endKm - lot.startKm)}</span><span class="micro">${formatPercent(lot.completionPercent)}</span><span class="micro">${formatLotTarget(lot)}</span><span class="audit-badge ${lot.isDerived ? '' : 'strong'}">${labelForLotAudit(lot)}</span></div><div class="tiny" style="margin-top:10px">${pick(lot.note) || pick(lot.title)}</div></article>`).join('')
+                ? lots.map(lot => `<article class="lot-card ${lot.isDerived ? 'derived' : ''} ${state.selectedLotKey === lot.key ? 'active' : ''}" data-lot="${lot.key}" role="button" tabindex="0" aria-label="Select lot ${lot.lotCode}"><div class="card-head"><div><strong>${lot.lotCode}</strong><div class="tiny" style="margin-top:6px">${pick(lot.title)}</div></div><span class="status-pill"><span class="dot" style="background:${statusMeta[lot.status].color}"></span>${labelForStatus(lot.status)}</span></div><div class="lot-actions" style="margin-top:10px"><span class="micro">${formatKm(lot.endKm - lot.startKm)}</span><span class="micro">${formatPercent(lot.completionPercent)}</span><span class="micro">${formatLotTarget(lot)}</span><span class="audit-badge ${lot.isDerived ? '' : 'strong'}">${labelForLotAudit(lot)}</span></div><div class="tiny" style="margin-top:10px">${pick(lot.note) || pick(lot.title)}</div></article>`).join('')
                 : `<div class="tiny">${t('noLots')}</div>`;
-            el.lotList.querySelectorAll('[data-lot]').forEach(node => node.addEventListener('click', () => {
-                stopPlayback();
-                const lot = lots.find(item => item.key === node.dataset.lot);
-                if (state.selectedLotKey === node.dataset.lot) {
-                    state.selectedLotKey = null;
-                    state.selectedSegmentId = null;
-                }
-                else {
-                    state.selectedLotKey = node.dataset.lot;
-                    state.selectedSegmentId = lot ? lot.segmentId : state.selectedSegmentId;
-                }
-                render();
-            }));
+            el.lotList.querySelectorAll('[data-lot]').forEach(node => {
+                const toggleLot = () => {
+                    stopPlayback();
+                    const lot = lots.find(item => item.key === node.dataset.lot);
+                    if (state.selectedLotKey === node.dataset.lot) {
+                        state.selectedLotKey = null;
+                        state.selectedSegmentId = null;
+                    }
+                    else {
+                        state.selectedLotKey = node.dataset.lot;
+                        state.selectedSegmentId = lot ? lot.segmentId : state.selectedSegmentId;
+                    }
+                    render();
+                };
+                node.addEventListener('click', toggleLot);
+                node.addEventListener('keydown', event => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        toggleLot();
+                    }
+                });
+            });
 
             const tabletPanels = [
                 { key: 'facts', button: el.tabletTabFacts, panel: el.networkPanel },
