@@ -1816,6 +1816,15 @@ public static class HtmlAtlasExporter
             gap: 8px;
         }
 
+        body.device-tablet .topbar {
+            padding: 12px 14px;
+            gap: 10px 12px;
+        }
+
+        body.device-tablet .top-actions {
+            gap: 8px;
+        }
+
         body.device-tablet .workspace {
             gap: 8px;
         }
@@ -1859,9 +1868,9 @@ public static class HtmlAtlasExporter
             right: 8px;
             z-index: 5;
             margin-bottom: 0;
-            padding: 8px 10px;
+            padding: 7px 9px;
             border-radius: 16px;
-            gap: 6px;
+            gap: 5px;
             background: linear-gradient(180deg, rgba(10, 20, 34, 0.82), rgba(7, 14, 26, 0.9));
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 14px 30px rgba(0,0,0,0.18);
         }
@@ -1879,7 +1888,7 @@ public static class HtmlAtlasExporter
         body.device-tablet .tablet-control-surface {
             display: grid;
             position: absolute;
-            top: 96px;
+            top: 92px;
             left: 10px;
             bottom: 10px;
             width: clamp(210px, 27vw, 270px);
@@ -2200,18 +2209,18 @@ public static class HtmlAtlasExporter
 
         body.device-tablet .map-stage-quick-presets {
             grid-auto-columns: minmax(110px, max-content);
-            gap: 8px;
+            gap: 7px;
         }
 
         body.device-tablet .map-stage-quickbar {
-            padding: 10px 12px;
+            padding: 8px 10px;
             border-radius: 18px;
         }
 
         body.device-tablet .map-stage-quickbar .toggle.stage-toggle {
-            min-width: 110px;
-            min-height: 40px;
-            padding: 8px 10px;
+            min-width: 106px;
+            min-height: 36px;
+            padding: 6px 8px;
             border-radius: 12px;
             font-size: 11px;
         }
@@ -4478,6 +4487,28 @@ public static class HtmlAtlasExporter
             return [10, 10];
         }
 
+        function getViewportFitOptions(mode) {
+            const [vertical, horizontal] = getViewportPadding(mode);
+            const profile = getDeviceProfile();
+
+            if (profile !== 'tablet') {
+                return { padding: [vertical, horizontal] };
+            }
+
+            const quickbarHeight = el.mapStageQuickbar ? Math.round(el.mapStageQuickbar.getBoundingClientRect().height) : 64;
+            const surfaceVisible = !!(el.tabletControlSurface && window.getComputedStyle(el.tabletControlSurface).display !== 'none');
+            const surfaceWidth = surfaceVisible ? Math.round(el.tabletControlSurface.getBoundingClientRect().width) : 0;
+            const leftInset = Math.max(horizontal + 8, surfaceWidth + 20);
+            const topInset = Math.max(vertical + 8, quickbarHeight + 18);
+            const rightInset = Math.max(20, horizontal + 8);
+            const bottomInset = Math.max(18, vertical + 4);
+
+            return {
+                paddingTopLeft: [topInset, leftInset],
+                paddingBottomRight: [bottomInset, rightInset]
+            };
+        }
+
         function getViewportFitSignature() {
             const visualViewport = window.visualViewport;
             const width = Math.round((visualViewport?.width ?? window.innerWidth ?? 1280));
@@ -5931,7 +5962,8 @@ public static class HtmlAtlasExporter
         }
 
         function focusDefault() {
-            updateViewport('default', () => map.fitBounds(bulgariaBounds, { padding: getViewportPadding('default'), animate: true, duration: 0.7, maxZoom: 7.2 }));
+            const maxZoom = getDeviceProfile() === 'tablet' ? 6.9 : 7.2;
+            updateViewport('default', () => map.fitBounds(bulgariaBounds, { ...getViewportFitOptions('default'), animate: true, duration: 0.7, maxZoom }));
         }
 
         function focusRoute() {
@@ -5939,7 +5971,7 @@ public static class HtmlAtlasExporter
             if (!segments.length) return focusDefault();
             const bounds = segments.flatMap(segment => segment.shape.map(point => [point.lat, point.lon]));
             const key = `route:${state.activeRoute}:${state.regionFilter}:${state.playbackYear}:${Array.from(state.activeStatuses).sort().join(',')}`;
-            updateViewport(key, () => map.fitBounds(bounds, { padding: getViewportPadding('route'), animate: true, duration: 0.75 }));
+            updateViewport(key, () => map.fitBounds(bounds, { ...getViewportFitOptions('route'), animate: true, duration: 0.75 }));
         }
 
         function focusLot() {
@@ -5948,7 +5980,7 @@ public static class HtmlAtlasExporter
             const segment = atlas.segments.find(item => item.id === lot.segmentId);
             if (!segment) return;
             const bounds = getLotBounds(segment, lot);
-            updateViewport(`lot:${lot.key}`, () => map.fitBounds(bounds, { padding: getViewportPadding('lot'), animate: true, duration: 0.55, maxZoom: 10.2 }));
+            updateViewport(`lot:${lot.key}`, () => map.fitBounds(bounds, { ...getViewportFitOptions('lot'), animate: true, duration: 0.55, maxZoom: 10.2 }));
         }
 
         function openLotPopup(lot, segment) {
@@ -6181,7 +6213,7 @@ public static class HtmlAtlasExporter
             else if (state.selectedSegmentId) {
                 const segment = getSelectedSegment();
                 if (segment) {
-                    updateViewport(`segment:${segment.id}`, () => map.fitBounds(segment.shape.map(point => [point.lat, point.lon]), { padding: getViewportPadding('segment'), animate: true, duration: 0.8 }));
+                    updateViewport(`segment:${segment.id}`, () => map.fitBounds(segment.shape.map(point => [point.lat, point.lon]), { ...getViewportFitOptions('segment'), animate: true, duration: 0.8 }));
                     openSegmentPopup(segment);
                 }
             }
