@@ -761,10 +761,9 @@ public static class HtmlAtlasExporter
             line-height: 1;
         }
 
-        .tablet-kpi-chip .label {
+        .tablet-kpi-chip .eyebrow {
             font-size: 8px;
             opacity: 0.65;
-            text-transform: uppercase;
             letter-spacing: .08em;
         }
 
@@ -1880,10 +1879,10 @@ public static class HtmlAtlasExporter
         body.device-tablet .tablet-control-surface {
             display: grid;
             position: absolute;
-            top: 82px;
+            top: 96px;
             left: 10px;
             bottom: 10px;
-            width: clamp(146px, 19vw, 204px);
+            width: clamp(210px, 27vw, 270px);
             z-index: 5;
             gap: 6px;
             overflow-y: auto;
@@ -1946,8 +1945,9 @@ public static class HtmlAtlasExporter
             font-size: 11px;
         }
 
-        body.device-tablet .tablet-kpi-chip .label {
-            font-size: 7px;
+        body.device-tablet .tablet-kpi-chip .eyebrow {
+            font-size: 8px;
+            letter-spacing: .09em;
         }
 
         /* v4.3: Single column control cluster */
